@@ -2,24 +2,39 @@ package io.cyberstock.tcdop.server;
 
 import io.cyberstock.tcdop.api.DOConfigConstants;
 import io.cyberstock.tcdop.util.DOMessagesHelper;
-import jetbrains.buildServer.clouds.CloudType;
+import jetbrains.buildServer.clouds.*;
 import jetbrains.buildServer.serverSide.AgentDescription;
 import jetbrains.buildServer.serverSide.PropertiesProcessor;
+import jetbrains.buildServer.web.openapi.PluginDescriptor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+
 import java.util.Map;
 
 /**
- * Created by beolnix on 06/05/15.
+ * Created by beolnix on 08/05/15.
  */
-public class DOCloudType implements CloudType {
+public class DOCloudClientFactory implements CloudClientFactory {
 
-    private DOMessagesHelper msg;
+    @NotNull private final DOMessagesHelper msg;
+    @NotNull private final String doProfileJspPath;
+    @NotNull private final PropertiesProcessor doPropertiesProcessor = new DOPropertiesProcessor();
 
-    public DOCloudType(DOMessagesHelper msg) {
+    public DOCloudClientFactory(@NotNull final CloudRegistrar cloudRegistrar,
+                                @NotNull final PluginDescriptor pluginDescriptor,
+                                @NotNull DOMessagesHelper msg) {
         this.msg = msg;
+        this.doProfileJspPath = pluginDescriptor.getPluginResourcesPath("do-profile.jsp");
+
+        cloudRegistrar.registerCloudFactory(this);
+    }
+
+    @NotNull
+    public CloudClientEx createNewClient(CloudState cloudState, CloudClientParameters cloudClientParameters) {
+        //TODO: implement this
+        throw new NotImplementedException();
     }
 
     @NotNull
@@ -34,7 +49,7 @@ public class DOCloudType implements CloudType {
 
     @Nullable
     public String getEditProfileUrl() {
-        return "do-profile.jsp";
+        return doProfileJspPath;
     }
 
     @NotNull
