@@ -8,7 +8,6 @@
 
     <import resource="tcdop-utils-context.xml"/>
 
-    <bean id="DOCloudType" class="io.cyberstock.tcdop.server.DOCloudType"/>
     <bean id="DOCloudClientFactory" class="io.cyberstock.tcdop.server.DOCloudClientFactory"/>
 
 </beans>
