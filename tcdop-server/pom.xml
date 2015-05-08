@@ -23,6 +23,11 @@
             <artifactId>tcdop-util</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.cyberstock</groupId>
+            <artifactId>do-restclient</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- teamcity dependencies -->
         <dependency>

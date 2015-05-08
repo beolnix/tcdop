@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -54,8 +55,11 @@ public class DOCloudClientFactory implements CloudClientFactory {
 
     @NotNull
     public Map<String, String> getInitialParameterValues() {
-        //TODO: implement this
-        throw new NotImplementedException();
+        final HashMap<String, String> initialParamsMap = new HashMap<String, String>();
+
+        //TODO: Add initial params here if required
+
+        return initialParamsMap;
     }
 
     @NotNull

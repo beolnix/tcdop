@@ -12,6 +12,7 @@
         <module>tcdop-server</module>
         <module>tcdop-util</module>
         <module>tc-digitalocean-plugin</module>
+        <module>do-restclient</module>
     </modules>
 
     <name>tc-digitalocean-plugin</name>
