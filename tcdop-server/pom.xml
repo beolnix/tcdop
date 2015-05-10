@@ -12,7 +12,7 @@
     <packaging>jar</packaging>
 
     <dependencies>
-        <!-- plugin dependencies -->
+        <!-- modules -->
         <dependency>
             <groupId>io.cyberstock</groupId>
             <artifactId>tcdop-api</artifactId>
@@ -23,17 +23,17 @@
             <artifactId>tcdop-util</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <!-- Digital Ocean rest client -->
         <dependency>
-            <groupId>io.cyberstock</groupId>
-            <artifactId>do-restclient</artifactId>
-            <version>${project.version}</version>
+            <groupId>com.myjeeva.digitalocean</groupId>
+            <artifactId>digitalocean-api-client</artifactId>
         </dependency>
 
         <!-- teamcity dependencies -->
         <dependency>
             <groupId>org.jetbrains.teamcity</groupId>
             <artifactId>server-api</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.teamcity</groupId>

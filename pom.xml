@@ -12,7 +12,6 @@
         <module>tcdop-server</module>
         <module>tcdop-util</module>
         <module>tc-digitalocean-plugin</module>
-        <module>do-restclient</module>
     </modules>
 
     <name>tc-digitalocean-plugin</name>
@@ -33,6 +32,7 @@
         <teamcity.home.path>${env.TEAMCITY_HOME}</teamcity.home.path>
         <teamcity-version>9.0.1</teamcity-version>
         <spring-test.version>4.0.5.RELEASE</spring-test.version>
+        <do.restclient.version>2.1-SNAPSHOT</do.restclient.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
@@ -52,6 +52,10 @@
             <id>JetBrains</id>
             <url>http://repository.jetbrains.com/all</url>
         </repository>
+        <repository>
+            <id>OSS Snapshot repository</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </repository>
     </repositories>
 
     <distributionManagement>
@@ -70,6 +74,12 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.myjeeva.digitalocean</groupId>
+                <artifactId>digitalocean-api-client</artifactId>
+                <version>${do.restclient.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.jetbrains.teamcity</groupId>
                 <artifactId>server-api</artifactId>

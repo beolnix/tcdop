@@ -1,6 +1,6 @@
 package io.cyberstock.tcdop.server;
 
-import io.cyberstock.dioc.restclient.DORESTClient;
+
 import jetbrains.buildServer.clouds.*;
 import jetbrains.buildServer.serverSide.AgentDescription;
 import jetbrains.buildServer.serverSide.BuildServerAdapter;
@@ -14,11 +14,11 @@ import java.util.Collection;
  */
 public class DOCloudClient extends BuildServerAdapter implements CloudClientEx {
 
-    @NotNull private final DORESTClient dorestClient;
+//    @NotNull private final DORESTClient dorestClient;
     @NotNull private final CloudClientParameters params;
 
     public DOCloudClient(@NotNull final CloudClientParameters params) {
-        this.dorestClient = new DORESTClient();
+//        this.dorestClient = new DORESTClient();
         this.params = params;
     }
 

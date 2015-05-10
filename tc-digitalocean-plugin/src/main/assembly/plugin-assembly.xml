@@ -18,7 +18,6 @@
         </fileSet>
     </fileSets>
 
-
     <moduleSets>
         <moduleSet>
             <useAllReactorProjects>true</useAllReactorProjects>
@@ -26,7 +25,6 @@
                 <include>io.cyberstock:tcdop-server</include>
                 <include>io.cyberstock:tcdop-api</include>
                 <include>io.cyberstock:tcdop-util</include>
-                <include>io.cyberstock:do-restclient</include>
             </includes>
             <binaries>
                 <outputDirectory>server</outputDirectory>
