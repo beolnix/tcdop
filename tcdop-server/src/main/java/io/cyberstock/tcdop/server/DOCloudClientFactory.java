@@ -25,7 +25,7 @@ public class DOCloudClientFactory implements CloudClientFactory {
     @NotNull private final String doProfileJspPath;
     @NotNull private final PropertiesProcessor doPropertiesProcessor = new DOPropertiesProcessor();
 
-    private final static String DO_SETTINGS_PAGE_NAME = "do-settings.jsp";
+    private final static String DO_SETTINGS_PAGE_NAME = "do-profile-settings.jsp";
 
     public DOCloudClientFactory(@NotNull final CloudRegistrar cloudRegistrar,
                                 @NotNull final PluginDescriptor pluginDescriptor,
@@ -49,7 +49,7 @@ public class DOCloudClientFactory implements CloudClientFactory {
 
     @NotNull
     public String getDisplayName() {
-        return msg.getMsg("tcdop.server.display_name");
+        return msg.getMsg("tcdop.server.cloud_type_display_name");
     }
 
     @Nullable
