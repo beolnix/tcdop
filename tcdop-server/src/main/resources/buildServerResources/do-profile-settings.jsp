@@ -28,13 +28,13 @@
 
     <tr>
         <td colspan="2">
-            <props:multilineProperty name="${sshPrivateKey}" linkTitle="Place SSH Private key here" cols="55" rows="7" />
+            <props:multilineProperty name="${sshPrivateKey}" linkTitle="Place SSH Private key here" cols="55" rows="7"/>
         </td>
     </tr>
 
     <tr>
         <td colspan="2">
-            <props:multilineProperty name="${sshPublicKey}" linkTitle="Place SSH Public key here" cols="55" rows="7" />
+            <props:multilineProperty name="${sshPublicKey}" linkTitle="Place SSH Public key here" cols="55" rows="7"/>
         </td>
     </tr>
 </table>
@@ -44,19 +44,25 @@
         <tr>
             <th>Agent type</th>
             <td>
-                <props:selectProperty name="${AGENT_CONFIG_TYPE}" className="longField" onchange="syncCloudSelectionControlState(); return true;">
-                    <props:option id="${SINGLE_INSTANCE_TYPE}" value="${SINGLE_INSTANCE_TYPE}"><c:out value="single instance"/></props:option>
-                    <props:option id="${MULTIPLE_DOCKER_BASED_INSTANCE_TYPE}" value="${MULTIPLE_DOCKER_BASED_INSTANCE_TYPE}"><c:out value="docker based instances"/></props:option>
+                <props:selectProperty name="${AGENT_CONFIG_TYPE}" className="longField"
+                                      onchange="syncCloudSelectionControlState(); return true;">
+                    <props:option id="${SINGLE_INSTANCE_TYPE}" value="${SINGLE_INSTANCE_TYPE}"><c:out
+                            value="single instance"/></props:option>
+                    <props:option id="${MULTIPLE_DOCKER_BASED_INSTANCE_TYPE}"
+                                  value="${MULTIPLE_DOCKER_BASED_INSTANCE_TYPE}"><c:out value="docker based instances"/></props:option>
                 </props:selectProperty>
             </td>
         </tr>
-        <tr id="${SINGLE_INSTANCE_TYPE}_section" class="advancedSetting">
-            <td>test single</td>
-            <td>single</td>
+    </table>
+    <table id="${SINGLE_INSTANCE_TYPE}_section" class="advancedSetting">
+        <tr>
+            <th>Instance ID</th>
+            <td><props:textProperty name="${instanceId}" className="longField"/></td>
         </tr>
-        <tr id="${MULTIPLE_DOCKER_BASED_INSTANCE_TYPE}_section" class="advancedSetting">
-            <td>test multiple docker based</td>
-            <td>docker</td>
+    </table>
+    <table id="${MULTIPLE_DOCKER_BASED_INSTANCE_TYPE}_section" class="advancedSetting">
+        <tr>
+            <th colspan="2">Dynamic docker based configuration isn't supported yet</th>
         </tr>
     </table>
 
@@ -65,8 +71,8 @@
 
 <script type="text/javascript">
 
-    window.syncCloudSelectionControlState = function() {
-        if($("${SINGLE_INSTANCE_TYPE}").selected) {
+    window.syncCloudSelectionControlState = function () {
+        if ($("${SINGLE_INSTANCE_TYPE}").selected) {
             BS.Util.show("${SINGLE_INSTANCE_TYPE}_section");
             BS.Util.hide("${MULTIPLE_DOCKER_BASED_INSTANCE_TYPE}_section");
 
@@ -79,7 +85,7 @@
         BS.MultilineProperties.updateVisible();
     };
 
-    window.syncControlState = function() {
+    window.syncControlState = function () {
         syncCloudSelectionControlState();
     };
 
