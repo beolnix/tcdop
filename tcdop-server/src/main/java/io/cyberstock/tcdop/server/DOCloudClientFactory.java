@@ -68,8 +68,8 @@ public class DOCloudClientFactory implements CloudClientFactory {
 
     @NotNull
     public PropertiesProcessor getPropertiesProcessor() {
-        //TODO: implement this
-        throw new NotImplementedException();
+        //TODO: What is this??
+        return doPropertiesProcessor;
     }
 
     public boolean canBeAgentOfType(AgentDescription agentDescription) {

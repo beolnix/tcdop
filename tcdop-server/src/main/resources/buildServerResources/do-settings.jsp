@@ -4,7 +4,9 @@
 <%@ taglib prefix="util" uri="/WEB-INF/functions/util" %>
 <%@ taglib prefix="intprop" uri="/WEB-INF/functions/intprop" %>
 
-<jsp:useBean id="webCons" class="io.cyberstock.tcdop.server.web.DOWebConstants"/>
+<%@ page import="io.cyberstock.tcdop.api.DOConfigConstants" %>
+<c:set var="apiKey" value="<%=DOConfigConstants.API_KEY%>"/>
+
 
 <h2 class="noBorder section-header">Cloud Access Information</h2>
 <script type="text/javascript">
@@ -14,6 +16,6 @@
 <table>
     <tr>
         <th>API KEY</th>
-        <td><props:textProperty name="${webCons.API_KEY}" className="settings longField"/></td>
+        <td><props:textProperty name="${apiKey}" className="textProperty longField"/></td>
     </tr>
 </table>
