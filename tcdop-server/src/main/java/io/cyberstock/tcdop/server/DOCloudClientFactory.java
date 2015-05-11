@@ -1,5 +1,6 @@
 package io.cyberstock.tcdop.server;
 
+import com.intellij.openapi.diagnostic.Logger;
 import io.cyberstock.tcdop.api.DOConfigConstants;
 import io.cyberstock.tcdop.util.DOMessagesHelper;
 import jetbrains.buildServer.clouds.*;
@@ -10,7 +11,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,15 +19,19 @@ import java.util.Map;
  */
 public class DOCloudClientFactory implements CloudClientFactory {
 
+    private static final Logger LOG = Logger.getInstance(DOCloudClientFactory.class.getName());
+
     @NotNull private final DOMessagesHelper msg;
     @NotNull private final String doProfileJspPath;
     @NotNull private final PropertiesProcessor doPropertiesProcessor = new DOPropertiesProcessor();
+
+    private final static String DO_SETTINGS_PAGE_NAME = "do-settings.jsp";
 
     public DOCloudClientFactory(@NotNull final CloudRegistrar cloudRegistrar,
                                 @NotNull final PluginDescriptor pluginDescriptor,
                                 @NotNull DOMessagesHelper msg) {
         this.msg = msg;
-        this.doProfileJspPath = pluginDescriptor.getPluginResourcesPath("do-profile.jsp");
+        this.doProfileJspPath = pluginDescriptor.getPluginResourcesPath(DO_SETTINGS_PAGE_NAME);
 
         cloudRegistrar.registerCloudFactory(this);
     }
