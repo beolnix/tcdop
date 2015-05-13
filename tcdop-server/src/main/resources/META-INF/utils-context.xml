@@ -15,14 +15,4 @@
         </property>
     </bean>
 
-    <bean id="messageSource"
-          class="org.springframework.context.support.ResourceBundleMessageSource">
-        <property name="basename" value="i18n/tcdop-messages" />
-        <property name="defaultEncoding" value="UTF-8" />
-    </bean>
-
-    <bean id="messagesHelper" class="io.cyberstock.tcdop.util.DOMessagesHelper">
-        <constructor-arg ref="messageSource"/>
-    </bean>
-
 </beans>
