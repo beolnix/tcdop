@@ -22,19 +22,19 @@
 <h2 class="noBorder section-header">Cloud Access Information</h2>
 <table>
     <tr>
-        <th>API KEY</th>
+        <th>Token</th>
         <td><props:textProperty name="${apiKey}" className="longField"/></td>
     </tr>
 
     <tr>
         <td colspan="2">
-            <props:multilineProperty name="${sshPrivateKey}" linkTitle="Place SSH Private key here" cols="55" rows="7"/>
+            <props:multilineProperty name="${sshPrivateKey}" linkTitle="Put SSH Private key here" cols="55" rows="7" className="longField" expanded="${true}"/>
         </td>
     </tr>
 
     <tr>
         <td colspan="2">
-            <props:multilineProperty name="${sshPublicKey}" linkTitle="Place SSH Public key here" cols="55" rows="7"/>
+            <props:multilineProperty name="${sshPublicKey}" linkTitle="Place SSH Public key here" cols="55" rows="7" className="longField" expanded="${true}"/>
         </td>
     </tr>
 </table>
