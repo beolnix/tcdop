@@ -2,7 +2,7 @@ package io.cyberstock.tcdop.server;
 
 import com.intellij.openapi.diagnostic.Logger;
 import io.cyberstock.tcdop.api.DOConfigConstants;
-import io.cyberstock.tcdop.util.DOMessagesHelper;
+import io.cyberstock.tcdop.server.service.DOConfigurationValidator;
 import jetbrains.buildServer.clouds.*;
 import jetbrains.buildServer.serverSide.AgentDescription;
 import jetbrains.buildServer.serverSide.PropertiesProcessor;
@@ -35,8 +35,12 @@ public class DOCloudClientFactory implements CloudClientFactory {
 
     @NotNull
     public CloudClientEx createNewClient(CloudState cloudState, CloudClientParameters cloudClientParameters) {
-        //TODO: implement this
-        throw new NotImplementedException();
+        DOSettings settings = new DOSettings(cloudClientParameters);
+
+        DOConfigurationValidator.isConfigurationValid(settings);
+
+
+        return new DOCloudClient(settings);
     }
 
     @NotNull

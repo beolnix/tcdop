@@ -8,7 +8,7 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>tcdop-api</module>
+        <module>tcdop-common</module>
         <module>tcdop-server</module>
         <module>tcdop-util</module>
         <module>tc-digitalocean-plugin</module>

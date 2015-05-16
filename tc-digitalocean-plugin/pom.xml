@@ -19,7 +19,7 @@
         </dependency>
         <dependency>
             <groupId>io.cyberstock</groupId>
-            <artifactId>tcdop-api</artifactId>
+            <artifactId>tcdop-common</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

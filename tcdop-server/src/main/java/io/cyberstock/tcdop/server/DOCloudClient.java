@@ -14,12 +14,10 @@ import java.util.Collection;
  */
 public class DOCloudClient extends BuildServerAdapter implements CloudClientEx {
 
-//    @NotNull private final DORESTClient dorestClient;
-    @NotNull private final CloudClientParameters params;
+    @NotNull private final DOSettings settings;
 
-    public DOCloudClient(@NotNull final CloudClientParameters params) {
-//        this.dorestClient = new DORESTClient();
-        this.params = params;
+    public DOCloudClient(@NotNull final DOSettings settings) {
+        this.settings = settings;
     }
 
     @NotNull

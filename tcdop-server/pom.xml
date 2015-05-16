@@ -15,7 +15,7 @@
         <!-- modules -->
         <dependency>
             <groupId>io.cyberstock</groupId>
-            <artifactId>tcdop-api</artifactId>
+            <artifactId>tcdop-common</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -28,6 +28,12 @@
         <dependency>
             <groupId>com.myjeeva.digitalocean</groupId>
             <artifactId>digitalocean-api-client</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- teamcity dependencies -->

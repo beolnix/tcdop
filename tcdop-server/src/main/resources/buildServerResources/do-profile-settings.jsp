@@ -5,15 +5,15 @@
 <%@ taglib prefix="intprop" uri="/WEB-INF/functions/intprop" %>
 
 <%@ page import="io.cyberstock.tcdop.api.DOConfigConstants" %>
-<c:set var="apiKey" value="<%=DOConfigConstants.API_KEY%>"/>
-<c:set var="instanceId" value="<%=DOConfigConstants.INSTANCE_ID%>"/>
+<c:set var="apiKey" value="<%=DOConfigConstants.TOKEN%>"/>
+<c:set var="imageId" value="<%=DOConfigConstants.IMAGE_ID%>"/>
 <c:set var="sshPrivateKey" value="<%=DOConfigConstants.SSH_PRIVATE_KEY%>"/>
 <c:set var="sshPublicKey" value="<%=DOConfigConstants.SSH_PUBLIC_KEY%>"/>
-<c:set var="agentConfigType" value="<%=DOConfigConstants.AGENT_CONFIG_TYPE%>"/>
+<c:set var="agentConfigType" value="<%=DOConfigConstants.DO_INTEGRATION_MODE%>"/>
 
-<c:set var="AGENT_CONFIG_TYPE" value="<%=DOConfigConstants.AGENT_CONFIG_TYPE%>"/>
-<c:set var="SINGLE_INSTANCE_TYPE" value="<%=DOConfigConstants.SINGLE_INSTANCE_TYPE%>"/>
-<c:set var="MULTIPLE_DOCKER_BASED_INSTANCE_TYPE" value="<%=DOConfigConstants.MULTIPLE_DOCKER_BASED_INSTANCE_TYPE%>"/>
+<c:set var="AGENT_CONFIG_TYPE" value="<%=DOConfigConstants.DO_INTEGRATION_MODE%>"/>
+<c:set var="SINGLE_INSTANCE_TYPE" value="<%=DOConfigConstants.PREPARED_IMAGE_MODE_CODE%>"/>
+<c:set var="MULTIPLE_DOCKER_BASED_INSTANCE_TYPE" value="<%=DOConfigConstants.DOCKER_BASED_MODE_CODE%>"/>
 
 <script type="text/javascript">
     BS.LoadStyleSheetDynamically("<c:url value='${resPath}do-settings.css'/>");
@@ -24,18 +24,6 @@
     <tr>
         <th>Token</th>
         <td><props:textProperty name="${apiKey}" className="longField"/></td>
-    </tr>
-
-    <tr>
-        <td colspan="2">
-            <props:multilineProperty name="${sshPrivateKey}" linkTitle="Put SSH Private key here" cols="55" rows="7" className="longField" expanded="${true}"/>
-        </td>
-    </tr>
-
-    <tr>
-        <td colspan="2">
-            <props:multilineProperty name="${sshPublicKey}" linkTitle="Place SSH Public key here" cols="55" rows="7" className="longField" expanded="${true}"/>
-        </td>
     </tr>
 </table>
 
@@ -56,8 +44,8 @@
     </table>
     <table id="${SINGLE_INSTANCE_TYPE}_section" class="advancedSetting">
         <tr>
-            <th>Instance ID</th>
-            <td><props:textProperty name="${instanceId}" className="longField"/></td>
+            <th>Image ID</th>
+            <td><props:textProperty name="${imageId}" className="longField"/></td>
         </tr>
     </table>
     <table id="${MULTIPLE_DOCKER_BASED_INSTANCE_TYPE}_section" class="advancedSetting">

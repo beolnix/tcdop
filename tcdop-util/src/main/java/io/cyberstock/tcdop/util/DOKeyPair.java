@@ -68,7 +68,7 @@ public class DOKeyPair {
     }
 
     private static String convertToString(byte[] key) {
-        StringBuffer retString = new StringBuffer();
+        StringBuilder retString = new StringBuilder();
         for (int i = 0; i < key.length; ++i) {
             retString.append(Integer.toHexString(0x0100 + (key[i] & 0x00FF)).substring(1));
         }
