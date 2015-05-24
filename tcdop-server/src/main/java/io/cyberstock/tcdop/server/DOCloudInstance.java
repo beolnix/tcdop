@@ -1,9 +1,7 @@
 package io.cyberstock.tcdop.server;
 
-import jetbrains.buildServer.clouds.CloudErrorInfo;
-import jetbrains.buildServer.clouds.CloudImage;
-import jetbrains.buildServer.clouds.CloudInstance;
-import jetbrains.buildServer.clouds.InstanceStatus;
+import com.myjeeva.digitalocean.pojo.Droplet;
+import jetbrains.buildServer.clouds.*;
 import jetbrains.buildServer.serverSide.AgentDescription;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -14,9 +12,30 @@ import java.util.Date;
  * Created by beolnix on 16/05/15.
  */
 public class DOCloudInstance implements CloudInstance {
+
+    private DOCloudImage cloudImage;
+    private CloudInstanceUserData userData;
+    private InstanceStatus instanceStatus = InstanceStatus.UNKNOWN;
+    private CloudErrorInfo cloudErrorInfo;
+    private Droplet droplet;
+
+    public DOCloudInstance(@NotNull DOCloudImage cloudImage,
+                           @NotNull CloudInstanceUserData cloudInstanceUserData) {
+        this.cloudImage = cloudImage;
+        this.userData = cloudInstanceUserData;
+    }
+
     @NotNull
     public String getInstanceId() {
         return null;
+    }
+
+    public void updateStatus(InstanceStatus newStatus) {
+        this.instanceStatus = newStatus;
+    }
+
+    public void updateErrorInfo(CloudErrorInfo errorInfo) {
+        cloudErrorInfo = errorInfo;
     }
 
     @NotNull
@@ -46,7 +65,7 @@ public class DOCloudInstance implements CloudInstance {
 
     @NotNull
     public InstanceStatus getStatus() {
-        return null;
+        return instanceStatus;
     }
 
     @Nullable
@@ -56,5 +75,13 @@ public class DOCloudInstance implements CloudInstance {
 
     public boolean containsAgent(AgentDescription agentDescription) {
         return false;
+    }
+
+    public void setDroplet(Droplet droplet) {
+        this.droplet = droplet;
+    }
+
+    public Droplet getDroplet() {
+        return this.droplet;
     }
 }

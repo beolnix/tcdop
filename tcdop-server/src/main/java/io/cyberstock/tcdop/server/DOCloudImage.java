@@ -12,6 +12,13 @@ import java.util.Collection;
  * Created by beolnix on 16/05/15.
  */
 public class DOCloudImage implements CloudImage {
+
+    private CloudImage cloudImage;
+
+    public DOCloudImage(CloudImage cloudImage) {
+        this.cloudImage = cloudImage;
+    }
+
     @NotNull
     public String getId() {
         return null;

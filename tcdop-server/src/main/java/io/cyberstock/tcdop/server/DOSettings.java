@@ -36,4 +36,8 @@ public class DOSettings {
     public String getImageId() {
         return imageId;
     }
+
+    public boolean isPreparedInstanceMode() {
+        return DOIntegrationMode.PREPARED_IMAGE.equals(mode);
+    }
 }

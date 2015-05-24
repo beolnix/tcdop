@@ -4,67 +4,78 @@ import com.myjeeva.digitalocean.exception.DigitalOceanException;
 import com.myjeeva.digitalocean.exception.RequestUnsuccessfulException;
 import com.myjeeva.digitalocean.impl.DigitalOceanClient;
 import com.myjeeva.digitalocean.pojo.Account;
-import com.myjeeva.digitalocean.pojo.Image;
 import io.cyberstock.tcdop.server.DOIntegrationMode;
 import io.cyberstock.tcdop.server.DOSettings;
+import io.cyberstock.tcdop.server.error.ConfigurationValidationError;
 import io.cyberstock.tcdop.server.error.DOCommunicationError;
+import io.cyberstock.tcdop.server.error.UnsupportedDOModeError;
 
 /**
  * Created by beolnix on 16/05/15.
  */
 public class DOConfigurationValidator {
 
-    public static boolean isConfigurationValid(DOSettings settings) {
-        DOIntegrationMode mode = settings.getMode();
-        if (mode == null) {
-            throw new RuntimeException("Integration mode must be provided");
-        }
+    public static void validateConfiguration(DOSettings settings) {
+        validateCommonProperties(settings);
 
-        if (settings.getToken() == null) {
-            throw new RuntimeException("Token must be provided");
-        }
-
-        if (!isTokenValid(settings.getToken())) {
-            throw new RuntimeException("Token isn't valid");
-        }
-
-        if (DOIntegrationMode.PREPARED_IMAGE.equals(mode)) {
-            if (settings.getImageId() == null) {
-                throw new RuntimeException("Image id must be provided for " + mode.toString() + " mode");
-            }
-
-            if (!isImageIdValid(settings.getImageId(), settings.getToken())) {
-                throw new RuntimeException("Provided image id doesn't seem to be valid");
-            }
-
-            return true;
+        if (DOIntegrationMode.PREPARED_IMAGE.equals(settings.getMode())) {
+            validatePreparedImageProperties(settings);
         } else {
-            throw new IllegalArgumentException("Mode " + mode.toString() + " isn't supported yet.");
+            throw new UnsupportedDOModeError(settings.getMode());
         }
     }
 
-    public static boolean isTokenValid(String token) {
+    private static void validatePreparedImageProperties(DOSettings settings) {
+        if (settings.getImageId() == null) {
+            throw new ConfigurationValidationError("Image id must be provided for " + settings.getMode().toString() + " mode");
+        }
+
+        validateImage(settings.getImageId(), settings.getToken());
+    }
+
+
+    private static void validateCommonProperties(DOSettings settings) {
+        DOIntegrationMode mode = settings.getMode();
+        if (mode == null) {
+            throw new ConfigurationValidationError("Integration mode must be provided");
+        }
+
+        if (settings.getToken() == null) {
+            throw new ConfigurationValidationError("Token must be provided");
+        }
+
+        validateToken(settings.getToken());
+    }
+
+    /**
+     * Provided token is completely valid if no exception has been thrown
+     * @param token Digital Ocean account token
+     */
+    private static void validateToken(String token) {
         DigitalOceanClient client = new DigitalOceanClient(token);
 
         try {
-            Account account = client.getAccountInfo();
-            return true;
+            client.getAccountInfo();
         } catch (DigitalOceanException e) {
-            return false;
+            throw new ConfigurationValidationError("Token isn't valid");
         } catch (RequestUnsuccessfulException e) {
             throw new DOCommunicationError(e);
         }
 
     }
 
-    public static boolean isImageIdValid(String imageId, String token) {
+    /**
+     * Provided image is valid if no exception has been thrown
+     * @param imageId Digital Ocean image name
+     * @param token Digital Ocean account token
+     */
+    private static void validateImage(String imageId, String token) {
         DigitalOceanClient client = new DigitalOceanClient(token);
 
         try {
-            Image image = client.getImageInfo(imageId);
-            return true;
+            client.getImageInfo(imageId);
         } catch (DigitalOceanException e) {
-            return false;
+            throw new ConfigurationValidationError("Provided image id doesn't seem to be valid");
         } catch (RequestUnsuccessfulException e) {
             throw new DOCommunicationError(e);
         }

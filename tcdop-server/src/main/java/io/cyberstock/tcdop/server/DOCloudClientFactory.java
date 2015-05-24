@@ -2,15 +2,19 @@ package io.cyberstock.tcdop.server;
 
 import com.intellij.openapi.diagnostic.Logger;
 import io.cyberstock.tcdop.api.DOConfigConstants;
-import io.cyberstock.tcdop.server.service.DOConfigurationValidator;
+import io.cyberstock.tcdop.server.error.UnsupportedDOModeError;
 import jetbrains.buildServer.clouds.*;
 import jetbrains.buildServer.serverSide.AgentDescription;
+import jetbrains.buildServer.serverSide.InvalidProperty;
 import jetbrains.buildServer.serverSide.PropertiesProcessor;
 import jetbrains.buildServer.web.openapi.PluginDescriptor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import static io.cyberstock.tcdop.server.service.DOConfigurationValidator.validateConfiguration;
+
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,10 +41,13 @@ public class DOCloudClientFactory implements CloudClientFactory {
     public CloudClientEx createNewClient(CloudState cloudState, CloudClientParameters cloudClientParameters) {
         DOSettings settings = new DOSettings(cloudClientParameters);
 
-        DOConfigurationValidator.isConfigurationValid(settings);
+        validateConfiguration(settings);
 
-
-        return new DOCloudClient(settings);
+        if (settings.isPreparedInstanceMode()) {
+            return new DOPreparedImageCloudClient(settings);
+        } else {
+            throw new UnsupportedDOModeError(settings.getMode());
+        }
     }
 
     @NotNull
@@ -60,17 +67,19 @@ public class DOCloudClientFactory implements CloudClientFactory {
 
     @NotNull
     public Map<String, String> getInitialParameterValues() {
-        final HashMap<String, String> initialParamsMap = new HashMap<String, String>();
-
         //TODO: Add initial params here if required
 
-        return initialParamsMap;
+        return Collections.<String, String>emptyMap();
     }
 
     @NotNull
     public PropertiesProcessor getPropertiesProcessor() {
         //TODO: What is this??
-        return doPropertiesProcessor;
+        return new PropertiesProcessor() {
+            public Collection<InvalidProperty> process(Map<String, String> stringStringMap) {
+                return Collections.emptyList();
+            }
+        };
     }
 
     public boolean canBeAgentOfType(AgentDescription agentDescription) {
