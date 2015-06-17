@@ -1,6 +1,6 @@
 <%@ include file="/include.jsp" %>
 
-<%@ page import="io.cyberstock.tcdop.api.DOConfigConstants" %>
+<%@ page import="io.cyberstock.tcdop.model.DOConfigConstants" %>
 
 <c:set var="instanceId" value="<%=DOConfigConstants.INSTANCE_ID%>"/>
 

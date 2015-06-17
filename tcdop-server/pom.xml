@@ -15,7 +15,7 @@
         <!-- modules -->
         <dependency>
             <groupId>io.cyberstock</groupId>
-            <artifactId>tcdop-common</artifactId>
+            <artifactId>tcdop-model</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -57,6 +57,12 @@
         <dependency>
             <groupId>org.jetbrains.teamcity</groupId>
             <artifactId>tests-support</artifactId>
+        </dependency>
+
+        <!-- external libs -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
         </dependency>
     </dependencies>
 

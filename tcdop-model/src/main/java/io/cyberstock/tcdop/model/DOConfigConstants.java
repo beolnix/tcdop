@@ -1,4 +1,4 @@
-package io.cyberstock.tcdop.api;
+package io.cyberstock.tcdop.model;
 
 /**
  * Created by beolnix on 08/05/15.

@@ -2,14 +2,10 @@ package io.cyberstock.tcdop.server.service.tasks;
 
 import com.myjeeva.digitalocean.impl.DigitalOceanClient;
 import com.myjeeva.digitalocean.pojo.Droplet;
-import com.myjeeva.digitalocean.pojo.Droplets;
 import com.myjeeva.digitalocean.pojo.Image;
-import com.myjeeva.digitalocean.pojo.Images;
 import io.cyberstock.tcdop.server.DOCloudInstance;
 import jetbrains.buildServer.clouds.CloudErrorInfo;
 import jetbrains.buildServer.clouds.InstanceStatus;
-
-import java.util.List;
 
 /**
  * Created by beolnix on 24/05/15.
@@ -46,7 +42,7 @@ public class LaunchNewInstanceTask implements Runnable {
         Image image = null;
 
         try {
-            image = findImageByName(cloudInstance.getImageId());
+            image = DOUtils.findImageByName(doClient, cloudInstance.getImageId());
         } catch (Exception e) {
             cloudInstance.updateStatus(InstanceStatus.ERROR);
             cloudInstance.updateErrorInfo(new CloudErrorInfo(e.getMessage(), "Can't find image by name: " + cloudInstance.getImageId(), e));
@@ -67,27 +63,6 @@ public class LaunchNewInstanceTask implements Runnable {
         }
 
         startDroplet(createdDroplet);
-    }
-
-    private Image findImageByName(String imageName) throws Exception {
-        int pageNumber = 0;
-        while (true) {
-            Images images = doClient.getAvailableImages(pageNumber);
-            List<Image> imageList = images.getImages();
-            if (imageList.isEmpty()) {
-                break;
-            } else {
-                for (Image image : imageList) {
-                    if (image.getName().equals(imageName)) {
-                        return image;
-                    }
-                }
-            }
-
-            ++pageNumber;
-        }
-
-        return null;
     }
 
     private void startDroplet(Droplet droplet) {

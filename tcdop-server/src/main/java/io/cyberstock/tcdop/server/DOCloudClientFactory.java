@@ -1,7 +1,8 @@
 package io.cyberstock.tcdop.server;
 
 import com.intellij.openapi.diagnostic.Logger;
-import io.cyberstock.tcdop.api.DOConfigConstants;
+import io.cyberstock.tcdop.model.DOConfigConstants;
+import io.cyberstock.tcdop.model.DOSettings;
 import io.cyberstock.tcdop.server.error.UnsupportedDOModeError;
 import jetbrains.buildServer.clouds.*;
 import jetbrains.buildServer.serverSide.AgentDescription;
@@ -11,12 +12,11 @@ import jetbrains.buildServer.web.openapi.PluginDescriptor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static io.cyberstock.tcdop.util.SettingsUtils.convertClientParametersToDOSettings;
+
 import static io.cyberstock.tcdop.server.service.DOConfigurationValidator.validateConfiguration;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by beolnix on 08/05/15.
@@ -26,7 +26,6 @@ public class DOCloudClientFactory implements CloudClientFactory {
     private static final Logger LOG = Logger.getInstance(DOCloudClientFactory.class.getName());
 
     @NotNull private final String doProfileJspPath;
-    @NotNull private final PropertiesProcessor doPropertiesProcessor = new DOPropertiesProcessor();
 
     private final static String DO_SETTINGS_PAGE_NAME = "do-profile-settings.jsp";
 
@@ -39,9 +38,7 @@ public class DOCloudClientFactory implements CloudClientFactory {
 
     @NotNull
     public CloudClientEx createNewClient(CloudState cloudState, CloudClientParameters cloudClientParameters) {
-        DOSettings settings = new DOSettings(cloudClientParameters);
-
-        validateConfiguration(settings);
+        DOSettings settings = convertClientParametersToDOSettings(cloudClientParameters);
 
         if (settings.isPreparedInstanceMode()) {
             return new DOPreparedImageCloudClient(settings);
@@ -67,17 +64,15 @@ public class DOCloudClientFactory implements CloudClientFactory {
 
     @NotNull
     public Map<String, String> getInitialParameterValues() {
-        //TODO: Add initial params here if required
-
         return Collections.<String, String>emptyMap();
     }
 
     @NotNull
     public PropertiesProcessor getPropertiesProcessor() {
-        //TODO: What is this??
         return new PropertiesProcessor() {
             public Collection<InvalidProperty> process(Map<String, String> stringStringMap) {
-                return Collections.emptyList();
+                DOSettings doSettings = new DOSettings(stringStringMap);
+                return validateConfiguration(doSettings);
             }
         };
     }

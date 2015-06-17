@@ -1,7 +1,10 @@
 package io.cyberstock.tcdop.server.service.tasks;
 
 import com.myjeeva.digitalocean.impl.DigitalOceanClient;
+import io.cyberstock.tcdop.model.DOConfigConstants;
+import io.cyberstock.tcdop.model.DOIntegrationMode;
 import io.cyberstock.tcdop.server.DOCloudInstance;
+import jetbrains.buildServer.clouds.CloudClientParameters;
 import jetbrains.buildServer.clouds.CloudErrorInfo;
 import jetbrains.buildServer.clouds.InstanceStatus;
 

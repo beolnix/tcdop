@@ -4,7 +4,7 @@
 <%@ taglib prefix="util" uri="/WEB-INF/functions/util" %>
 <%@ taglib prefix="intprop" uri="/WEB-INF/functions/intprop" %>
 
-<%@ page import="io.cyberstock.tcdop.api.DOConfigConstants" %>
+<%@ page import="io.cyberstock.tcdop.model.DOConfigConstants" %>
 <c:set var="apiKey" value="<%=DOConfigConstants.TOKEN%>"/>
 <c:set var="imageId" value="<%=DOConfigConstants.IMAGE_ID%>"/>
 <c:set var="sshPrivateKey" value="<%=DOConfigConstants.SSH_PRIVATE_KEY%>"/>

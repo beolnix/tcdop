@@ -1,6 +1,4 @@
-package io.cyberstock.tcdop.server;
-
-import io.cyberstock.tcdop.api.DOConfigConstants;
+package io.cyberstock.tcdop.model;
 
 /**
  * Created by beolnix on 16/05/15.

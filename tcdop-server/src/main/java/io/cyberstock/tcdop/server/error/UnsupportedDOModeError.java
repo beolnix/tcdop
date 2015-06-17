@@ -1,6 +1,6 @@
 package io.cyberstock.tcdop.server.error;
 
-import io.cyberstock.tcdop.server.DOIntegrationMode;
+import io.cyberstock.tcdop.model.DOIntegrationMode;
 
 /**
  * Created by beolnix on 24/05/15.

@@ -2,15 +2,10 @@ package io.cyberstock.tcdop.server;
 
 
 import com.myjeeva.digitalocean.impl.DigitalOceanClient;
-import io.cyberstock.tcdop.server.service.DOIntegrationService;
+import io.cyberstock.tcdop.model.DOSettings;
 import jetbrains.buildServer.clouds.*;
-import jetbrains.buildServer.serverSide.AgentDescription;
-import jetbrains.buildServer.serverSide.BuildServerAdapter;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.Date;
 
 /**
  * Created by beolnix on 08/05/15.

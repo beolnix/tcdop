@@ -1,19 +1,21 @@
 package io.cyberstock.tcdop.server;
 
-import com.myjeeva.digitalocean.impl.DigitalOceanClient;
-import io.cyberstock.tcdop.server.service.tasks.LaunchNewInstanceTask;
-import io.cyberstock.tcdop.server.service.tasks.RestartInstanceTask;
-import io.cyberstock.tcdop.server.service.tasks.TerminateTask;
+import io.cyberstock.tcdop.model.DOSettings;
+import io.cyberstock.tcdop.model.error.DOError;
+import io.cyberstock.tcdop.server.service.tasks.*;
 import jetbrains.buildServer.clouds.*;
 import jetbrains.buildServer.serverSide.AgentDescription;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by beolnix on 24/05/15.
@@ -23,10 +25,23 @@ public class DOPreparedImageCloudClient extends DOCloudClient {
     private List<DOCloudInstance> instanceList = new LinkedList<DOCloudInstance>();
     private ExecutorService executorService = Executors.newFixedThreadPool(4);
 
+    private Boolean readyFlag = false;
+    private HashMap<String, DOCloudImage> cloudImageMap;
+    private CloudErrorInfo cloudErrorInfo = null;
+
 
     public DOPreparedImageCloudClient(@NotNull DOSettings settings) {
         super(settings);
+        executorService.execute(new ClientInitializationTask(doClient, new AsyncTaskCallback<HashMap<String, DOCloudImage>, DOError>() {
+            public void onSuccess(HashMap<String, DOCloudImage> result) {
+                cloudImageMap = result;
+                readyFlag = true;
+            }
 
+            public void onFailure(DOError error) {
+                readyFlag = false;
+            }
+        }));
     }
 
     @NotNull
@@ -46,11 +61,11 @@ public class DOPreparedImageCloudClient extends DOCloudClient {
     }
 
     public void dispose() {
-
+        executorService.shutdown();
     }
 
     public boolean isInitialized() {
-        return true;
+        return readyFlag;
     }
 
     @Nullable
@@ -70,7 +85,7 @@ public class DOPreparedImageCloudClient extends DOCloudClient {
 
     @Nullable
     public CloudErrorInfo getErrorInfo() {
-        return null;
+        return cloudErrorInfo;
     }
 
     public boolean canStartNewInstance(@NotNull CloudImage cloudImage) {

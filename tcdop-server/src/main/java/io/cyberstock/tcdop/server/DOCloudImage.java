@@ -1,5 +1,6 @@
 package io.cyberstock.tcdop.server;
 
+import com.myjeeva.digitalocean.pojo.Image;
 import jetbrains.buildServer.clouds.CloudErrorInfo;
 import jetbrains.buildServer.clouds.CloudImage;
 import jetbrains.buildServer.clouds.CloudInstance;
@@ -14,19 +15,26 @@ import java.util.Collection;
 public class DOCloudImage implements CloudImage {
 
     private CloudImage cloudImage;
+    private String id;
+    private String name;
 
     public DOCloudImage(CloudImage cloudImage) {
         this.cloudImage = cloudImage;
     }
 
+    public DOCloudImage(Image image) {
+        this.id = image.getId().toString();
+        this.name = image.getName();
+    }
+
     @NotNull
     public String getId() {
-        return null;
+        return id;
     }
 
     @NotNull
     public String getName() {
-        return null;
+        return name;
     }
 
     @NotNull
