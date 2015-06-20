@@ -5,14 +5,7 @@
 
        default-autowire="constructor">
 
-    <import resource="classpath:/META-INF/utils-context.xml"/>
-
-    <!-- core plugin services -->
-    <bean id="DOClientFactory" class="io.cyberstock.tcdop.server.integration.digitalocean.DOAsyncClientServiceFactory"/>
-
-    <bean id="TCDOPExecutorService" class="java.util.concurrent.Executors" factory-method="newFixedThreadPool">
-        <constructor-arg value="${tcdop.internalFixedThreadpool.size}"/>
-    </bean>
+    <import resource="classpath:/META-INF/tcdop-context.xml"/>
 
     <!-- integration with TeamCity -->
     <bean id="TCCloudClientFactory" class="io.cyberstock.tcdop.server.integration.teamcity.TCCloudClientFactory"/>

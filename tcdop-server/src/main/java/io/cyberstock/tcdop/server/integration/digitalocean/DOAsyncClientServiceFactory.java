@@ -2,7 +2,6 @@ package io.cyberstock.tcdop.server.integration.digitalocean;
 
 import com.myjeeva.digitalocean.impl.DigitalOceanClient;
 
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 
 /**
