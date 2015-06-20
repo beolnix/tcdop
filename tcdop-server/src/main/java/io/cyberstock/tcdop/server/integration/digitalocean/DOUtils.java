@@ -1,4 +1,4 @@
-package io.cyberstock.tcdop.server.service.tasks;
+package io.cyberstock.tcdop.server.integration.digitalocean;
 
 import com.myjeeva.digitalocean.exception.DigitalOceanException;
 import com.myjeeva.digitalocean.exception.RequestUnsuccessfulException;
@@ -8,8 +8,6 @@ import com.myjeeva.digitalocean.pojo.Droplets;
 import com.myjeeva.digitalocean.pojo.Image;
 import com.myjeeva.digitalocean.pojo.Images;
 import io.cyberstock.tcdop.model.error.DOError;
-import io.cyberstock.tcdop.server.DOCloudImage;
-import jetbrains.buildServer.clouds.CloudImage;
 
 import java.util.LinkedList;
 import java.util.List;

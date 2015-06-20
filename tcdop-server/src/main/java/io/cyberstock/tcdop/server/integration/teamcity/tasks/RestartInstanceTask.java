@@ -1,8 +1,7 @@
-package io.cyberstock.tcdop.server.service.tasks;
+package io.cyberstock.tcdop.server.integration.teamcity.tasks;
 
 import com.myjeeva.digitalocean.impl.DigitalOceanClient;
-import com.myjeeva.digitalocean.pojo.Droplet;
-import io.cyberstock.tcdop.server.DOCloudInstance;
+import io.cyberstock.tcdop.server.integration.teamcity.TCCloudInstance;
 import jetbrains.buildServer.clouds.CloudErrorInfo;
 import jetbrains.buildServer.clouds.InstanceStatus;
 
@@ -11,10 +10,10 @@ import jetbrains.buildServer.clouds.InstanceStatus;
  */
 public class RestartInstanceTask implements Runnable {
 
-    private DOCloudInstance instance;
+    private TCCloudInstance instance;
     private DigitalOceanClient doClient;
 
-    public RestartInstanceTask(DOCloudInstance instance, DigitalOceanClient doClient) {
+    public RestartInstanceTask(TCCloudInstance instance, DigitalOceanClient doClient) {
         this.instance = instance;
         this.doClient = doClient;
     }

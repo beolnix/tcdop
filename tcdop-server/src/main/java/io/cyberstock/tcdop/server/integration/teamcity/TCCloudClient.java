@@ -1,8 +1,8 @@
-package io.cyberstock.tcdop.server;
+package io.cyberstock.tcdop.server.integration.teamcity;
 
+import com.myjeeva.digitalocean.impl.DigitalOceanClient;
 import io.cyberstock.tcdop.model.DOSettings;
-import io.cyberstock.tcdop.model.error.DOError;
-import io.cyberstock.tcdop.server.service.tasks.*;
+import io.cyberstock.tcdop.server.integration.digitalocean.DOAsyncClientService;
 import jetbrains.buildServer.clouds.*;
 import jetbrains.buildServer.serverSide.AgentDescription;
 import org.jetbrains.annotations.NotNull;
@@ -12,56 +12,55 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by beolnix on 24/05/15.
  */
-public class DOPreparedImageCloudClient extends DOCloudClient {
+public class TCCloudClient implements CloudClientEx {
 
-    private List<DOCloudInstance> instanceList = new LinkedList<DOCloudInstance>();
-    private ExecutorService executorService = Executors.newFixedThreadPool(4);
+    // dependencies
+    @NotNull private final DOSettings settings;
+    @NotNull private DOAsyncClientService client;
 
+    // State
     private Boolean readyFlag = false;
-    private HashMap<String, DOCloudImage> cloudImageMap;
     private CloudErrorInfo cloudErrorInfo = null;
 
 
-    public DOPreparedImageCloudClient(@NotNull DOSettings settings) {
-        super(settings);
-        executorService.execute(new ClientInitializationTask(doClient, new AsyncTaskCallback<HashMap<String, DOCloudImage>, DOError>() {
-            public void onSuccess(HashMap<String, DOCloudImage> result) {
-                cloudImageMap = result;
-                readyFlag = true;
-            }
+    TCCloudClient(@NotNull DOSettings settings,
+                  @NotNull DOAsyncClientService client) {
+        this.settings = settings;
+        this.client = client;
+    }
 
-            public void onFailure(DOError error) {
-                readyFlag = false;
-            }
-        }));
+    public void setReadyFlag(Boolean readyFlag) {
+        this.readyFlag = readyFlag;
+    }
+
+    public void setCloudErrorInfo(CloudErrorInfo cloudErrorInfo) {
+        this.cloudErrorInfo = cloudErrorInfo;
     }
 
     @NotNull
     public CloudInstance startNewInstance(@NotNull CloudImage cloudImage, @NotNull CloudInstanceUserData cloudInstanceUserData) throws QuotaException {
-        DOCloudInstance instance = new DOCloudInstance(new DOCloudImage(cloudImage), cloudInstanceUserData);
-        instanceList.add(instance);
-        executorService.execute(new LaunchNewInstanceTask(instance, doClient));
+
+        TCCloudImage tcCloudImage = new TCCloudImage(cloudImage);
+        TCCloudInstance instance = new TCCloudInstance(tcCloudImage, cloudInstanceUserData);
+
+        client.findOrCreateDroplet();
         return instance;
     }
 
     public void restartInstance(@NotNull CloudInstance cloudInstance) {
-        executorService.execute(new RestartInstanceTask((DOCloudInstance)cloudInstance, doClient));
+        client.restartInstance((TCCloudInstance) cloudInstance);
     }
 
     public void terminateInstance(@NotNull CloudInstance cloudInstance) {
-        executorService.execute(new TerminateTask((DOCloudInstance)cloudInstance, doClient));
+        client.terminateInstance((TCCloudInstance) cloudInstance);
     }
 
     public void dispose() {
-        executorService.shutdown();
+        client.shutdown();
     }
 
     public boolean isInitialized() {

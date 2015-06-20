@@ -1,9 +1,11 @@
-package io.cyberstock.tcdop.server.service.tasks;
+package io.cyberstock.tcdop.server.integration.teamcity.tasks;
 
 import com.myjeeva.digitalocean.impl.DigitalOceanClient;
 import com.myjeeva.digitalocean.pojo.Image;
 import io.cyberstock.tcdop.model.error.DOError;
-import io.cyberstock.tcdop.server.DOCloudImage;
+import io.cyberstock.tcdop.server.integration.digitalocean.DOCallback;
+import io.cyberstock.tcdop.server.integration.digitalocean.DOUtils;
+import io.cyberstock.tcdop.server.integration.teamcity.TCCloudImage;
 
 import java.util.HashMap;
 import java.util.List;
@@ -14,10 +16,10 @@ import java.util.List;
 public class ClientInitializationTask implements Runnable {
 
     private DigitalOceanClient doClient;
-    private AsyncTaskCallback<HashMap<String, DOCloudImage>, DOError> callback;
+    private DOCallback<HashMap<String, TCCloudImage>, DOError> callback;
 
     public ClientInitializationTask(DigitalOceanClient doClient,
-                                    AsyncTaskCallback<HashMap<String, DOCloudImage>, DOError> callback) {
+                                    DOCallback<HashMap<String, TCCloudImage>, DOError> callback) {
         this.doClient = doClient;
         this.callback = callback;
     }
@@ -25,7 +27,7 @@ public class ClientInitializationTask implements Runnable {
     public void run() {
         try {
             List<Image> images = DOUtils.getImages(doClient);
-            HashMap<String, DOCloudImage> result = new HashMap<String, DOCloudImage>();
+            HashMap<String, TCCloudImage> result = new HashMap<String, TCCloudImage>();
             for (Image image : images) {
 //                DOCloudImage doImage = new DOCloudImage();
             }

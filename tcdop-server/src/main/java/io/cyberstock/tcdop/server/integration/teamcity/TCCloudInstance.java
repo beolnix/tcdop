@@ -1,6 +1,7 @@
-package io.cyberstock.tcdop.server;
+package io.cyberstock.tcdop.server.integration.teamcity;
 
 import com.myjeeva.digitalocean.pojo.Droplet;
+import io.cyberstock.tcdop.server.integration.teamcity.TCCloudImage;
 import jetbrains.buildServer.clouds.*;
 import jetbrains.buildServer.serverSide.AgentDescription;
 import org.jetbrains.annotations.NotNull;
@@ -11,15 +12,15 @@ import java.util.Date;
 /**
  * Created by beolnix on 16/05/15.
  */
-public class DOCloudInstance implements CloudInstance {
+public class TCCloudInstance implements CloudInstance {
 
-    private DOCloudImage cloudImage;
+    private TCCloudImage cloudImage;
     private CloudInstanceUserData userData;
     private InstanceStatus instanceStatus = InstanceStatus.UNKNOWN;
     private CloudErrorInfo cloudErrorInfo;
     private Droplet droplet;
 
-    public DOCloudInstance(@NotNull DOCloudImage cloudImage,
+    public TCCloudInstance(@NotNull TCCloudImage cloudImage,
                            @NotNull CloudInstanceUserData cloudInstanceUserData) {
         this.cloudImage = cloudImage;
         this.userData = cloudInstanceUserData;

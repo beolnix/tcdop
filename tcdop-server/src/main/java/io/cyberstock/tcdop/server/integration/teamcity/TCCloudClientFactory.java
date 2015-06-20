@@ -1,9 +1,12 @@
-package io.cyberstock.tcdop.server;
+package io.cyberstock.tcdop.server.integration.teamcity;
 
 import com.intellij.openapi.diagnostic.Logger;
+import com.myjeeva.digitalocean.impl.DigitalOceanClient;
 import io.cyberstock.tcdop.model.DOConfigConstants;
 import io.cyberstock.tcdop.model.DOSettings;
 import io.cyberstock.tcdop.server.error.UnsupportedDOModeError;
+import io.cyberstock.tcdop.server.integration.digitalocean.DOAsyncClientService;
+import io.cyberstock.tcdop.server.integration.digitalocean.DOAsyncClientServiceFactory;
 import jetbrains.buildServer.clouds.*;
 import jetbrains.buildServer.serverSide.AgentDescription;
 import jetbrains.buildServer.serverSide.InvalidProperty;
@@ -14,37 +17,52 @@ import org.jetbrains.annotations.Nullable;
 
 import static io.cyberstock.tcdop.util.SettingsUtils.convertClientParametersToDOSettings;
 
-import static io.cyberstock.tcdop.server.service.DOConfigurationValidator.validateConfiguration;
+import static io.cyberstock.tcdop.server.service.ConfigurationValidator.validateConfiguration;
 
 import java.util.*;
 
 /**
  * Created by beolnix on 08/05/15.
  */
-public class DOCloudClientFactory implements CloudClientFactory {
+public class TCCloudClientFactory implements CloudClientFactory {
 
-    private static final Logger LOG = Logger.getInstance(DOCloudClientFactory.class.getName());
+    // dependencies
+    private final DOAsyncClientServiceFactory asyncClientServiceFactory;
 
-    @NotNull private final String doProfileJspPath;
+    // state
+    private DigitalOceanClient doClient;
+    private final String doProfileJspPath;
 
+    // constants
+    private static final Logger LOG = Logger.getInstance(TCCloudClientFactory.class.getName());
     private final static String DO_SETTINGS_PAGE_NAME = "do-profile-settings.jsp";
+    private final static String DISPLAY_NAME = "Digital ocean type";
 
-    public DOCloudClientFactory(@NotNull final CloudRegistrar cloudRegistrar,
-                                @NotNull final PluginDescriptor pluginDescriptor) {
+
+    public TCCloudClientFactory(@NotNull final CloudRegistrar cloudRegistrar,
+                                @NotNull final PluginDescriptor pluginDescriptor,
+                                @NotNull final DOAsyncClientServiceFactory asyncClientServiceFactory) {
+        this.asyncClientServiceFactory = asyncClientServiceFactory;
+
         this.doProfileJspPath = pluginDescriptor.getPluginResourcesPath(DO_SETTINGS_PAGE_NAME);
-
         cloudRegistrar.registerCloudFactory(this);
     }
+
 
     @NotNull
     public CloudClientEx createNewClient(CloudState cloudState, CloudClientParameters cloudClientParameters) {
         DOSettings settings = convertClientParametersToDOSettings(cloudClientParameters);
 
-        if (settings.isPreparedInstanceMode()) {
-            return new DOPreparedImageCloudClient(settings);
-        } else {
+        if (!settings.isPreparedInstanceMode()) {
             throw new UnsupportedDOModeError(settings.getMode());
         }
+
+        DOAsyncClientService client = asyncClientServiceFactory.createClient(settings.getToken());
+
+        TCCloudClient cloudClient = new TCCloudClient(settings, client);
+        cloudClient.setReadyFlag(true);
+
+        return cloudClient;
     }
 
     @NotNull
@@ -54,7 +72,7 @@ public class DOCloudClientFactory implements CloudClientFactory {
 
     @NotNull
     public String getDisplayName() {
-        return "Digital Ocean cloud";
+        return DISPLAY_NAME;
     }
 
     @Nullable

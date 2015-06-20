@@ -14,7 +14,7 @@ import java.util.Collections;
 /**
  * Created by beolnix on 16/05/15.
  */
-public class DOConfigurationValidator {
+public class ConfigurationValidator {
 
     public static Collection<InvalidProperty> validateConfiguration(DOSettings settings) {
         Collection<InvalidProperty> validationErrors = validateCommonProperties(settings);

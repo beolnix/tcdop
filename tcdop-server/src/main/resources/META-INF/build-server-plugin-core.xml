@@ -8,7 +8,13 @@
     <import resource="classpath:/META-INF/utils-context.xml"/>
 
     <!-- core plugin services -->
-    <bean id="DOCloudClientFactory" class="io.cyberstock.tcdop.server.DOCloudClientFactory"/>
+    <bean id="DOClientFactory" class="io.cyberstock.tcdop.server.integration.digitalocean.DOAsyncClientServiceFactory"/>
 
+    <bean id="TCDOPExecutorService" class="java.util.concurrent.Executors" factory-method="newFixedThreadPool">
+        <constructor-arg value="${tcdop.internalFixedThreadpool.size}"/>
+    </bean>
+
+    <!-- integration with TeamCity -->
+    <bean id="TCCloudClientFactory" class="io.cyberstock.tcdop.server.integration.teamcity.TCCloudClientFactory"/>
 
 </beans>

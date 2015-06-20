@@ -1,10 +1,7 @@
-package io.cyberstock.tcdop.server.service.tasks;
+package io.cyberstock.tcdop.server.integration.teamcity.tasks;
 
 import com.myjeeva.digitalocean.impl.DigitalOceanClient;
-import io.cyberstock.tcdop.model.DOConfigConstants;
-import io.cyberstock.tcdop.model.DOIntegrationMode;
-import io.cyberstock.tcdop.server.DOCloudInstance;
-import jetbrains.buildServer.clouds.CloudClientParameters;
+import io.cyberstock.tcdop.server.integration.teamcity.TCCloudInstance;
 import jetbrains.buildServer.clouds.CloudErrorInfo;
 import jetbrains.buildServer.clouds.InstanceStatus;
 
@@ -14,10 +11,10 @@ import jetbrains.buildServer.clouds.InstanceStatus;
 public class TerminateTask implements Runnable {
 
 
-    private DOCloudInstance instance;
+    private TCCloudInstance instance;
     private DigitalOceanClient doClient;
 
-    public TerminateTask(DOCloudInstance instance, DigitalOceanClient doClient) {
+    public TerminateTask(TCCloudInstance instance, DigitalOceanClient doClient) {
         this.instance = instance;
         this.doClient = doClient;
     }
