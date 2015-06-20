@@ -1,5 +1,6 @@
 package io.cyberstock.tcdop.server.service;
 
+import com.google.common.base.Strings;
 import com.myjeeva.digitalocean.exception.DigitalOceanException;
 import com.myjeeva.digitalocean.exception.RequestUnsuccessfulException;
 import com.myjeeva.digitalocean.impl.DigitalOceanClient;
@@ -31,7 +32,7 @@ public class ConfigurationValidator {
     }
 
     private static Collection<InvalidProperty> validatePreparedImageProperties(DOSettings settings) {
-        if (settings.getImageId() == null) {
+        if (Strings.isNullOrEmpty(settings.getImageId())) {
             return Collections.singletonList(new InvalidProperty(DOConfigConstants.IMAGE_ID,
                     "Image id must be provided for " + settings.getMode().toString() + " mode"));
         }
@@ -43,7 +44,7 @@ public class ConfigurationValidator {
     private static Collection<InvalidProperty> validateCommonProperties(DOSettings settings) {
 
 
-        if (settings.getToken() == null) {
+        if (Strings.isNullOrEmpty(settings.getToken())) {
             return Collections.singletonList(new InvalidProperty(DOConfigConstants.TOKEN,
                     "Token must be provided."));
         }

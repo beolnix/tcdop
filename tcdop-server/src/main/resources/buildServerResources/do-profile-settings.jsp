@@ -23,7 +23,12 @@
 <table>
     <tr>
         <th>Token</th>
-        <td><props:textProperty name="${apiKey}" className="longField"/></td>
+        <td>
+            <props:textProperty name="${apiKey}" id="${apiKey}" className="longField"/>
+        </td>
+        <td>
+            <span class="error" id="error_${apiKey}"></span>
+        </td>
     </tr>
 </table>
 
@@ -40,17 +45,25 @@
                                   value="${MULTIPLE_DOCKER_BASED_INSTANCE_TYPE}"><c:out value="docker based instances"/></props:option>
                 </props:selectProperty>
             </td>
+            <td>
+                <span class="error" id="error_${AGENT_CONFIG_TYPE}"></span>
+            </td>
         </tr>
     </table>
     <table id="${SINGLE_INSTANCE_TYPE}_section" class="advancedSetting">
         <tr>
             <th>Image ID</th>
-            <td><props:textProperty name="${imageId}" className="longField"/></td>
+            <td>
+                <props:textProperty name="${imageId}" className="longField"/>
+            </td>
+            <td>
+                <span class="error" id="error_${imageId}"></span>
+            </td>
         </tr>
     </table>
     <table id="${MULTIPLE_DOCKER_BASED_INSTANCE_TYPE}_section" class="advancedSetting">
         <tr>
-            <th colspan="2">Dynamic docker based configuration isn't supported yet</th>
+            <th colspan="2" class="error">Dynamic docker based configuration isn't supported yet</th>
         </tr>
     </table>
 
