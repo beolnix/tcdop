@@ -4,8 +4,10 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd"
        default-autowire="constructor">
-  <!-- this is a fake spring context xml to make IDEA know all implicit beans that are available for plugin -->
-  <bean class="jetbrains.buildServer.web.openapi.PluginDescriptor"/>
-  <bean class="jetbrains.buildServer.web.openapi.PluginDescriptor"/>
-  <bean class="jetbrains.buildServer.clouds.CloudRegistrar"/>
+
+    <!-- this is a fake spring context xml to make IDEA know all implicit beans that are available for plugin -->
+    <bean class="jetbrains.buildServer.serverSide.SBuildServer"/>
+    <bean class="jetbrains.buildServer.web.openapi.WebControllerManager"/>
+    <bean class="jetbrains.buildServer.web.openapi.PluginDescriptor"/>
+    <bean class="jetbrains.buildServer.clouds.CloudRegistrar"/>
 </beans>

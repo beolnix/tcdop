@@ -1,5 +1,6 @@
 package io.cyberstock.tcdop.server.integration.digitalocean;
 
+import com.intellij.openapi.diagnostic.Logger;
 import com.myjeeva.digitalocean.impl.DigitalOceanClient;
 import io.cyberstock.tcdop.model.error.DOError;
 import io.cyberstock.tcdop.server.integration.teamcity.TCCloudClient;
@@ -16,8 +17,12 @@ import java.util.concurrent.ExecutorService;
  */
 public class DOAsyncClientService {
 
+    // dependencies
     private final ExecutorService executorService;
     private final DigitalOceanClient doClient;
+
+    // constants
+    private static final Logger LOG = Logger.getInstance(DOAsyncClientService.class.getName());
 
     public DOAsyncClientService(ExecutorService executorService, DigitalOceanClient doClient) {
         this.executorService = executorService;
@@ -48,8 +53,8 @@ public class DOAsyncClientService {
         //TODO
     }
 
-    public void findOrCreateDroplet() {
-        //TODO
+    public void findOrCreateDroplet(TCCloudInstance cloudInstance) {
+        LOG.debug("findOrCreateDroplet triggered: " + cloudInstance.toString());
     }
 
     public void shutdown() {

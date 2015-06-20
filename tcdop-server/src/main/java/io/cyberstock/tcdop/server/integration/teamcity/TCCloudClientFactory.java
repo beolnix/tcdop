@@ -7,11 +7,14 @@ import io.cyberstock.tcdop.model.DOSettings;
 import io.cyberstock.tcdop.server.error.UnsupportedDOModeError;
 import io.cyberstock.tcdop.server.integration.digitalocean.DOAsyncClientService;
 import io.cyberstock.tcdop.server.integration.digitalocean.DOAsyncClientServiceFactory;
+import io.cyberstock.tcdop.server.integration.teamcity.web.TCDOPSettingsController;
+import io.cyberstock.tcdop.server.service.TCDOPLoggerService;
 import jetbrains.buildServer.clouds.*;
 import jetbrains.buildServer.serverSide.AgentDescription;
 import jetbrains.buildServer.serverSide.InvalidProperty;
 import jetbrains.buildServer.serverSide.PropertiesProcessor;
 import jetbrains.buildServer.web.openapi.PluginDescriptor;
+import org.apache.log4j.Level;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,24 +33,23 @@ public class TCCloudClientFactory implements CloudClientFactory {
     private final DOAsyncClientServiceFactory asyncClientServiceFactory;
 
     // state
-    private DigitalOceanClient doClient;
-    private final String doProfileJspPath;
+    private final String doProfileHtmlPath;
 
     // constants
-    private static final Logger LOG = Logger.getInstance(TCCloudClientFactory.class.getName());
-    private final static String DO_SETTINGS_PAGE_NAME = "do-profile-settings.jsp";
-    private final static String DISPLAY_NAME = "Digital ocean type";
+    private static final Logger LOG = Logger.getInstance(TCDOPLoggerService.LOGGER_NAME);
 
+    private final static String DISPLAY_NAME = "Digital ocean type";
 
     public TCCloudClientFactory(@NotNull final CloudRegistrar cloudRegistrar,
                                 @NotNull final PluginDescriptor pluginDescriptor,
                                 @NotNull final DOAsyncClientServiceFactory asyncClientServiceFactory) {
         this.asyncClientServiceFactory = asyncClientServiceFactory;
 
-        this.doProfileJspPath = pluginDescriptor.getPluginResourcesPath(DO_SETTINGS_PAGE_NAME);
+        this.doProfileHtmlPath = pluginDescriptor.getPluginResourcesPath(TCDOPSettingsController.HTML_PAGE_NAME);
         cloudRegistrar.registerCloudFactory(this);
-    }
 
+        LOG.debug("Digital Ocean client factory initialized. Settings HTML path: " + doProfileHtmlPath);
+    }
 
     @NotNull
     public CloudClientEx createNewClient(CloudState cloudState, CloudClientParameters cloudClientParameters) {
@@ -77,7 +79,7 @@ public class TCCloudClientFactory implements CloudClientFactory {
 
     @Nullable
     public String getEditProfileUrl() {
-        return doProfileJspPath;
+        return doProfileHtmlPath;
     }
 
     @NotNull

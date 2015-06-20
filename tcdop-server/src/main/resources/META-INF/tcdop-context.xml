@@ -22,4 +22,8 @@
         <constructor-arg value="${tcdop.internalFixedThreadpool.size}"/>
     </bean>
 
+    <bean id="loggerService" class="io.cyberstock.tcdop.server.service.TCDOPLoggerService">
+        <constructor-arg value="${logging.level}"/>
+    </bean>
+
 </beans>

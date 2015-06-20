@@ -10,34 +10,17 @@
 <c:set var="sshPrivateKey" value="<%=DOConfigConstants.SSH_PRIVATE_KEY%>"/>
 <c:set var="sshPublicKey" value="<%=DOConfigConstants.SSH_PUBLIC_KEY%>"/>
 <c:set var="agentConfigType" value="<%=DOConfigConstants.DO_INTEGRATION_MODE%>"/>
-
 <c:set var="AGENT_CONFIG_TYPE" value="<%=DOConfigConstants.DO_INTEGRATION_MODE%>"/>
 <c:set var="SINGLE_INSTANCE_TYPE" value="<%=DOConfigConstants.PREPARED_IMAGE_MODE_CODE%>"/>
 <c:set var="MULTIPLE_DOCKER_BASED_INSTANCE_TYPE" value="<%=DOConfigConstants.DOCKER_BASED_MODE_CODE%>"/>
 
-<style>
-    .tcdop-property-label-container {
-        width: 70px;
-        text-align: left;
-    }
+<c:set var="STYLES_PATH" value="<%=DOConfigConstants.STYLES_PATH%>"/>
 
-    .tcdop-error-container {
-        text-align: left;
-    }
-
-    .tcdop-error-msg {
-        margin-left: 5px;
-    }
-
-    .tcdop-fatal {
-        color: red;
-        font-style: oblique;
-        text-align: center;
-    }
-</style>
+<!-- injected by io.cyberstock.tcdop.server.integration.teamcity.web.TCDOPSettingsController -->
+<%--@elvariable id="webConfig" type="java.util.Map"--%>
 
 <script type="text/javascript">
-    BS.LoadStyleSheetDynamically("<c:url value='${resPath}do-profile-settings.css'/>");
+    BS.LoadStyleSheetDynamically("<c:url value='${webConfig.get(STYLES_PATH)}'/>");
 </script>
 
 <br/>

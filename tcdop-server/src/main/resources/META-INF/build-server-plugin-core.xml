@@ -9,5 +9,6 @@
 
     <!-- integration with TeamCity -->
     <bean id="TCCloudClientFactory" class="io.cyberstock.tcdop.server.integration.teamcity.TCCloudClientFactory"/>
+    <bean id="TCDOPSettingsController" class="io.cyberstock.tcdop.server.integration.teamcity.web.TCDOPSettingsController"/>
 
 </beans>

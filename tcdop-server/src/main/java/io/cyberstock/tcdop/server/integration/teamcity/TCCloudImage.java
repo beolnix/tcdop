@@ -51,4 +51,13 @@ public class TCCloudImage implements CloudImage {
     public CloudErrorInfo getErrorInfo() {
         return null;
     }
+
+    @Override
+    public String toString() {
+        return "TCCloudImage{" +
+                "cloudImage=" + cloudImage +
+                ", id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }

@@ -85,4 +85,15 @@ public class TCCloudInstance implements CloudInstance {
     public Droplet getDroplet() {
         return this.droplet;
     }
+
+    @Override
+    public String toString() {
+        return "TCCloudInstance{" +
+                "cloudImage=" + cloudImage +
+                ", userData=" + userData +
+                ", instanceStatus=" + instanceStatus +
+                ", cloudErrorInfo=" + cloudErrorInfo +
+                ", droplet=" + droplet +
+                '}';
+    }
 }
