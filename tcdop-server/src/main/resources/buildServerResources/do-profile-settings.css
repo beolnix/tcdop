@@ -1,0 +1,18 @@
+.tcdop-property-label-container {
+    width: 70px;
+    text-align: left;
+}
+
+.tcdop-error-container {
+    text-align: left;
+}
+
+.tcdop-error-msg {
+    margin-left: 5px;
+}
+
+.tcdop-fatal {
+    color: red;
+    font-style: oblique;
+    text-align: center;
+}
