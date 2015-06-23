@@ -63,16 +63,16 @@
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </repository>
 
-        <repository>
-            <id>beolnix-releases</id>
-            <name>releases repo</name>
-            <url>http://nexus.beolnix.com/content/repositories/releases/</url>
-        </repository>
-        <repository>
-            <id>beolnix-snapshots</id>
-            <name>snapshots repo</name>
-            <url>http://nexus.beolnix.com/content/repositories/snapshots/</url>
-        </repository>
+        <!--<repository>-->
+            <!--<id>beolnix-releases</id>-->
+            <!--<name>releases repo</name>-->
+            <!--<url>http://nexus.beolnix.com/content/repositories/releases/</url>-->
+        <!--</repository>-->
+        <!--<repository>-->
+            <!--<id>beolnix-snapshots</id>-->
+            <!--<name>snapshots repo</name>-->
+            <!--<url>http://nexus.beolnix.com/content/repositories/snapshots/</url>-->
+        <!--</repository>-->
     </repositories>
 
     <distributionManagement>

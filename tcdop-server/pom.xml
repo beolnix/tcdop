@@ -70,40 +70,5 @@
         </dependency>
     </dependencies>
 
-    <profiles>
-        <profile>
-            <id>dev-build</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <build>
-                <resources>
-                    <resource>
-                        <directory>src/main/resources</directory>
-                    </resource>
-                    <resource>
-                        <directory>src/main/resources-dev</directory>
-                    </resource>
-                </resources>
-            </build>
-        </profile>
-        <profile>
-            <id>prod-build</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <build>
-                <resources>
-                    <resource>
-                        <directory>src/main/resources</directory>
-                    </resource>
-                    <resource>
-                        <directory>src/main/resources-prod</directory>
-                    </resource>
-                </resources>
-            </build>
-        </profile>
-    </profiles>
-
 
 </project>

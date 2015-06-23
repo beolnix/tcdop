@@ -3,7 +3,6 @@ package io.cyberstock.tcdop.server.integration.teamcity.web;
 import com.intellij.openapi.diagnostic.Logger;
 import io.cyberstock.tcdop.model.DOConfigConstants;
 import io.cyberstock.tcdop.model.DOSettings;
-import io.cyberstock.tcdop.server.service.TCDOPLoggerService;
 import jetbrains.buildServer.controllers.ActionErrors;
 import jetbrains.buildServer.controllers.BaseFormXmlController;
 import jetbrains.buildServer.controllers.BasePropertiesBean;
@@ -36,7 +35,7 @@ public class TCDOPSettingsController extends BaseFormXmlController {
     private final WebControllerManager manager;
 
     // Constants
-    private static final Logger LOG = Logger.getInstance(TCDOPLoggerService.LOGGER_NAME);
+    private static final Logger LOG = Logger.getInstance(TCDOPSettingsController.class.getName());
     private static final String PAGE_NAME = "do-profile-settings";
     public static final String HTML_PAGE_NAME = PAGE_NAME + ".html";
     public static final String JSP_PAGE_NAME = PAGE_NAME + ".jsp";

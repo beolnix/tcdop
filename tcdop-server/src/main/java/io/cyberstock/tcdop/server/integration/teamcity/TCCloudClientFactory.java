@@ -8,7 +8,6 @@ import io.cyberstock.tcdop.server.error.UnsupportedDOModeError;
 import io.cyberstock.tcdop.server.integration.digitalocean.DOAsyncClientService;
 import io.cyberstock.tcdop.server.integration.digitalocean.DOAsyncClientServiceFactory;
 import io.cyberstock.tcdop.server.integration.teamcity.web.TCDOPSettingsController;
-import io.cyberstock.tcdop.server.service.TCDOPLoggerService;
 import jetbrains.buildServer.clouds.*;
 import jetbrains.buildServer.serverSide.AgentDescription;
 import jetbrains.buildServer.serverSide.InvalidProperty;
@@ -36,7 +35,7 @@ public class TCCloudClientFactory implements CloudClientFactory {
     private final String doProfileHtmlPath;
 
     // constants
-    private static final Logger LOG = Logger.getInstance(TCDOPLoggerService.LOGGER_NAME);
+    private static final Logger LOG = Logger.getInstance(TCCloudClientFactory.class.getName());
 
     private final static String DISPLAY_NAME = "Digital ocean type";
 

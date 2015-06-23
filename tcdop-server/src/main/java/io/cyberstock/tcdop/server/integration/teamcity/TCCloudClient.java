@@ -4,16 +4,12 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.myjeeva.digitalocean.impl.DigitalOceanClient;
 import io.cyberstock.tcdop.model.DOSettings;
 import io.cyberstock.tcdop.server.integration.digitalocean.DOAsyncClientService;
-import io.cyberstock.tcdop.server.service.TCDOPLoggerService;
 import jetbrains.buildServer.clouds.*;
 import jetbrains.buildServer.serverSide.AgentDescription;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * Created by beolnix on 24/05/15.
@@ -29,7 +25,7 @@ public class TCCloudClient implements CloudClientEx {
     private CloudErrorInfo cloudErrorInfo = null;
 
     // constants
-    private static final Logger LOG = Logger.getInstance(TCDOPLoggerService.LOGGER_NAME);
+    private static final Logger LOG = Logger.getInstance(TCCloudClient.class.getName());
 
 
     TCCloudClient(@NotNull DOSettings settings,
