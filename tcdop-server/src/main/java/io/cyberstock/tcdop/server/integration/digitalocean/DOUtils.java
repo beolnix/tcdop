@@ -1,5 +1,6 @@
 package io.cyberstock.tcdop.server.integration.digitalocean;
 
+import com.google.common.base.Optional;
 import com.myjeeva.digitalocean.exception.DigitalOceanException;
 import com.myjeeva.digitalocean.exception.RequestUnsuccessfulException;
 import com.myjeeva.digitalocean.impl.DigitalOceanClient;
@@ -8,6 +9,7 @@ import com.myjeeva.digitalocean.pojo.Droplets;
 import com.myjeeva.digitalocean.pojo.Image;
 import com.myjeeva.digitalocean.pojo.Images;
 import io.cyberstock.tcdop.model.error.DOError;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -17,7 +19,7 @@ import java.util.List;
  */
 public class DOUtils {
 
-    public static Droplet findDropletByName(DigitalOceanClient doClient, String dropletName) throws Exception {
+    public static Optional<Droplet> findDropletByName(DigitalOceanClient doClient, String dropletName) throws DigitalOceanException, RequestUnsuccessfulException {
         int pageNumber = 0;
         while (true) {
             Droplets droplets = doClient.getAvailableDroplets(pageNumber);
@@ -27,7 +29,7 @@ public class DOUtils {
             } else {
                 for (Droplet droplet : dropletList) {
                     if (droplet.getName().equals(dropletName)) {
-                        return droplet;
+                        return Optional.of(droplet);
                     }
                 }
             }
@@ -35,10 +37,10 @@ public class DOUtils {
             ++pageNumber;
         }
 
-        return null;
+        return Optional.absent();
     }
 
-    public static Image findImageByName(DigitalOceanClient doClient, String imageName) throws Exception {
+    public static Optional<Image> findImageByName(DigitalOceanClient doClient, String imageName) throws DigitalOceanException, RequestUnsuccessfulException {
         int pageNumber = 0;
         while (true) {
             Images images = doClient.getUserImages(pageNumber);
@@ -48,7 +50,7 @@ public class DOUtils {
             } else {
                 for (Image image : imageList) {
                     if (image.getName().equals(imageName)) {
-                        return image;
+                        return Optional.of(image);
                     }
                 }
             }
@@ -56,7 +58,7 @@ public class DOUtils {
             ++pageNumber;
         }
 
-        return null;
+        return Optional.absent();
     }
 
     public static List<Image> getImages(DigitalOceanClient doClient) throws DOError {

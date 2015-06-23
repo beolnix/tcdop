@@ -1,12 +1,16 @@
 package io.cyberstock.tcdop.server.service;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.myjeeva.digitalocean.exception.DigitalOceanException;
 import com.myjeeva.digitalocean.exception.RequestUnsuccessfulException;
 import com.myjeeva.digitalocean.impl.DigitalOceanClient;
+import com.myjeeva.digitalocean.pojo.Droplet;
+import com.myjeeva.digitalocean.pojo.Image;
 import io.cyberstock.tcdop.model.DOConfigConstants;
 import io.cyberstock.tcdop.model.DOIntegrationMode;
 import io.cyberstock.tcdop.model.DOSettings;
+import io.cyberstock.tcdop.server.integration.digitalocean.DOUtils;
 import jetbrains.buildServer.serverSide.InvalidProperty;
 
 import java.util.Collection;
@@ -33,7 +37,7 @@ public class ConfigurationValidator {
 
     private static Collection<InvalidProperty> validatePreparedImageProperties(DOSettings settings) {
         if (Strings.isNullOrEmpty(settings.getImageId())) {
-            return Collections.singletonList(new InvalidProperty(DOConfigConstants.IMAGE_ID,
+            return Collections.singletonList(new InvalidProperty(DOConfigConstants.IMAGE_NAME,
                     "Image id must be provided for " + settings.getMode().toString() + " mode"));
         }
 
@@ -67,16 +71,20 @@ public class ConfigurationValidator {
         return Collections.EMPTY_LIST;
     }
 
-    private static Collection<InvalidProperty> validateImage(String imageId, String token) {
+    private static Collection<InvalidProperty> validateImage(String imageName, String token) {
         DigitalOceanClient client = new DigitalOceanClient(token);
 
         try {
-            client.getImageInfo(imageId);
+            Optional<Image> imageOpt = DOUtils.findImageByName(client, imageName);
+            if (!imageOpt.isPresent()) {
+                return Collections.singletonList(new InvalidProperty(DOConfigConstants.IMAGE_NAME,
+                        "Image with name \"" + imageName + "\" not found in user images."));
+            }
         } catch (DigitalOceanException e) {
-            return Collections.singletonList(new InvalidProperty(DOConfigConstants.IMAGE_ID,
+            return Collections.singletonList(new InvalidProperty(DOConfigConstants.IMAGE_NAME,
                     "Provided image id doesn't seem to be valid"));
         } catch (RequestUnsuccessfulException e) {
-            return Collections.singletonList(new InvalidProperty(DOConfigConstants.IMAGE_ID,
+            return Collections.singletonList(new InvalidProperty(DOConfigConstants.IMAGE_NAME,
                     "Can't reach Digital Ocean in order to verify is everything fine with provided image id."));
         }
 

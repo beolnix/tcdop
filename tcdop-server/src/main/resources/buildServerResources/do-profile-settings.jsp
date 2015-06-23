@@ -6,7 +6,7 @@
 
 <%@ page import="io.cyberstock.tcdop.model.DOConfigConstants" %>
 <c:set var="apiKey" value="<%=DOConfigConstants.TOKEN%>"/>
-<c:set var="imageId" value="<%=DOConfigConstants.IMAGE_ID%>"/>
+<c:set var="imageId" value="<%=DOConfigConstants.IMAGE_NAME%>"/>
 <c:set var="sshPrivateKey" value="<%=DOConfigConstants.SSH_PRIVATE_KEY%>"/>
 <c:set var="sshPublicKey" value="<%=DOConfigConstants.SSH_PUBLIC_KEY%>"/>
 <c:set var="agentConfigType" value="<%=DOConfigConstants.DO_INTEGRATION_MODE%>"/>
@@ -58,7 +58,7 @@
     </tr>
 
     <tr id="${SINGLE_INSTANCE_TYPE}_section">
-        <th class="tcdop-property-label-container">Image ID</th>
+        <th class="tcdop-property-label-container">Image Name</th>
         <td>
             <props:textProperty name="${imageId}" className="longField"/>
         </td>

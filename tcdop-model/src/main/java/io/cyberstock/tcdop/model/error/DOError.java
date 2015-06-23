@@ -7,4 +7,8 @@ public class DOError extends Exception {
     public DOError(String message, Throwable cause) {
         super(message, cause);
     }
+
+    public DOError(String message) {
+        super(message);
+    }
 }

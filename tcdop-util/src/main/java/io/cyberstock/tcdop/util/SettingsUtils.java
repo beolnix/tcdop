@@ -1,7 +1,6 @@
 package io.cyberstock.tcdop.util;
 
 import io.cyberstock.tcdop.model.DOConfigConstants;
-import io.cyberstock.tcdop.model.DOIntegrationMode;
 import io.cyberstock.tcdop.model.DOSettings;
 import jetbrains.buildServer.clouds.CloudClientParameters;
 
@@ -21,8 +20,8 @@ public class SettingsUtils {
         String token = cloudClientParameters.getParameter(DOConfigConstants.TOKEN);
         paramsMap.put(DOConfigConstants.TOKEN, token);
 
-        String imageId = cloudClientParameters.getParameter(DOConfigConstants.IMAGE_ID);
-        paramsMap.put(DOConfigConstants.IMAGE_ID, imageId);
+        String imageId = cloudClientParameters.getParameter(DOConfigConstants.IMAGE_NAME);
+        paramsMap.put(DOConfigConstants.IMAGE_NAME, imageId);
 
         return new DOSettings(paramsMap);
     }

@@ -20,7 +20,7 @@ public class DOSettings {
         this.mode = DOIntegrationMode.getByCode(strMode);
 
         this.token = stringStringMap.get(DOConfigConstants.TOKEN);
-        this.imageId = stringStringMap.get(DOConfigConstants.IMAGE_ID);
+        this.imageId = stringStringMap.get(DOConfigConstants.IMAGE_NAME);
     }
 
     public String getStrMode() {

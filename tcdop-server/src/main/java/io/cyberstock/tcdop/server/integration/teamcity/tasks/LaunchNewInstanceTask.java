@@ -1,5 +1,6 @@
 package io.cyberstock.tcdop.server.integration.teamcity.tasks;
 
+import com.google.common.base.Optional;
 import com.myjeeva.digitalocean.impl.DigitalOceanClient;
 import com.myjeeva.digitalocean.pojo.Droplet;
 import com.myjeeva.digitalocean.pojo.Image;
@@ -9,6 +10,8 @@ import io.cyberstock.tcdop.server.integration.digitalocean.DOUtils;
 import io.cyberstock.tcdop.server.integration.teamcity.TCCloudInstance;
 import jetbrains.buildServer.clouds.CloudErrorInfo;
 import jetbrains.buildServer.clouds.InstanceStatus;
+
+
 
 /**
  * Created by beolnix on 24/05/15.
@@ -25,37 +28,48 @@ public class LaunchNewInstanceTask implements Runnable {
     }
 
     public void run() {
-        Droplet droplet = null;
+        Optional<Droplet> dropletOpt;
 
         try {
-            droplet = DOUtils.findDropletByName(doClient, cloudInstance.getName());
+            dropletOpt = DOUtils.findDropletByName(doClient, cloudInstance.getName());
         } catch (Exception e) {
             cloudInstance.updateStatus(InstanceStatus.ERROR);
             cloudInstance.updateErrorInfo(new CloudErrorInfo(e.getMessage(), "Can't get list of droplets from DO", e));
             return;
         }
-        if (droplet != null) {
-            startDroplet(droplet);
+        if (dropletOpt.isPresent()) {
+            startDroplet(dropletOpt.get());
         } else {
-            createAndStartDroplet();
+
+            try {
+                createAndStartDroplet();
+            } catch (DOError e) {
+                cloudInstance.updateStatus(InstanceStatus.ERROR);
+                cloudInstance.updateErrorInfo(new CloudErrorInfo(e.getMessage(), "DO communication error.", e));
+                return;
+            }
         }
     }
 
-    private void createAndStartDroplet() {
+    private void createAndStartDroplet() throws DOError {
 
-        Image image = null;
+        Optional<Image> imageOpt = null;
 
         try {
-            image = DOUtils.findImageByName(doClient, cloudInstance.getImageId());
+            imageOpt = DOUtils.findImageByName(doClient, cloudInstance.getImageId());
         } catch (Exception e) {
             cloudInstance.updateStatus(InstanceStatus.ERROR);
             cloudInstance.updateErrorInfo(new CloudErrorInfo(e.getMessage(), "Can't find image by name: " + cloudInstance.getImageId(), e));
             return;
         }
 
+        if (!imageOpt.isPresent()) {
+            throw new DOError("Image with id \"" + cloudInstance.getImageId() + "\" isn't found in user images.");
+        }
+
         Droplet droplet = new Droplet();
         droplet.setName(cloudInstance.getName());
-        droplet.setImage(image);
+        droplet.setImage(imageOpt.get());
 
         Droplet createdDroplet = null;
         try {
