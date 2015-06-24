@@ -16,7 +16,7 @@ public class TCCloudInstance implements CloudInstance {
 
     private TCCloudImage cloudImage;
     private CloudInstanceUserData userData;
-    private InstanceStatus instanceStatus = InstanceStatus.UNKNOWN;
+    private InstanceStatus instanceStatus = InstanceStatus.SCHEDULED_TO_START;
     private CloudErrorInfo cloudErrorInfo;
     private Droplet droplet;
 
@@ -28,7 +28,11 @@ public class TCCloudInstance implements CloudInstance {
 
     @NotNull
     public String getInstanceId() {
-        return null;
+        if (droplet != null) {
+            return droplet.getId().toString();
+        } else {
+            return null;
+        }
     }
 
     public void updateStatus(InstanceStatus newStatus) {

@@ -1,11 +1,10 @@
 package io.cyberstock.tcdop.server.integration.teamcity;
 
 import com.intellij.openapi.diagnostic.Logger;
-import com.myjeeva.digitalocean.impl.DigitalOceanClient;
 import io.cyberstock.tcdop.model.DOConfigConstants;
 import io.cyberstock.tcdop.model.DOSettings;
 import io.cyberstock.tcdop.server.error.UnsupportedDOModeError;
-import io.cyberstock.tcdop.server.integration.digitalocean.DOAsyncClientService;
+import io.cyberstock.tcdop.server.integration.digitalocean.DOAsyncClientServiceWrapper;
 import io.cyberstock.tcdop.server.integration.digitalocean.DOAsyncClientServiceFactory;
 import io.cyberstock.tcdop.server.integration.teamcity.web.TCDOPSettingsController;
 import jetbrains.buildServer.clouds.*;
@@ -13,7 +12,6 @@ import jetbrains.buildServer.serverSide.AgentDescription;
 import jetbrains.buildServer.serverSide.InvalidProperty;
 import jetbrains.buildServer.serverSide.PropertiesProcessor;
 import jetbrains.buildServer.web.openapi.PluginDescriptor;
-import org.apache.log4j.Level;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -58,7 +56,7 @@ public class TCCloudClientFactory implements CloudClientFactory {
             throw new UnsupportedDOModeError(settings.getMode());
         }
 
-        DOAsyncClientService client = asyncClientServiceFactory.createClient(settings.getToken());
+        DOAsyncClientServiceWrapper client = asyncClientServiceFactory.createClient(settings.getToken());
 
         TCCloudClient cloudClient = new TCCloudClient(settings, client);
         cloudClient.setReadyFlag(true);

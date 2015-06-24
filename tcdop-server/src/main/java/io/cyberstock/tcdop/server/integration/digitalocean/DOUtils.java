@@ -19,6 +19,11 @@ import java.util.List;
  */
 public class DOUtils {
 
+    public static Optional<Droplet> findDropletById(DigitalOceanClient doClient, Integer dropletId) throws DigitalOceanException, RequestUnsuccessfulException {
+        Droplet dropletInfo = doClient.getDropletInfo(dropletId);
+        return Optional.fromNullable(dropletInfo);
+    }
+
     public static Optional<Droplet> findDropletByName(DigitalOceanClient doClient, String dropletName) throws DigitalOceanException, RequestUnsuccessfulException {
         int pageNumber = 0;
         while (true) {
@@ -83,5 +88,9 @@ public class DOUtils {
         }
 
         return resultList;
+    }
+
+    public static Optional<Droplet> findDropletById(DigitalOceanClient doClient, String dropletId) throws DigitalOceanException, RequestUnsuccessfulException {
+        return findDropletById(doClient, Integer.parseInt(dropletId));
     }
 }

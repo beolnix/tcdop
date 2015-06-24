@@ -15,10 +15,10 @@ public class DOAsyncClientServiceFactory {
         this.executor = executor;
     }
 
-    public DOAsyncClientService createClient(String token) {
-        DigitalOceanClient doCleint = new DigitalOceanClient(token);
-
-        return new DOAsyncClientService(executor, doCleint);
+    public DOAsyncClientServiceWrapper createClient(String token) {
+        DigitalOceanClient doClient = new DigitalOceanClient(token);
+        DOClientService clientService = new DOClientService(doClient);
+        return new DOAsyncClientServiceWrapper(executor, clientService);
     }
 
 }

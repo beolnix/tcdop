@@ -1,9 +1,8 @@
 package io.cyberstock.tcdop.server.integration.teamcity;
 
 import com.intellij.openapi.diagnostic.Logger;
-import com.myjeeva.digitalocean.impl.DigitalOceanClient;
 import io.cyberstock.tcdop.model.DOSettings;
-import io.cyberstock.tcdop.server.integration.digitalocean.DOAsyncClientService;
+import io.cyberstock.tcdop.server.integration.digitalocean.DOAsyncClientServiceWrapper;
 import jetbrains.buildServer.clouds.*;
 import jetbrains.buildServer.serverSide.AgentDescription;
 import org.jetbrains.annotations.NotNull;
@@ -18,7 +17,7 @@ public class TCCloudClient implements CloudClientEx {
 
     // dependencies
     @NotNull private final DOSettings settings;
-    @NotNull private DOAsyncClientService client;
+    @NotNull private DOAsyncClientServiceWrapper client;
 
     // State
     private Boolean readyFlag = false;
@@ -29,7 +28,7 @@ public class TCCloudClient implements CloudClientEx {
 
 
     TCCloudClient(@NotNull DOSettings settings,
-                  @NotNull DOAsyncClientService client) {
+                  @NotNull DOAsyncClientServiceWrapper client) {
         this.settings = settings;
         this.client = client;
     }
@@ -48,7 +47,7 @@ public class TCCloudClient implements CloudClientEx {
         TCCloudImage tcCloudImage = new TCCloudImage(cloudImage);
         TCCloudInstance instance = new TCCloudInstance(tcCloudImage, cloudInstanceUserData);
 
-        client.findOrCreateDroplet(instance);
+        client.initializeInstance(instance);
         return instance;
     }
 

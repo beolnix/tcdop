@@ -1,4 +1,4 @@
-package io.cyberstock.tcdop.server.integration.teamcity.tasks;
+package io.cyberstock.tcdop.server.integration.digitalocean.tasks;
 
 import com.myjeeva.digitalocean.impl.DigitalOceanClient;
 import io.cyberstock.tcdop.server.integration.teamcity.TCCloudInstance;
