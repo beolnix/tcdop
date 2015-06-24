@@ -4,13 +4,12 @@ import com.google.common.base.Optional;
 import com.myjeeva.digitalocean.exception.DigitalOceanException;
 import com.myjeeva.digitalocean.exception.RequestUnsuccessfulException;
 import com.myjeeva.digitalocean.impl.DigitalOceanClient;
-import com.myjeeva.digitalocean.pojo.Droplet;
-import com.myjeeva.digitalocean.pojo.Droplets;
-import com.myjeeva.digitalocean.pojo.Image;
-import com.myjeeva.digitalocean.pojo.Images;
+import com.myjeeva.digitalocean.pojo.*;
+import io.cyberstock.tcdop.model.DropletConfig;
 import io.cyberstock.tcdop.model.error.DOError;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -19,8 +18,15 @@ import java.util.List;
  */
 public class DOUtils {
 
-    public static Optional<Droplet> findDropletById(DigitalOceanClient doClient, Integer dropletId) throws DigitalOceanException, RequestUnsuccessfulException {
-        Droplet dropletInfo = doClient.getDropletInfo(dropletId);
+    public static Optional<Droplet> findDropletById(DigitalOceanClient doClient, Integer dropletId) throws DOError {
+        Droplet dropletInfo = null;
+        try {
+            dropletInfo = doClient.getDropletInfo(dropletId);
+        } catch (DigitalOceanException e) {
+            throw new DOError("Can't find droplet with id: " + dropletId, e);
+        } catch (RequestUnsuccessfulException e) {
+            throw new DOError("Can't find droplet with id: " + dropletId, e);
+        }
         return Optional.fromNullable(dropletInfo);
     }
 
@@ -45,10 +51,75 @@ public class DOUtils {
         return Optional.absent();
     }
 
-    public static Optional<Image> findImageByName(DigitalOceanClient doClient, String imageName) throws DigitalOceanException, RequestUnsuccessfulException {
+    @NotNull
+    public static Droplet createInstance(DigitalOceanClient doClient, DropletConfig dropletConfig) throws DOError {
+        Droplet droplet = new Droplet();
+        droplet.setDiskSize(dropletConfig.getDiskSize());
+        droplet.setMemorySizeInMb(dropletConfig.getMemorySizeInMb());
+        droplet.setName(dropletConfig.getDropletName());
+        droplet.setRegion(dropletConfig.getRegion());
+        droplet.setKeys(dropletConfig.getKeys());
+
+        Optional<Image> imageOpt = DOUtils.findImageByName(doClient, dropletConfig.getImageName());
+        if (!imageOpt.isPresent()) {
+            throw new DOError("There is no image with name \"" + dropletConfig.getImageName() + "\" in user images.");
+        }
+        droplet.setImage(imageOpt.get());
+
+        try {
+            Droplet createdDroplet = doClient.createDroplet(droplet);
+            return createdDroplet;
+        } catch (DigitalOceanException e) {
+            throw new DOError("Can't create droplet.", e);
+        } catch (RequestUnsuccessfulException e) {
+            throw new DOError("Can't create droplet.", e);
+        }
+    }
+
+    public static Date startInstance(DigitalOceanClient doClient, Integer instanceId) throws DOError {
+        try {
+            Action action = doClient.powerOnDroplet(instanceId);
+            return action.getCompletedAt();
+        } catch (DigitalOceanException e) {
+            throw new DOError("Can't start instance with id: " + instanceId , e);
+        } catch (RequestUnsuccessfulException e) {
+            throw new DOError("Can't start instance with id: " + instanceId , e);
+        }
+    }
+
+    public static Date stopInstance(DigitalOceanClient doClient, Integer instanceId) throws DOError {
+        try {
+            Action action = doClient.powerOffDroplet(instanceId);
+            return action.getCompletedAt();
+        } catch (DigitalOceanException e) {
+            throw new DOError("Can't stop instance with id: " + instanceId , e);
+        } catch (RequestUnsuccessfulException e) {
+            throw new DOError("Can't stop instance with id: " + instanceId , e);
+        }
+    }
+
+    public static Date restartInstance(DigitalOceanClient doClient, Integer instanceId) throws DOError {
+        try {
+            Action action = doClient.rebootDroplet(instanceId);
+            return action.getCompletedAt();
+        } catch (DigitalOceanException e) {
+            throw new DOError("Can't restart instance with id: " + instanceId , e);
+        } catch (RequestUnsuccessfulException e) {
+            throw new DOError("Can't restart instance with id: " + instanceId , e);
+        }
+    }
+
+    public static Optional<Image> findImageByName(DigitalOceanClient doClient, String imageName) throws DOError{
         int pageNumber = 0;
         while (true) {
-            Images images = doClient.getUserImages(pageNumber);
+            Images images = null;
+            try {
+                images = doClient.getUserImages(pageNumber);
+            } catch (DigitalOceanException e) {
+                throw new DOError("Can't find image by name \"" + imageName + "\".", e);
+            } catch (RequestUnsuccessfulException e) {
+                throw new DOError("Can't find image by name \"" + imageName + "\".", e);
+            }
             List<Image> imageList = images.getImages();
             if (imageList.isEmpty()) {
                 break;
@@ -90,7 +161,4 @@ public class DOUtils {
         return resultList;
     }
 
-    public static Optional<Droplet> findDropletById(DigitalOceanClient doClient, String dropletId) throws DigitalOceanException, RequestUnsuccessfulException {
-        return findDropletById(doClient, Integer.parseInt(dropletId));
-    }
 }

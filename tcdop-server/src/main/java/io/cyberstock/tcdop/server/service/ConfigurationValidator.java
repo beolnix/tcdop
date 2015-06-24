@@ -10,6 +10,7 @@ import com.myjeeva.digitalocean.pojo.Image;
 import io.cyberstock.tcdop.model.DOConfigConstants;
 import io.cyberstock.tcdop.model.DOIntegrationMode;
 import io.cyberstock.tcdop.model.DOSettings;
+import io.cyberstock.tcdop.model.error.DOError;
 import io.cyberstock.tcdop.server.integration.digitalocean.DOUtils;
 import jetbrains.buildServer.serverSide.InvalidProperty;
 
@@ -36,12 +37,12 @@ public class ConfigurationValidator {
     }
 
     private static Collection<InvalidProperty> validatePreparedImageProperties(DOSettings settings) {
-        if (Strings.isNullOrEmpty(settings.getImageId())) {
+        if (Strings.isNullOrEmpty(settings.getImageName())) {
             return Collections.singletonList(new InvalidProperty(DOConfigConstants.IMAGE_NAME,
                     "Image id must be provided for " + settings.getMode().toString() + " mode"));
         }
 
-        return validateImage(settings.getImageId(), settings.getToken());
+        return validateImage(settings.getImageName(), settings.getToken());
     }
 
 
@@ -80,12 +81,9 @@ public class ConfigurationValidator {
                 return Collections.singletonList(new InvalidProperty(DOConfigConstants.IMAGE_NAME,
                         "Image with name \"" + imageName + "\" not found in user images."));
             }
-        } catch (DigitalOceanException e) {
+        } catch (DOError e) {
             return Collections.singletonList(new InvalidProperty(DOConfigConstants.IMAGE_NAME,
                     "Provided image id doesn't seem to be valid"));
-        } catch (RequestUnsuccessfulException e) {
-            return Collections.singletonList(new InvalidProperty(DOConfigConstants.IMAGE_NAME,
-                    "Can't reach Digital Ocean in order to verify is everything fine with provided image id."));
         }
 
         return Collections.EMPTY_LIST;

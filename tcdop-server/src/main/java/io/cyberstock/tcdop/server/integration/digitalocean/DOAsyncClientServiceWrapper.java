@@ -1,13 +1,7 @@
 package io.cyberstock.tcdop.server.integration.digitalocean;
 
 import com.intellij.openapi.diagnostic.Logger;
-import com.myjeeva.digitalocean.pojo.Droplet;
-import io.cyberstock.tcdop.model.error.DOError;
 import io.cyberstock.tcdop.server.integration.teamcity.TCCloudInstance;
-import io.cyberstock.tcdop.server.integration.digitalocean.tasks.InstanceInitializationTask;
-import io.cyberstock.tcdop.server.integration.digitalocean.tasks.StartInstanceTask;
-import jetbrains.buildServer.clouds.CloudErrorInfo;
-import jetbrains.buildServer.clouds.InstanceStatus;
 
 import java.util.concurrent.ExecutorService;
 
@@ -28,31 +22,35 @@ public class DOAsyncClientServiceWrapper {
         this.clientService = clientService;
     }
 
-    public void restartInstance(TCCloudInstance cloudInstance) {
-        //TODO
+    public void restartInstance(final TCCloudInstance cloudInstance) {
+        executorService.execute(new Runnable() {
+            public void run() {
+                clientService.restartInstance(cloudInstance);
+            }
+        });
     }
 
-    public void terminateInstance(TCCloudInstance cloudInstance) {
-        //TODO
+    public void terminateInstance(final TCCloudInstance cloudInstance) {
+        executorService.execute(new Runnable() {
+            public void run() {
+                clientService.terminateInstance(cloudInstance);
+            }
+        });
     }
 
     public void initializeInstance(final TCCloudInstance cloudInstance) {
-        executorService.execute(new InstanceInitializationTask(clientService, cloudInstance, new DOCallback<Droplet, DOError>() {
-            public void onSuccess(Droplet droplet) {
-                cloudInstance.setDroplet(droplet);
-                cloudInstance.updateStatus(InstanceStatus.RUNNING);
+        executorService.execute(new Runnable() {
+            public void run() {
+                clientService.initializeInstance(cloudInstance);
             }
-
-            public void onFailure(DOError error) {
-                cloudInstance.updateStatus(InstanceStatus.ERROR);
-                cloudInstance.updateErrorInfo(new CloudErrorInfo(error.getMessage()));
-            }
-        }));
+        });
     }
-
-
 
     public void shutdown() {
         executorService.shutdown();
+    }
+
+    public DOClientService getClientService() {
+        return clientService;
     }
 }
