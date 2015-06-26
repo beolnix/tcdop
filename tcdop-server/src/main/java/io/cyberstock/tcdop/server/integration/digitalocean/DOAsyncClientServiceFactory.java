@@ -10,14 +10,16 @@ import java.util.concurrent.ExecutorService;
 public class DOAsyncClientServiceFactory {
 
     private final ExecutorService executor;
+    private final DOClientServiceFactory clientServiceFactory;
 
-    public DOAsyncClientServiceFactory(ExecutorService executor) {
+    public DOAsyncClientServiceFactory(ExecutorService executor,
+                                       DOClientServiceFactory clientServiceFactory) {
         this.executor = executor;
+        this.clientServiceFactory = clientServiceFactory;
     }
 
     public DOAsyncClientServiceWrapper createClient(String token) {
-        DigitalOceanClient doClient = new DigitalOceanClient(token);
-        DOClientService clientService = new DOClientService(doClient);
+        DOClientService clientService = clientServiceFactory.createClient(token);
         return new DOAsyncClientServiceWrapper(executor, clientService);
     }
 

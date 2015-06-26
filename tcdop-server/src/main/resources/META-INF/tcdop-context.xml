@@ -14,8 +14,11 @@
     </bean>
 
     <!-- core plugin services -->
-    <bean id="DOClientFactory" class="io.cyberstock.tcdop.server.integration.digitalocean.DOAsyncClientServiceFactory">
+    <bean id="DOClientFactory" class="io.cyberstock.tcdop.server.integration.digitalocean.DOClientServiceFactory"/>
+
+    <bean id="DOAsyncClientFactory" class="io.cyberstock.tcdop.server.integration.digitalocean.DOAsyncClientServiceFactory">
         <constructor-arg ref="TCDOPExecutorService"/>
+        <constructor-arg ref="DOClientFactory"/>
     </bean>
 
     <bean id="TCDOPExecutorService" class="java.util.concurrent.Executors" factory-method="newFixedThreadPool">

@@ -104,11 +104,11 @@ public class TCCloudClient implements CloudClientEx {
     }
 
     public boolean canStartNewInstance(@NotNull CloudImage cloudImage) {
-        return false;
+        return true;
     }
 
     @Nullable
     public String generateAgentName(@NotNull AgentDescription agentDescription) {
-        return "testAgent";
+        return "DO_AGENT_" + UUID.randomUUID();
     }
 }
