@@ -2,16 +2,18 @@ package io.cyberstock.tcdop.server.integration.teamcity;
 
 import com.intellij.openapi.diagnostic.Logger;
 import io.cyberstock.tcdop.model.AgentParamKey;
+import io.cyberstock.tcdop.model.DOIntegrationMode;
 import io.cyberstock.tcdop.model.DOSettings;
+import io.cyberstock.tcdop.server.integration.digitalocean.CloudImageStorage;
 import io.cyberstock.tcdop.server.integration.digitalocean.DOAsyncClientServiceWrapper;
 import jetbrains.buildServer.clouds.*;
 import jetbrains.buildServer.serverSide.AgentDescription;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.Collections;
 import java.util.UUID;
 
 /**
@@ -21,21 +23,24 @@ public class TCCloudClient implements CloudClientEx {
 
     // dependencies
     @NotNull private final DOSettings settings;
-    @NotNull private DOAsyncClientServiceWrapper client;
+    @NotNull private final DOAsyncClientServiceWrapper client;
+    @NotNull private final CloudImageStorage imageStorage;
 
     // State
     private Boolean readyFlag = true;
     private CloudErrorInfo cloudErrorInfo = null;
-    private List<TCCloudImage> cloudImages = new ArrayList<TCCloudImage>();
+
 
     // constants
     private static final Logger LOG = Logger.getInstance(TCCloudClient.class.getName());
 
 
     TCCloudClient(@NotNull DOSettings settings,
-                  @NotNull DOAsyncClientServiceWrapper client) {
+                  @NotNull DOAsyncClientServiceWrapper client,
+                  @NotNull CloudImageStorage imageStorage) {
         this.settings = settings;
         this.client = client;
+        this.imageStorage = imageStorage;
     }
 
     public void setReadyFlag(Boolean readyFlag) {
@@ -49,22 +54,12 @@ public class TCCloudClient implements CloudClientEx {
     @NotNull
     public CloudInstance startNewInstance(@NotNull CloudImage cloudImage, @NotNull CloudInstanceUserData cloudInstanceUserData) throws QuotaException {
 
-        enrichCloudInstanceUserData(cloudInstanceUserData);
-
-        TCCloudImage tcCloudImage = new TCCloudImage(cloudImage, settings);
-        TCCloudInstance instance = new TCCloudInstance(tcCloudImage, cloudInstanceUserData, settings);
+        TCCloudImage tcCloudImage = (TCCloudImage) cloudImage;
+        TCCloudInstance instance = new TCCloudInstance(tcCloudImage);
         tcCloudImage.addInstance(instance);
 
-        cloudImages.add(tcCloudImage);
-
-        client.initializeInstance(instance);
+        client.initializeInstance(instance, settings);
         return instance;
-    }
-
-    public void enrichCloudInstanceUserData(CloudInstanceUserData cloudInstanceUserData) {
-        if (!cloudInstanceUserData.getCustomAgentConfigurationParameters().containsKey(AgentParamKey.AGENT_ID)) {
-            cloudInstanceUserData.addAgentConfigurationParameter(AgentParamKey.AGENT_ID, "DO_AGENT_" + UUID.randomUUID());
-        }
     }
 
     public void restartInstance(@NotNull CloudInstance cloudInstance) {
@@ -85,17 +80,36 @@ public class TCCloudClient implements CloudClientEx {
 
     @Nullable
     public CloudImage findImageById(@NotNull String s) throws CloudException {
+        if (DOIntegrationMode.PREPARED_IMAGE.equals(settings.getMode())) {
+            TCCloudImage cloudImage = imageStorage.getImageById(s);
+            if (cloudImage != null && settings.getImageName().equals(cloudImage.getName())) {
+                return cloudImage;
+            }
+        } else {
+            throw new NotImplementedException();
+        }
         return null;
     }
 
     @Nullable
     public CloudInstance findInstanceByAgent(@NotNull AgentDescription agentDescription) {
+        String agentId = agentDescription.getConfigurationParameters().get(AgentParamKey.AGENT_ID);
+
         return null;
     }
 
     @NotNull
     public Collection<? extends CloudImage> getImages() throws CloudException {
-        return cloudImages;
+        if (DOIntegrationMode.PREPARED_IMAGE.equals(settings.getMode())) {
+            for (TCCloudImage cloudImage : imageStorage.getImagesList()) {
+                if (cloudImage != null && settings.getImageName().equals(cloudImage.getName())) {
+                    return Collections.singleton(cloudImage);
+                }
+            }
+        } else {
+            throw new NotImplementedException();
+        }
+        return Collections.EMPTY_LIST;
     }
 
     @Nullable

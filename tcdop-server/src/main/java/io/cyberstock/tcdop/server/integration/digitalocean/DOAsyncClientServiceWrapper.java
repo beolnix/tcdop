@@ -1,6 +1,8 @@
 package io.cyberstock.tcdop.server.integration.digitalocean;
 
 import com.intellij.openapi.diagnostic.Logger;
+import io.cyberstock.tcdop.model.DOSettings;
+import io.cyberstock.tcdop.server.integration.teamcity.TCCloudImage;
 import io.cyberstock.tcdop.server.integration.teamcity.TCCloudInstance;
 
 import java.util.concurrent.ExecutorService;
@@ -38,10 +40,10 @@ public class DOAsyncClientServiceWrapper {
         });
     }
 
-    public void initializeInstance(final TCCloudInstance cloudInstance) {
+    public void initializeInstance(final TCCloudInstance cloudInstance, final DOSettings settings) {
         executorService.execute(new Runnable() {
             public void run() {
-                clientService.initializeInstance(cloudInstance);
+                clientService.initializeInstance(cloudInstance, settings);
             }
         });
     }

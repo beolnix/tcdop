@@ -4,6 +4,8 @@ import com.intellij.openapi.diagnostic.Logger;
 import io.cyberstock.tcdop.model.DOConfigConstants;
 import io.cyberstock.tcdop.model.DOSettings;
 import io.cyberstock.tcdop.server.error.UnsupportedDOModeError;
+import io.cyberstock.tcdop.server.integration.digitalocean.CloudImageStorage;
+import io.cyberstock.tcdop.server.integration.digitalocean.CloudImageStorageFactory;
 import io.cyberstock.tcdop.server.integration.digitalocean.DOAsyncClientServiceWrapper;
 import io.cyberstock.tcdop.server.integration.digitalocean.DOAsyncClientServiceFactory;
 import io.cyberstock.tcdop.server.integration.teamcity.web.TCDOPSettingsController;
@@ -28,6 +30,7 @@ public class TCCloudClientFactory implements CloudClientFactory {
 
     // dependencies
     private final DOAsyncClientServiceFactory asyncClientServiceFactory;
+    private final CloudImageStorageFactory cloudImageStorageFactory;
 
     // state
     private final String doProfileHtmlPath;
@@ -39,8 +42,10 @@ public class TCCloudClientFactory implements CloudClientFactory {
 
     public TCCloudClientFactory(@NotNull final CloudRegistrar cloudRegistrar,
                                 @NotNull final PluginDescriptor pluginDescriptor,
-                                @NotNull final DOAsyncClientServiceFactory asyncClientServiceFactory) {
+                                @NotNull final DOAsyncClientServiceFactory asyncClientServiceFactory,
+                                @NotNull final CloudImageStorageFactory cloudImageStorageFactory) {
         this.asyncClientServiceFactory = asyncClientServiceFactory;
+        this.cloudImageStorageFactory = cloudImageStorageFactory;
 
         this.doProfileHtmlPath = pluginDescriptor.getPluginResourcesPath(TCDOPSettingsController.HTML_PAGE_NAME);
         cloudRegistrar.registerCloudFactory(this);
@@ -57,8 +62,9 @@ public class TCCloudClientFactory implements CloudClientFactory {
         }
 
         DOAsyncClientServiceWrapper client = asyncClientServiceFactory.createClient(settings.getToken());
+        CloudImageStorage imageStorage = cloudImageStorageFactory.getStorage(settings.getToken());
 
-        TCCloudClient cloudClient = new TCCloudClient(settings, client);
+        TCCloudClient cloudClient = new TCCloudClient(settings, client, imageStorage);
         cloudClient.setReadyFlag(true);
 
         return cloudClient;

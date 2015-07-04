@@ -2,6 +2,7 @@ package io.cyberstock.tcdop.server.integration.teamcity;
 
 import com.myjeeva.digitalocean.pojo.Droplet;
 import io.cyberstock.tcdop.model.AgentParamKey;
+import io.cyberstock.tcdop.model.DOConfigConstants;
 import io.cyberstock.tcdop.model.DOSettings;
 import jetbrains.buildServer.clouds.*;
 import jetbrains.buildServer.serverSide.AgentDescription;
@@ -9,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Date;
+import java.util.Map;
 
 /**
  * Created by beolnix on 16/05/15.
@@ -17,32 +19,31 @@ public class TCCloudInstance implements CloudInstance {
 
     // dependencies
     private final TCCloudImage cloudImage;
-    private final CloudInstanceUserData userData;
-    private final DOSettings doSettings;
+    private String instanceId;
+    private String instanceName;
+    private Droplet droplet;
+
 
     // state
     private InstanceStatus instanceStatus = InstanceStatus.SCHEDULED_TO_START;
     private CloudErrorInfo cloudErrorInfo;
-    private Droplet droplet;
     private Date startTime;
 
-    public static final String INSTANCE_ID_PARAM_KEY = "instance_id_param_key";
+    public TCCloudInstance(@NotNull TCCloudImage cloudImage) {
+        this.cloudImage = cloudImage;
+    }
 
     public TCCloudInstance(@NotNull TCCloudImage cloudImage,
-                           @NotNull CloudInstanceUserData cloudInstanceUserData,
-                           @NotNull DOSettings doSettings) {
-        this.doSettings = doSettings;
+                           @NotNull Droplet droplet) {
         this.cloudImage = cloudImage;
-        this.userData = cloudInstanceUserData;
+        this.droplet = droplet;
+        this.instanceId = droplet.getId().toString();
+        this.instanceName = droplet.getName();
     }
 
     @NotNull
     public String getInstanceId() {
-        if (droplet != null) {
-            return droplet.getId().toString();
-        } else {
-            return userData.getCustomAgentConfigurationParameters().get(INSTANCE_ID_PARAM_KEY);
-        }
+        return instanceId;
     }
 
     public void setStartTime(Date startTime) {
@@ -59,12 +60,7 @@ public class TCCloudInstance implements CloudInstance {
 
     @NotNull
     public String getName() {
-        if (droplet != null) {
-            return droplet.getName();
-        } else {
-            return null;
-        }
-
+        return instanceName;
     }
 
     @NotNull
@@ -102,36 +98,25 @@ public class TCCloudInstance implements CloudInstance {
     }
 
     public boolean containsAgent(AgentDescription agentDescription) {
-        String agentId = agentDescription.getAvailableParameters().get(AgentParamKey.AGENT_ID);
-        if (agentId != null) {
-            return agentId.equals(userData.getCustomAgentConfigurationParameters().get(AgentParamKey.AGENT_ID));
-        } else {
-            return false;
-        }
+        final Map<String, String> configParams = agentDescription.getConfigurationParameters();
+        return getInstanceId().equals(configParams.get(DOConfigConstants.INSTANCE_ID));
     }
 
     public void setDroplet(Droplet droplet) {
         this.droplet = droplet;
-        userData.getCustomAgentConfigurationParameters().put(INSTANCE_ID_PARAM_KEY, droplet.getId().toString());
-        cloudImage.setImage(droplet.getImage());
-    }
-
-    public Droplet getDroplet() {
-        return this.droplet;
-    }
-
-    public DOSettings getDoSettings() {
-        return doSettings;
+        this.instanceId = droplet.getId().toString();
+        this.instanceName = droplet.getName();
     }
 
     @Override
     public String toString() {
         return "TCCloudInstance{" +
                 "cloudImage=" + cloudImage +
-                ", userData=" + userData +
+                ", instanceId='" + instanceId + '\'' +
+                ", instanceName='" + instanceName + '\'' +
                 ", instanceStatus=" + instanceStatus +
                 ", cloudErrorInfo=" + cloudErrorInfo +
-                ", droplet=" + droplet +
+                ", startTime=" + startTime +
                 '}';
     }
 }

@@ -161,4 +161,27 @@ public class DOUtils {
         return resultList;
     }
 
+    public static List<Droplet> getDroplets(DigitalOceanClient doClient) throws DOError {
+        List<Droplet> resultList = new LinkedList<Droplet>();
+        int pageNumber = 0;
+        try {
+            while (true) {
+                Droplets droplets = doClient.getAvailableDroplets(pageNumber);
+                List<Droplet> imageList = droplets.getDroplets();
+                if (imageList.isEmpty()) {
+                    break;
+                } else {
+                    resultList.addAll(imageList);
+                }
+
+                ++pageNumber;
+            }
+        } catch (DigitalOceanException e) {
+            throw new DOError("Can't get available droplets:" + e.getMessage(), e);
+        } catch (RequestUnsuccessfulException e) {
+            throw new DOError("Communication issue while: " + e.getMessage(), e);
+        }
+
+        return resultList;
+    }
 }
