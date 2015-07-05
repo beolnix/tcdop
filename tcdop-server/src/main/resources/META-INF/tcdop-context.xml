@@ -25,4 +25,9 @@
         <constructor-arg value="${tcdop.internalFixedThreadpool.size}"/>
     </bean>
 
+    <bean id="cloudImageStorageFactory" class="io.cyberstock.tcdop.server.integration.digitalocean.CloudImageStorageFactory">
+        <constructor-arg ref="TCDOPExecutorService"/>
+        <constructor-arg ref="DOClientFactory"/>
+    </bean>
+
 </beans>
