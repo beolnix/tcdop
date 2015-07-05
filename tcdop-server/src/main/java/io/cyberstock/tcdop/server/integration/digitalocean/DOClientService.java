@@ -93,7 +93,7 @@ public class DOClientService {
                 cloudInstance.updateStatus(InstanceStatus.STOPPED);
             } else {
                 cloudInstance.updateStatus(InstanceStatus.ERROR_CANNOT_STOP);
-                cloudInstance.updateErrorInfo(new CloudErrorInfo("Can't terminate instance with id: " + instanceId, e.getMessage()));
+                cloudInstance.updateErrorInfo(new CloudErrorInfo("Can't terminate instance with id: " + instanceId));
             }
         } catch (DOError e) {
             cloudInstance.updateStatus(InstanceStatus.ERROR_CANNOT_STOP);
