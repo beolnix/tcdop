@@ -104,7 +104,7 @@ public class DOClientService {
     public TCCloudInstance createInstance(TCCloudImage cloudImage, DOSettings doSettings) throws DOError {
         DropletConfig dropletConfig = doSettings.getDropletConfig();
 
-        Droplet droplet = DOUtils.createInstance(doClient, dropletConfig);
+        Droplet droplet = DOUtils.createInstance(doClient, dropletConfig, cloudImage);
         TCCloudInstance cloudInstance = new TCCloudInstance(cloudImage, droplet);
         return cloudInstance;
     }

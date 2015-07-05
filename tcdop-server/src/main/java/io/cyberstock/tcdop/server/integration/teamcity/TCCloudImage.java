@@ -44,6 +44,10 @@ public class TCCloudImage implements CloudImage {
         return name;
     }
 
+    public Image getImage() {
+        return image;
+    }
+
     @NotNull
     public Collection<? extends CloudInstance> getInstances() {
         return instances.values();

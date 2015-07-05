@@ -7,6 +7,7 @@ import com.myjeeva.digitalocean.impl.DigitalOceanClient;
 import com.myjeeva.digitalocean.pojo.*;
 import io.cyberstock.tcdop.model.DropletConfig;
 import io.cyberstock.tcdop.model.error.DOError;
+import io.cyberstock.tcdop.server.integration.teamcity.TCCloudImage;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
@@ -54,19 +55,14 @@ public class DOUtils {
     }
 
     @NotNull
-    public static Droplet createInstance(DigitalOceanClient doClient, DropletConfig dropletConfig) throws DOError {
+    public static Droplet createInstance(DigitalOceanClient doClient, DropletConfig dropletConfig, TCCloudImage cloudImage) throws DOError {
         Droplet droplet = new Droplet();
         droplet.setDiskSize(dropletConfig.getDiskSize());
         droplet.setMemorySizeInMb(dropletConfig.getMemorySizeInMb());
         droplet.setName(dropletConfig.getDropletName());
         droplet.setRegion(dropletConfig.getRegion());
         droplet.setKeys(dropletConfig.getKeys());
-
-        Optional<Image> imageOpt = DOUtils.findImageByName(doClient, dropletConfig.getImageName());
-        if (!imageOpt.isPresent()) {
-            throw new DOError("There is no image with name \"" + dropletConfig.getImageName() + "\" in user images.");
-        }
-        droplet.setImage(imageOpt.get());
+        droplet.setImage(cloudImage.getImage());
 
         try {
             Droplet createdDroplet = doClient.createDroplet(droplet);
