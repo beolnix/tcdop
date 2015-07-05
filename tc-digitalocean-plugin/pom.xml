@@ -70,7 +70,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <file>${basedir}/src/main/config/teamcity-plugin.xml</file>
+                    <file>${basedir}/src/main/server-config/teamcity-plugin.xml</file>
                     <outputFile>${basedir}/target/teamcity-plugin.xml</outputFile>
                     <replacements>
                         <replacement>

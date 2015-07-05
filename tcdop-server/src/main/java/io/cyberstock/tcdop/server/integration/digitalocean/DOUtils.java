@@ -60,7 +60,7 @@ public class DOUtils {
         droplet.setDiskSize(dropletConfig.getDiskSize());
         droplet.setMemorySizeInMb(dropletConfig.getMemorySizeInMb());
         droplet.setName(dropletConfig.getDropletName());
-        droplet.setRegion(dropletConfig.getRegion());
+        droplet.setRegion(new Region(cloudImage.getImage().getRegions().iterator().next()));
         droplet.setKeys(dropletConfig.getKeys());
         droplet.setSize(dropletConfig.getSizeSlug());
         droplet.setImage(cloudImage.getImage());
@@ -92,6 +92,7 @@ public class DOUtils {
 
     public static Boolean terminateInstance(DigitalOceanClient doClient, Integer instanceId) throws DOError {
         try {
+            Action action = doClient.shutdownDroplet(instanceId);
             Delete delete = doClient.deleteDroplet(instanceId);
             return delete.getIsRequestSuccess();
         } catch (DigitalOceanException e) {

@@ -53,7 +53,7 @@ public class CloudImageStorage {
         LOG.debug("updating images cache.");
 
         List<TCCloudImage> images = clientService.getImages();
-        LOG.debug(images.size() + " images got.");
+//        LOG.debug(images.size() + " images got.");
 
         int instancesCounter = 0;
         Map<String, TCCloudImage> newImageMap = new HashMap<String, TCCloudImage>();
@@ -64,7 +64,7 @@ public class CloudImageStorage {
         }
 
         instancesCount = instancesCounter;
-        LOG.debug(images.size() + " images contains: " + instancesCounter);
+//        LOG.debug(images.size() + " images contains: " + instancesCounter);
         imageMap = newImageMap;
     }
 

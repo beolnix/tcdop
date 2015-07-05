@@ -61,7 +61,6 @@ public class TCCloudClient implements CloudClientEx {
         TCCloudImage tcCloudImage = (TCCloudImage) cloudImage;
         try {
             TCCloudInstance instance = client.getClientService().createInstance(tcCloudImage, settings);
-            client.startInstance(instance);
             tcCloudImage.addInstance(instance);
             return instance;
         } catch (DOError e) {
@@ -147,13 +146,13 @@ public class TCCloudClient implements CloudClientEx {
         LOG.debug("DO get images triggered");
         if (DOIntegrationMode.PREPARED_IMAGE.equals(settings.getMode())) {
             Collection<TCCloudImage> images = imageStorage.getImagesList();
-            LOG.debug(images.size() + " images found, trying to identify image with name: " + settings.getImageName());
+//            LOG.debug(images.size() + " images found, trying to identify image with name: " + settings.getImageName());
             for (TCCloudImage cloudImage : images) {
                 if (cloudImage != null && settings.getImageName().equals(cloudImage.getName())) {
-                    LOG.debug("Image found: " + cloudImage.toString());
+//                    LOG.debug("Image found: " + cloudImage.toString());
                     return Collections.singleton(cloudImage);
                 } else {
-                    LOG.debug("Image " + cloudImage.getName() + " skipped.");
+//                    LOG.debug("Image " + cloudImage.getName() + " skipped.");
                 }
 
             }
@@ -162,7 +161,7 @@ public class TCCloudClient implements CloudClientEx {
             throw new NotImplementedException();
         }
 
-        LOG.debug("Image with name " + settings.getImageName() + " hasn't been found.");
+//        LOG.debug("Image with name " + settings.getImageName() + " hasn't been found.");
         return Collections.EMPTY_LIST;
     }
 
