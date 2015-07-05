@@ -22,4 +22,6 @@ public interface DOConfigConstants {
     public static final String DO_INTEGRATION_MODE = "do_integration_mode";
     public static final String PREPARED_IMAGE_MODE_CODE = "prepared_image_mode";
     public static final String DOCKER_BASED_MODE_CODE = "docer_based";
+
+    public static final String AGENT_IPV4_PROP_KEY = "agent_ipv4";
 }

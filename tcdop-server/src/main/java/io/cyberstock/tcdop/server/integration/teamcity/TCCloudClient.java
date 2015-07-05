@@ -2,6 +2,7 @@ package io.cyberstock.tcdop.server.integration.teamcity;
 
 import com.intellij.openapi.diagnostic.Logger;
 import io.cyberstock.tcdop.model.AgentParamKey;
+import io.cyberstock.tcdop.model.DOConfigConstants;
 import io.cyberstock.tcdop.model.DOIntegrationMode;
 import io.cyberstock.tcdop.model.DOSettings;
 import io.cyberstock.tcdop.server.integration.digitalocean.CloudImageStorage;
@@ -93,7 +94,8 @@ public class TCCloudClient implements CloudClientEx {
 
     @Nullable
     public CloudInstance findInstanceByAgent(@NotNull AgentDescription agentDescription) {
-        String agentId = agentDescription.getConfigurationParameters().get(AgentParamKey.AGENT_ID);
+        String imageId = agentDescription.getConfigurationParameters().get(DOConfigConstants.IMAGE_NAME);
+        String instanceId = agentDescription.getConfigurationParameters().get(DOConfigConstants.INSTANCE_ID);
 
         return null;
     }

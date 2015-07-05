@@ -11,6 +11,10 @@
     <artifactId>tc-digitalocean-plugin</artifactId>
     <packaging>pom</packaging>
 
+    <name>tcdop</name>
+    <description>TeamCity Digital Ocean integration plugin.</description>
+
+
     <dependencies>
         <dependency>
             <groupId>io.cyberstock</groupId>
@@ -71,7 +75,7 @@
                     <replacements>
                         <replacement>
                             <token>@Name@</token>
-                            <value>${project.artifactId}</value>
+                            <value>${project.name}</value>
                         </replacement>
                         <replacement>
                             <token>@Description@</token>
@@ -108,6 +112,20 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>2.4</version>
                 <executions>
+                    <execution>
+                        <id>make-agent-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>tcdop-agent</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <descriptors>
+                                <descriptor>src/main/assembly/plugin-agent-assembly.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
                     <execution>
                         <id>dist-assembly</id>
                         <phase>package</phase>

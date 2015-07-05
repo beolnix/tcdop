@@ -11,8 +11,8 @@
         <module>tcdop-model</module>
         <module>tcdop-server</module>
         <module>tcdop-util</module>
-        <module>tcdop-dioc-adapter</module>
         <module>tc-digitalocean-plugin</module>
+        <module>tcdop-agent</module>
     </modules>
 
     <name>tc-digitalocean-plugin</name>
@@ -112,6 +112,13 @@
             <dependency>
                 <groupId>org.jetbrains.teamcity</groupId>
                 <artifactId>server-api</artifactId>
+                <version>${teamcity-version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jetbrains.teamcity</groupId>
+                <artifactId>agent-api</artifactId>
                 <version>${teamcity-version}</version>
                 <scope>provided</scope>
             </dependency>
