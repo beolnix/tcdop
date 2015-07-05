@@ -62,17 +62,18 @@ public class DOUtils {
         droplet.setName(dropletConfig.getDropletName());
         droplet.setRegion(dropletConfig.getRegion());
         droplet.setKeys(dropletConfig.getKeys());
+        droplet.setSize(dropletConfig.getSizeSlug());
         droplet.setImage(cloudImage.getImage());
 
         try {
             Droplet createdDroplet = doClient.createDroplet(droplet);
             return createdDroplet;
         } catch (DigitalOceanException e) {
-            throw new DOError("Can't create droplet.", e);
+            throw new DOError("Can't create droplet:" + e.getMessage(), e);
         } catch (RequestUnsuccessfulException e) {
-            throw new DOError("Can't create droplet.", e);
+            throw new DOError("Can't create droplet:" + e.getMessage(), e);
         } catch (Throwable e) {
-            throw new DOError("Can't create droplet.", e);
+            throw new DOError("Can't create droplet:" + e.getMessage(), e);
         }
     }
 

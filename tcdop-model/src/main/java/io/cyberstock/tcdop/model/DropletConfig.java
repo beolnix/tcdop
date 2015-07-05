@@ -13,6 +13,7 @@ import java.util.*;
 public class DropletConfig {
     private Integer diskSize = 2;
     private Integer memorySizeInMb = 2048;
+    private String sizeSlug = "512mb";
     private Region region = new Region("ams1");
     private String dropletName = "TEAMCITY_AGENT_DROPLET_" + UUID.randomUUID();
     private Key key = new Key("TC_AGENT_DROPLET_KEY", "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDRCOa+GC8MWtLM9b4jivIhq0vs/OacC4gSdHQesbBYCybxsWwYuZHnZOP4JgZ9a8OgyrrMnGGdI8yT/FqRnzT8010NYlsy922zGkwyZrt9d73IrbibUQd2NQCRC63SUgEz5VbVfKK/tTv3Dcnnn5zENigHFC2zq2FeuV61dTRTg7743mh9VAJM56fw5EpCfJj0V+FH17SD6HcseRfJTbvtBsT/mkccfGFNNObYPeJYzhe60o7fOpl4ljeY4+iPpu9bKjl8NbeuQwpWQVmuEjkDIISSv5nhYMaOXgCBxj6783MC1yaDkc6khnQcEbDWqm03KBsbbjLjN0bDZhZ0Zc53 beolnix@Danilas-MacBook-Pro.local");
@@ -42,6 +43,10 @@ public class DropletConfig {
 
     public String getDropletName() {
         return dropletName;
+    }
+
+    public String getSizeSlug() {
+        return sizeSlug;
     }
 
     public String getImageName() {
