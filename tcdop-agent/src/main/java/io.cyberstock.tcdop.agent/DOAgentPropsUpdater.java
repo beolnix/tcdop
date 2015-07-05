@@ -30,6 +30,7 @@ public class DOAgentPropsUpdater {
             public void afterAgentConfigurationLoaded(@NotNull final BuildAgent agent) {
                 final String ipv4 = getIPv4();
                 agentConfig.addConfigurationParameter(DOConfigConstants.AGENT_IPV4_PROP_KEY, ipv4);
+                agentConfig.addConfigurationParameter(DOConfigConstants.IDENTITY_KEY, DOConfigConstants.IDENTITY_VALUE);
             }
         });
     }
@@ -38,6 +39,7 @@ public class DOAgentPropsUpdater {
         InetAddress ip;
         try {
             ip = InetAddress.getLocalHost();
+            LOG.debug("IPv4 address is: " + ip);
             return ip.getHostAddress();
         } catch (UnknownHostException e) {
             LOG.error("Can't get ipv4 address: " + e.getMessage(), e);

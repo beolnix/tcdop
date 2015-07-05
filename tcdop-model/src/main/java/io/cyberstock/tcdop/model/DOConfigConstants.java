@@ -14,6 +14,7 @@ public interface DOConfigConstants {
     public static final String TOKEN = "api_key";
     public static final String INSTANCE_ID = "instance_id";
     public static final String IMAGE_NAME = "image_name";
+    public static final String INSTANCES_COUNT_LIMIT = "instances_count_limit";
     public static final String SSH_PRIVATE_KEY = "ssh_private_key";
     public static final String SSH_PUBLIC_KEY = "ssh_public_key";
 

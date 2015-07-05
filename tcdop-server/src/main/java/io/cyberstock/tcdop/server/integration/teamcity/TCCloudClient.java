@@ -9,6 +9,7 @@ import io.cyberstock.tcdop.server.integration.digitalocean.CloudImageStorage;
 import io.cyberstock.tcdop.server.integration.digitalocean.DOAsyncClientServiceWrapper;
 import jetbrains.buildServer.clouds.*;
 import jetbrains.buildServer.serverSide.AgentDescription;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
@@ -35,7 +36,6 @@ public class TCCloudClient implements CloudClientEx {
     // constants
     private static final Logger LOG = Logger.getInstance(TCCloudClient.class.getName());
 
-
     TCCloudClient(@NotNull DOSettings settings,
                   @NotNull DOAsyncClientServiceWrapper client,
                   @NotNull CloudImageStorage imageStorage) {
@@ -45,6 +45,7 @@ public class TCCloudClient implements CloudClientEx {
     }
 
     public void setReadyFlag(Boolean readyFlag) {
+        LOG.debug("Cloud client for DO ready flag updated: " + readyFlag);
         this.readyFlag = readyFlag;
     }
 
@@ -54,7 +55,7 @@ public class TCCloudClient implements CloudClientEx {
 
     @NotNull
     public CloudInstance startNewInstance(@NotNull CloudImage cloudImage, @NotNull CloudInstanceUserData cloudInstanceUserData) throws QuotaException {
-
+        LOG.debug("Launch new instance in Digital Ocean with cloudImage: " + cloudImage.toString() + "; userData: " + cloudInstanceUserData.toString());
         TCCloudImage tcCloudImage = (TCCloudImage) cloudImage;
         TCCloudInstance instance = new TCCloudInstance(tcCloudImage);
         tcCloudImage.addInstance(instance);
@@ -64,10 +65,12 @@ public class TCCloudClient implements CloudClientEx {
     }
 
     public void restartInstance(@NotNull CloudInstance cloudInstance) {
+        LOG.debug("DO Instance restart is triggered for: " + cloudInstance.toString());
         client.restartInstance((TCCloudInstance) cloudInstance);
     }
 
     public void terminateInstance(@NotNull CloudInstance cloudInstance) {
+        LOG.debug("DO Instance termination is triggered for: " + cloudInstance.toString());
         client.terminateInstance((TCCloudInstance) cloudInstance);
     }
 
@@ -81,36 +84,79 @@ public class TCCloudClient implements CloudClientEx {
 
     @Nullable
     public CloudImage findImageById(@NotNull String s) throws CloudException {
+        LOG.debug("DO find image by id is triggered: " + s);
         if (DOIntegrationMode.PREPARED_IMAGE.equals(settings.getMode())) {
             TCCloudImage cloudImage = imageStorage.getImageById(s);
-            if (cloudImage != null && settings.getImageName().equals(cloudImage.getName())) {
+
+            if (cloudImage == null) {
+                LOG.debug("DO cloud image not found for id: " + s);
+                return null;
+            } else {
+                LOG.debug("DO cloud image found: " + cloudImage.toString());
+            }
+
+
+            if (settings.getImageName().equals(cloudImage.getName())) {
+                LOG.debug("DO cloud image is correct. Find Image by id returns successful result: " + cloudImage.toString());
                 return cloudImage;
+            } else {
+                LOG.error("DO cloud image name isn't equal to pre-configured: " + cloudImage.getName());
+                return null;
             }
         } else {
+            LOG.error("DO Mode: " + settings.getMode() + " isn't supported yet.");
             throw new NotImplementedException();
         }
-        return null;
     }
 
     @Nullable
     public CloudInstance findInstanceByAgent(@NotNull AgentDescription agentDescription) {
-        String imageId = agentDescription.getConfigurationParameters().get(DOConfigConstants.IMAGE_NAME);
-        String instanceId = agentDescription.getConfigurationParameters().get(DOConfigConstants.INSTANCE_ID);
+        LOG.debug("Find instance by agent is triggered.");
+        String agentIPv4 = agentDescription.getConfigurationParameters().get(DOConfigConstants.AGENT_IPV4_PROP_KEY);
+        if (StringUtils.isEmpty(agentIPv4)) {
+            LOG.error("Agent ipv4 is empty.");
+            return null;
+        } else {
+            LOG.debug("Agent ipv4 is: " + agentIPv4);
+        }
 
+        Collection<TCCloudImage> images = imageStorage.getImagesList();
+        for (TCCloudImage image : images) {
+            for (CloudInstance instance : image.getInstances()) {
+                if (instance.getNetworkIdentity().equals(agentIPv4)) {
+                    LOG.debug("Instance with the same ipv4 has been found: " + instance.toString());
+                    return instance;
+                } else {
+                    LOG.debug("Instance " + instance.getInstanceId() + " has another ipv4: " + instance.getNetworkIdentity());
+                }
+            }
+        }
+
+        LOG.error("Instance with ipv4: " + agentIPv4 + " hasn't been found.");
         return null;
     }
 
     @NotNull
     public Collection<? extends CloudImage> getImages() throws CloudException {
+        LOG.debug("DO get images triggered");
         if (DOIntegrationMode.PREPARED_IMAGE.equals(settings.getMode())) {
-            for (TCCloudImage cloudImage : imageStorage.getImagesList()) {
+            Collection<TCCloudImage> images = imageStorage.getImagesList();
+            LOG.debug(images.size() + " images found, trying to identify image with name: " + settings.getImageName());
+            for (TCCloudImage cloudImage : images) {
                 if (cloudImage != null && settings.getImageName().equals(cloudImage.getName())) {
+                    LOG.debug("Image found: " + cloudImage.toString());
                     return Collections.singleton(cloudImage);
+                } else {
+                    LOG.debug("Image " + cloudImage.getName() + " skipped.");
                 }
+
             }
         } else {
+            LOG.error(settings.getMode() + " Mode isn't supported yet");
             throw new NotImplementedException();
         }
+
+        LOG.debug("Image with name " + settings.getImageName() + " hasn't been found.");
         return Collections.EMPTY_LIST;
     }
 
@@ -120,11 +166,22 @@ public class TCCloudClient implements CloudClientEx {
     }
 
     public boolean canStartNewInstance(@NotNull CloudImage cloudImage) {
-        return true;
+        LOG.debug("Can start new instance? is triggered");
+        if (settings.getInstancesLimit() > imageStorage.getInstancesCount()) {
+            LOG.debug("new instance can be started. Limit: " + settings.getInstancesLimit() +
+                    "; current: " + imageStorage.getInstancesCount());
+            return true;
+        } else {
+            LOG.debug("new instance can NOT be started. Limit: " + settings.getInstancesLimit() +
+                    "; current: " + imageStorage.getInstancesCount());
+            return false;
+        }
     }
 
     @Nullable
     public String generateAgentName(@NotNull AgentDescription agentDescription) {
-        return "DO_AGENT_" + UUID.randomUUID();
+        String agentName = "DO_AGENT_" + UUID.randomUUID();
+        LOG.debug("Agent name generation is triggered. Generated name is: " + agentName);
+        return agentName;
     }
 }

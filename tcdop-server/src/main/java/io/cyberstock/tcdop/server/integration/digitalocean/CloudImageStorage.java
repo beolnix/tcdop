@@ -1,11 +1,9 @@
 package io.cyberstock.tcdop.server.integration.digitalocean;
 
 import com.intellij.openapi.diagnostic.Logger;
-import freemarker.ext.beans.HashAdapter;
 import io.cyberstock.tcdop.server.integration.teamcity.TCCloudImage;
 
 import java.util.*;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 
 /**
@@ -19,6 +17,7 @@ public class CloudImageStorage {
 
     // state
     private volatile Map<String, TCCloudImage> imageMap = new HashMap<String, TCCloudImage>();
+    private volatile Integer instancesCount = 0;
 
     // constants
     private final static Integer CHECK_INTERVAL = 60 * 1000;
@@ -52,15 +51,25 @@ public class CloudImageStorage {
 
     synchronized private void updateImages() {
         List<TCCloudImage> images = clientService.getImages();
+
+        int instancesCounter = 0;
         Map<String, TCCloudImage> newImageMap = new HashMap<String, TCCloudImage>();
+
         for (TCCloudImage image : images) {
             newImageMap.put(image.getId(), image);
+            instancesCounter += image.getInstances().size();
         }
+
+        instancesCount = instancesCounter;
         imageMap = newImageMap;
     }
 
     public Collection<TCCloudImage> getImagesList() {
         return imageMap.values();
+    }
+
+    public Integer getInstancesCount() {
+        return instancesCount;
     }
 
     public TCCloudImage getImageById(String imageId) {

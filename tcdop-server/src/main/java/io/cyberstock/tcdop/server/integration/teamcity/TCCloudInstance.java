@@ -1,5 +1,6 @@
 package io.cyberstock.tcdop.server.integration.teamcity;
 
+import com.intellij.openapi.diagnostic.Logger;
 import com.myjeeva.digitalocean.pojo.Droplet;
 import io.cyberstock.tcdop.model.AgentParamKey;
 import io.cyberstock.tcdop.model.DOConfigConstants;
@@ -28,6 +29,9 @@ public class TCCloudInstance implements CloudInstance {
     private InstanceStatus instanceStatus = InstanceStatus.SCHEDULED_TO_START;
     private CloudErrorInfo cloudErrorInfo;
     private Date startTime;
+
+    // constants
+    private static final Logger LOG = Logger.getInstance(TCCloudInstance.class.getName());
 
     public TCCloudInstance(@NotNull TCCloudImage cloudImage) {
         this.cloudImage = cloudImage;
@@ -98,8 +102,17 @@ public class TCCloudInstance implements CloudInstance {
     }
 
     public boolean containsAgent(AgentDescription agentDescription) {
+        LOG.debug("Contains agent is triggered in instance: " + instanceId + " for agent: " + agentDescription.toString());
+
         final Map<String, String> configParams = agentDescription.getConfigurationParameters();
-        return getInstanceId().equals(configParams.get(DOConfigConstants.INSTANCE_ID));
+        boolean result = getNetworkIdentity().equals(configParams.get(DOConfigConstants.AGENT_IPV4_PROP_KEY));
+        if (result) {
+            LOG.debug("Instance " + instanceId + " contains agent: " + agentDescription.toString());
+        } else {
+            LOG.debug("Instance " + instanceId + " doesn't contain agent: " + agentDescription.toString());
+        }
+
+        return result;
     }
 
     public void setDroplet(Droplet droplet) {

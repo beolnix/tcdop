@@ -1,5 +1,6 @@
 package io.cyberstock.tcdop.server.integration.teamcity;
 
+import com.intellij.openapi.diagnostic.Logger;
 import com.myjeeva.digitalocean.pojo.Image;
 import io.cyberstock.tcdop.model.DOSettings;
 import jetbrains.buildServer.clouds.CloudErrorInfo;
@@ -24,6 +25,9 @@ public class TCCloudImage implements CloudImage {
     // State
     private CloudErrorInfo cloudErrorInfo;
 
+    // constants
+    private static final Logger LOG = Logger.getInstance(TCCloudImage.class.getName());
+
     public TCCloudImage(Image image) {
         this.id = image.getId().toString();
         this.name = image.getName();
@@ -46,6 +50,7 @@ public class TCCloudImage implements CloudImage {
     }
 
     public void addInstance(TCCloudInstance cloudInstance) {
+        LOG.debug("New instance " + cloudInstance.getInstanceId() + " has been added to the image: " + this.getId());
         instances.put(cloudInstance.getInstanceId(), cloudInstance);
     }
 
