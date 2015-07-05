@@ -58,6 +58,7 @@ public class DOClientService {
 
     public void startInstance(TCCloudInstance cloudInstance) {
         Integer instanceId = Integer.parseInt(cloudInstance.getInstanceId());
+        cloudInstance.updateStatus(InstanceStatus.SCHEDULED_TO_START);
         try {
             Date startTime = DOUtils.startInstance(doClient, instanceId);
             cloudInstance.setStartTime(startTime);
@@ -72,12 +73,12 @@ public class DOClientService {
         Integer instanceId = Integer.parseInt(cloudInstance.getInstanceId());
         cloudInstance.updateStatus(InstanceStatus.RESTARTING);
         try {
-            Date startTime = DOUtils.startInstance(doClient, instanceId);
-            cloudInstance.setStartTime(startTime);
+            Date restartTime = DOUtils.restartInstance(doClient, instanceId);
+            cloudInstance.setStartTime(restartTime);
             cloudInstance.updateStatus(InstanceStatus.RUNNING);
         } catch (DOError e) {
             cloudInstance.updateStatus(InstanceStatus.ERROR);
-            cloudInstance.updateErrorInfo(new CloudErrorInfo("Can't start instance with id: " + instanceId, e.getMessage()));
+            cloudInstance.updateErrorInfo(new CloudErrorInfo("Can't restart instance with id: " + instanceId, e.getMessage()));
         }
     }
 
@@ -85,9 +86,15 @@ public class DOClientService {
         Integer instanceId = Integer.parseInt(cloudInstance.getInstanceId());
         cloudInstance.updateStatus(InstanceStatus.SCHEDULED_TO_STOP);
         try {
-            Date startTime = DOUtils.startInstance(doClient, instanceId);
-            cloudInstance.setStartTime(startTime);
-            cloudInstance.updateStatus(InstanceStatus.STOPPED);
+            DOUtils.stopInstance(doClient, instanceId);
+            boolean successFlag = DOUtils.terminateInstance(doClient, instanceId);
+            if (successFlag) {
+                cloudInstance.setStartTime(new Date());
+                cloudInstance.updateStatus(InstanceStatus.STOPPED);
+            } else {
+                cloudInstance.updateStatus(InstanceStatus.ERROR_CANNOT_STOP);
+                cloudInstance.updateErrorInfo(new CloudErrorInfo("Can't terminate instance with id: " + instanceId, e.getMessage()));
+            }
         } catch (DOError e) {
             cloudInstance.updateStatus(InstanceStatus.ERROR_CANNOT_STOP);
             cloudInstance.updateErrorInfo(new CloudErrorInfo("Can't start instance with id: " + instanceId, e.getMessage()));

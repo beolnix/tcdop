@@ -26,6 +26,8 @@ public class DOUtils {
             throw new DOError("Can't find droplet with id: " + dropletId, e);
         } catch (RequestUnsuccessfulException e) {
             throw new DOError("Can't find droplet with id: " + dropletId, e);
+        } catch (Throwable e) {
+            throw new DOError("Can't find droplet with id: " + dropletId, e);
         }
         return Optional.fromNullable(dropletInfo);
     }
@@ -73,6 +75,8 @@ public class DOUtils {
             throw new DOError("Can't create droplet.", e);
         } catch (RequestUnsuccessfulException e) {
             throw new DOError("Can't create droplet.", e);
+        } catch (Throwable e) {
+            throw new DOError("Can't create droplet.", e);
         }
     }
 
@@ -84,6 +88,21 @@ public class DOUtils {
             throw new DOError("Can't start instance with id: " + instanceId , e);
         } catch (RequestUnsuccessfulException e) {
             throw new DOError("Can't start instance with id: " + instanceId , e);
+        } catch (Throwable e) {
+            throw new DOError("Can't start instance with id: " + instanceId , e);
+        }
+    }
+
+    public static Boolean terminateInstance(DigitalOceanClient doClient, Integer instanceId) throws DOError {
+        try {
+            Delete delete = doClient.deleteDroplet(instanceId);
+            return delete.getIsRequestSuccess();
+        } catch (DigitalOceanException e) {
+            throw new DOError("Can't stop instance with id: " + instanceId , e);
+        } catch (RequestUnsuccessfulException e) {
+            throw new DOError("Can't stop instance with id: " + instanceId , e);
+        } catch (Throwable e) {
+            throw new DOError("Can't stop instance with id: " + instanceId , e);
         }
     }
 
@@ -95,6 +114,8 @@ public class DOUtils {
             throw new DOError("Can't stop instance with id: " + instanceId , e);
         } catch (RequestUnsuccessfulException e) {
             throw new DOError("Can't stop instance with id: " + instanceId , e);
+        } catch (Throwable e) {
+            throw new DOError("Can't stop instance with id: " + instanceId , e);
         }
     }
 
@@ -105,6 +126,8 @@ public class DOUtils {
         } catch (DigitalOceanException e) {
             throw new DOError("Can't restart instance with id: " + instanceId , e);
         } catch (RequestUnsuccessfulException e) {
+            throw new DOError("Can't restart instance with id: " + instanceId , e);
+        } catch (Throwable e) {
             throw new DOError("Can't restart instance with id: " + instanceId , e);
         }
     }
@@ -156,6 +179,8 @@ public class DOUtils {
             throw new DOError("Can't get user images:" + e.getMessage(), e);
         } catch (RequestUnsuccessfulException e) {
             throw new DOError("Communication issue while: " + e.getMessage(), e);
+        } catch (Throwable e) {
+            throw new DOError("Can't get user images:" + e.getMessage(), e);
         }
 
         return resultList;
@@ -180,6 +205,8 @@ public class DOUtils {
             throw new DOError("Can't get available droplets:" + e.getMessage(), e);
         } catch (RequestUnsuccessfulException e) {
             throw new DOError("Communication issue while: " + e.getMessage(), e);
+        } catch (Throwable e) {
+            throw new DOError("Can't get available droplets:" + e.getMessage(), e);
         }
 
         return resultList;
