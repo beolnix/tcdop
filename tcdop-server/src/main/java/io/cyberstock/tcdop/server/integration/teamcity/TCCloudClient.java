@@ -5,6 +5,7 @@ import io.cyberstock.tcdop.model.AgentParamKey;
 import io.cyberstock.tcdop.model.DOConfigConstants;
 import io.cyberstock.tcdop.model.DOIntegrationMode;
 import io.cyberstock.tcdop.model.DOSettings;
+import io.cyberstock.tcdop.model.error.DOError;
 import io.cyberstock.tcdop.server.integration.digitalocean.CloudImageStorage;
 import io.cyberstock.tcdop.server.integration.digitalocean.DOAsyncClientServiceWrapper;
 import jetbrains.buildServer.clouds.*;
@@ -50,6 +51,7 @@ public class TCCloudClient implements CloudClientEx {
     }
 
     public void setCloudErrorInfo(CloudErrorInfo cloudErrorInfo) {
+        LOG.error("Error occured: " + cloudErrorInfo.getMessage());
         this.cloudErrorInfo = cloudErrorInfo;
     }
 
@@ -57,11 +59,15 @@ public class TCCloudClient implements CloudClientEx {
     public CloudInstance startNewInstance(@NotNull CloudImage cloudImage, @NotNull CloudInstanceUserData cloudInstanceUserData) throws QuotaException {
         LOG.debug("Launch new instance in Digital Ocean with cloudImage: " + cloudImage.toString() + "; userData: " + cloudInstanceUserData.toString());
         TCCloudImage tcCloudImage = (TCCloudImage) cloudImage;
-        TCCloudInstance instance = new TCCloudInstance(tcCloudImage);
-        tcCloudImage.addInstance(instance);
-
-        client.initializeInstance(instance, settings);
-        return instance;
+        try {
+            TCCloudInstance instance = client.getClientService().createInstance(tcCloudImage, settings);
+            client.startInstance(instance);
+            tcCloudImage.addInstance(instance);
+            return instance;
+        } catch (DOError e) {
+            setCloudErrorInfo(new CloudErrorInfo("Can't create new instance", e.getMessage(), e));
+            throw new RuntimeException(e);
+        }
     }
 
     public void restartInstance(@NotNull CloudInstance cloudInstance) {

@@ -33,10 +33,6 @@ public class TCCloudInstance implements CloudInstance {
     // constants
     private static final Logger LOG = Logger.getInstance(TCCloudInstance.class.getName());
 
-    public TCCloudInstance(@NotNull TCCloudImage cloudImage) {
-        this.cloudImage = cloudImage;
-    }
-
     public TCCloudInstance(@NotNull TCCloudImage cloudImage,
                            @NotNull Droplet droplet) {
         this.cloudImage = cloudImage;
@@ -55,10 +51,12 @@ public class TCCloudInstance implements CloudInstance {
     }
 
     public void updateStatus(InstanceStatus newStatus) {
+        LOG.debug("new status of " + instanceId + " is: " + newStatus.getName());
         this.instanceStatus = newStatus;
     }
 
     public void updateErrorInfo(CloudErrorInfo errorInfo) {
+        LOG.error("instance error: " + errorInfo.getMessage());
         cloudErrorInfo = errorInfo;
     }
 
@@ -113,12 +111,6 @@ public class TCCloudInstance implements CloudInstance {
         }
 
         return result;
-    }
-
-    public void setDroplet(Droplet droplet) {
-        this.droplet = droplet;
-        this.instanceId = droplet.getId().toString();
-        this.instanceName = droplet.getName();
     }
 
     @Override

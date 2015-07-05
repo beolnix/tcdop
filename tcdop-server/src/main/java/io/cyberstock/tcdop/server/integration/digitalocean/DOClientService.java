@@ -56,31 +56,6 @@ public class DOClientService {
         }
     }
 
-    public void initializeInstance(TCCloudInstance cloudInstance, DOSettings settings) {
-        if (cloudInstance.getInstanceId() != null) {
-            findOrCreateInstance(cloudInstance, settings);
-        } else {
-            createInstance(cloudInstance, settings);
-        }
-
-        startInstance(cloudInstance);
-    }
-
-    public void findOrCreateInstance(TCCloudInstance cloudInstance, DOSettings doSettings) {
-        Integer instanceId = Integer.parseInt(cloudInstance.getInstanceId());
-        try {
-            Optional<Droplet> dropletOpt = DOUtils.findDropletById(doClient, instanceId);
-            if (!dropletOpt.isPresent()) {
-                createInstance(cloudInstance, doSettings);
-            } else {
-                cloudInstance.setDroplet(dropletOpt.get());
-            }
-        } catch (DOError e) {
-            cloudInstance.updateStatus(InstanceStatus.ERROR);
-            cloudInstance.updateErrorInfo(new CloudErrorInfo("Can't find instance by id: " + instanceId, e.getMessage()));
-        }
-    }
-
     public void startInstance(TCCloudInstance cloudInstance) {
         Integer instanceId = Integer.parseInt(cloudInstance.getInstanceId());
         try {
@@ -119,15 +94,12 @@ public class DOClientService {
         }
     }
 
-    public void createInstance(TCCloudInstance cloudInstance, DOSettings doSettings) {
+    public TCCloudInstance createInstance(TCCloudImage cloudImage, DOSettings doSettings) throws DOError {
         DropletConfig dropletConfig = doSettings.getDropletConfig();
-        try {
-            Droplet droplet = DOUtils.createInstance(doClient, dropletConfig);
-            cloudInstance.setDroplet(droplet);
-        } catch (DOError e) {
-            cloudInstance.updateStatus(InstanceStatus.ERROR);
-            cloudInstance.updateErrorInfo(new CloudErrorInfo("Can't create new instance with config: " + dropletConfig.toString(), e.getMessage()));
-        }
+
+        Droplet droplet = DOUtils.createInstance(doClient, dropletConfig);
+        TCCloudInstance cloudInstance = new TCCloudInstance(cloudImage, droplet);
+        return cloudInstance;
     }
 
 }

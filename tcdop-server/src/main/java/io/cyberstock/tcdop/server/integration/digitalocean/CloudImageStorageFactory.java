@@ -19,6 +19,8 @@ public class CloudImageStorageFactory {
 
     public CloudImageStorage getStorage(String token) {
         DOClientService clientService = clientServiceFactory.createClient(token);
-        return new CloudImageStorage(clientService, executor);
+        CloudImageStorage cloudImageStorage = new CloudImageStorage(clientService, executor);
+        cloudImageStorage.init();
+        return cloudImageStorage;
     }
 }

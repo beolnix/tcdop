@@ -4,6 +4,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import io.cyberstock.tcdop.model.DOSettings;
 import io.cyberstock.tcdop.server.integration.teamcity.TCCloudImage;
 import io.cyberstock.tcdop.server.integration.teamcity.TCCloudInstance;
+import jetbrains.buildServer.clouds.InstanceStatus;
 
 import java.util.concurrent.ExecutorService;
 
@@ -25,6 +26,7 @@ public class DOAsyncClientServiceWrapper {
     }
 
     public void restartInstance(final TCCloudInstance cloudInstance) {
+        cloudInstance.updateStatus(InstanceStatus.RESTARTING);
         executorService.execute(new Runnable() {
             public void run() {
                 clientService.restartInstance(cloudInstance);
@@ -33,6 +35,7 @@ public class DOAsyncClientServiceWrapper {
     }
 
     public void terminateInstance(final TCCloudInstance cloudInstance) {
+        cloudInstance.updateStatus(InstanceStatus.SCHEDULED_TO_STOP);
         executorService.execute(new Runnable() {
             public void run() {
                 clientService.terminateInstance(cloudInstance);
@@ -40,10 +43,11 @@ public class DOAsyncClientServiceWrapper {
         });
     }
 
-    public void initializeInstance(final TCCloudInstance cloudInstance, final DOSettings settings) {
+    public void startInstance(final TCCloudInstance cloudInstance) {
+        cloudInstance.updateStatus(InstanceStatus.SCHEDULED_TO_START);
         executorService.execute(new Runnable() {
             public void run() {
-                clientService.initializeInstance(cloudInstance, settings);
+                clientService.startInstance(cloudInstance);
             }
         });
     }
