@@ -92,7 +92,7 @@ public class DOUtils {
 
     public static Boolean terminateInstance(DigitalOceanClient doClient, Integer instanceId) throws DOError {
         try {
-            Action action = doClient.shutdownDroplet(instanceId);
+//            Action action = doClient.shutdownDroplet(instanceId);
             Delete delete = doClient.deleteDroplet(instanceId);
             return delete.getIsRequestSuccess();
         } catch (DigitalOceanException e) {

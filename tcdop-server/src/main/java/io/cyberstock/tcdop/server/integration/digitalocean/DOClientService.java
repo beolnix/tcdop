@@ -96,7 +96,7 @@ public class DOClientService {
             }
         } catch (DOError e) {
             cloudInstance.updateStatus(InstanceStatus.ERROR_CANNOT_STOP);
-            cloudInstance.updateErrorInfo(new CloudErrorInfo("Can't start instance with id: " + instanceId, e.getMessage()));
+            cloudInstance.updateErrorInfo(new CloudErrorInfo("Can't stop instance with id: " + instanceId, e.getMessage()));
         }
     }
 
