@@ -8,17 +8,11 @@
         <format>zip</format>
     </formats>
 
-    <fileSets>
-        <fileSet>
-            <directory>${project.build.directory}</directory>
-            <outputDirectory>/</outputDirectory>
-            <includes>
-                <include>server-config/teamcity-plugin.xml</include>
-            </includes>
-        </fileSet>
-    </fileSets>
-
     <files>
+        <file>
+            <source>${basedir}/src/main/server-config/teamcity-plugin.xml</source>
+            <outputDirectory>/</outputDirectory>
+        </file>
         <file>
             <source>target/tcdop-agent.zip</source>
             <outputDirectory>agent</outputDirectory>

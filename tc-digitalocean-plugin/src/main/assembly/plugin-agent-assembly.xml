@@ -5,15 +5,14 @@
     <formats>
         <format>zip</format>
     </formats>
-    <fileSets>
-        <fileSet>
-            <directory>${project.build.directory}</directory>
+
+    <files>
+        <file>
+            <source>${basedir}/src/main/agent-config/teamcity-plugin.xml</source>
             <outputDirectory>/</outputDirectory>
-            <includes>
-                <include>agent-config/teamcity-plugin.xml</include>
-            </includes>
-        </fileSet>
-    </fileSets>
+        </file>
+    </files>
+
     <moduleSets>
         <moduleSet>
             <useAllReactorProjects>true</useAllReactorProjects>
