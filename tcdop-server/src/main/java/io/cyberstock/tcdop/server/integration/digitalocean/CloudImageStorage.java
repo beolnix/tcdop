@@ -18,6 +18,8 @@ public class CloudImageStorage {
     // state
     private volatile Map<String, TCCloudImage> imageMap = new HashMap<String, TCCloudImage>();
     private volatile Integer instancesCount = 0;
+    private volatile CloudImagesChecker checker = new CloudImagesChecker();
+    private volatile boolean stop = false;
 
     // constants
     private final static Integer CHECK_INTERVAL = 60 * 1000;
@@ -30,12 +32,12 @@ public class CloudImageStorage {
 
     public void init() {
         updateImages();
-        executor.execute(new CloudImagesChecker());
+        executor.execute(checker);
     }
 
     private class CloudImagesChecker implements Runnable {
         public void run() {
-            while (true) {
+            while (!stop) {
                 updateImages();
                 try {
                     Thread.sleep(CHECK_INTERVAL);
@@ -78,5 +80,9 @@ public class CloudImageStorage {
 
     public TCCloudImage getImageById(String imageId) {
         return imageMap.get(imageId);
+    }
+
+    public void shutdownStorage() {
+        this.stop = true;
     }
 }

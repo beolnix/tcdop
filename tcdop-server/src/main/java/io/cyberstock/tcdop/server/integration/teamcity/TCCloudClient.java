@@ -80,7 +80,7 @@ public class TCCloudClient implements CloudClientEx {
     }
 
     public void dispose() {
-        client.shutdown();
+        imageStorage.shutdownStorage();
     }
 
     public boolean isInitialized() {

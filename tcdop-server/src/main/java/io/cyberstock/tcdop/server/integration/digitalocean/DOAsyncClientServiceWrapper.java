@@ -52,10 +52,6 @@ public class DOAsyncClientServiceWrapper {
         });
     }
 
-    public void shutdown() {
-        executorService.shutdown();
-    }
-
     public DOClientService getClientService() {
         return clientService;
     }

@@ -89,7 +89,6 @@ public class DOClientService {
             DOUtils.stopInstance(doClient, instanceId);
             boolean successFlag = DOUtils.terminateInstance(doClient, instanceId);
             if (successFlag) {
-                cloudInstance.setStartTime(new Date());
                 cloudInstance.updateStatus(InstanceStatus.STOPPED);
             } else {
                 cloudInstance.updateStatus(InstanceStatus.ERROR_CANNOT_STOP);
