@@ -26,7 +26,7 @@ public class DOClientService {
     private final DigitalOceanClient doClient;
 
     // constants
-    private static final Logger LOG = Logger.getInstance(DOAsyncClientServiceWrapper.class.getName());
+    private static final Logger LOG = Logger.getInstance(DOClientService.class.getName());
 
     private volatile Boolean denyNewInstancesCreation = false;
 
@@ -79,11 +79,13 @@ public class DOClientService {
     public void waitInstanceInitialization(TCCloudInstance cloudInstance) {
         Integer dropletId = Integer.parseInt(cloudInstance.getInstanceId());
         cloudInstance.updateStatus(InstanceStatus.STARTING);
+        LOG.debug("Starting instance: " + dropletId);
         try {
             String ipv4 = DOUtils.waitForDropletInitialization(doClient, dropletId);
             cloudInstance.updateNetworkIdentity(ipv4);
             cloudInstance.updateStatus(InstanceStatus.RUNNING);
             cloudInstance.setStartTime(new Date());
+            LOG.info("Instance " + dropletId + " has been started successfully.");
         } catch (DOError e) {
             LOG.error("Instance can't be initializated " + dropletId + " because of: " + e.getMessage());
             cloudInstance.updateStatus(InstanceStatus.ERROR);
@@ -100,7 +102,7 @@ public class DOClientService {
             Date restartTime = DOUtils.restartInstance(doClient, instanceId);
             cloudInstance.setStartTime(restartTime);
             cloudInstance.updateStatus(InstanceStatus.RUNNING);
-            LOG.info("Instance " + instanceId + " restarted successfully");
+            LOG.info("Instance " + instanceId + " has been restarted successfully");
         } catch (DOError e) {
             cloudInstance.updateStatus(InstanceStatus.ERROR);
             cloudInstance.updateErrorInfo(new CloudErrorInfo("Can't restart instance with id: " + instanceId, e.getMessage()));
@@ -116,7 +118,7 @@ public class DOClientService {
             if (successFlag) {
                 ((TCCloudImage)cloudInstance.getImage()).removeInstance(cloudInstance);
                 cloudInstance.updateStatus(InstanceStatus.STOPPED);
-                LOG.info("Cloud instance " + cloudInstance.getName() + " stopped successfully.");
+                LOG.info("Cloud instance " + cloudInstance.getName() + " has been stopped successfully.");
             } else {
                 cloudInstance.updateStatus(InstanceStatus.ERROR_CANNOT_STOP);
                 cloudInstance.updateErrorInfo(new CloudErrorInfo("Can't terminate instance with id: " + instanceId));

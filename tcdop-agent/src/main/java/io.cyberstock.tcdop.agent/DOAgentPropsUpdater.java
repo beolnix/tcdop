@@ -11,6 +11,10 @@ import jetbrains.buildServer.util.EventDispatcher;
 import org.jetbrains.annotations.NotNull;
 
 
+/**
+ * This one doesn't seem to work
+ * Using buildAgent.properties to set env properties for agent identification
+ */
 public class DOAgentPropsUpdater {
 
     // dependencies

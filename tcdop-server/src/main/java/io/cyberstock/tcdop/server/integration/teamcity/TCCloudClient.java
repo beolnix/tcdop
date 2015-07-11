@@ -1,8 +1,6 @@
 package io.cyberstock.tcdop.server.integration.teamcity;
 
 import com.intellij.openapi.diagnostic.Logger;
-import io.cyberstock.tcdop.model.AgentParamKey;
-import io.cyberstock.tcdop.model.DOConfigConstants;
 import io.cyberstock.tcdop.model.DOIntegrationMode;
 import io.cyberstock.tcdop.model.DOSettings;
 import io.cyberstock.tcdop.model.error.DOError;
