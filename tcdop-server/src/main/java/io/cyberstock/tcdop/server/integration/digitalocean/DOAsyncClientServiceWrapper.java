@@ -1,14 +1,10 @@
 package io.cyberstock.tcdop.server.integration.digitalocean;
 
-import com.intellij.openapi.diagnostic.Logger;
-import com.sun.javafx.iio.ImageStorage;
 import io.cyberstock.tcdop.model.DOSettings;
 import io.cyberstock.tcdop.model.error.DOError;
-import io.cyberstock.tcdop.server.integration.teamcity.TCCloudImage;
-import io.cyberstock.tcdop.server.integration.teamcity.TCCloudInstance;
-import jetbrains.buildServer.clouds.InstanceStatus;
+import io.cyberstock.tcdop.server.integration.teamcity.DOCloudImage;
+import io.cyberstock.tcdop.server.integration.teamcity.DOCloudInstance;
 
-import java.awt.*;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -26,7 +22,7 @@ public class DOAsyncClientServiceWrapper {
         this.clientService = clientService;
     }
 
-    public void restartInstance(final TCCloudInstance cloudInstance) {
+    public void restartInstance(final DOCloudInstance cloudInstance) {
         executorService.execute(new Runnable() {
             public void run() {
                 clientService.restartInstance(cloudInstance);
@@ -34,8 +30,8 @@ public class DOAsyncClientServiceWrapper {
         });
     }
 
-    public TCCloudInstance initializeInstance(TCCloudImage cloudImage, DOSettings doSettings) throws DOError {
-        final TCCloudInstance cloudInstance = clientService.createInstance(cloudImage, doSettings);
+    public DOCloudInstance initializeInstance(DOCloudImage cloudImage, DOSettings doSettings) throws DOError {
+        final DOCloudInstance cloudInstance = clientService.createInstance(cloudImage, doSettings);
         executorService.execute(new Runnable() {
             public void run() {
                 clientService.waitInstanceInitialization(cloudInstance);
@@ -45,7 +41,7 @@ public class DOAsyncClientServiceWrapper {
         return cloudInstance;
     }
 
-    public void terminateInstance(final TCCloudInstance cloudInstance) {
+    public void terminateInstance(final DOCloudInstance cloudInstance) {
         executorService.execute(new Runnable() {
             public void run() {
                 clientService.terminateInstance(cloudInstance);

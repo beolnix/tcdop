@@ -2,7 +2,6 @@ package io.cyberstock.tcdop.server.integration.teamcity;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.myjeeva.digitalocean.pojo.Image;
-import io.cyberstock.tcdop.model.DOSettings;
 import jetbrains.buildServer.clouds.CloudErrorInfo;
 import jetbrains.buildServer.clouds.CloudImage;
 import jetbrains.buildServer.clouds.CloudInstance;
@@ -14,21 +13,21 @@ import java.util.*;
 /**
  * Created by beolnix on 16/05/15.
  */
-public class TCCloudImage implements CloudImage {
+public class DOCloudImage implements CloudImage {
 
     // Dependencies
     private final Image image;
     private final String id;
     private final String name;
-    private final Map<String, TCCloudInstance> instances = new HashMap<String, TCCloudInstance>();
+    private final Map<String, DOCloudInstance> instances = new HashMap<String, DOCloudInstance>();
 
     // State
     private CloudErrorInfo cloudErrorInfo;
 
     // constants
-    private static final Logger LOG = Logger.getInstance(TCCloudImage.class.getName());
+    private static final Logger LOG = Logger.getInstance(DOCloudImage.class.getName());
 
-    public TCCloudImage(Image image) {
+    public DOCloudImage(Image image) {
         this.id = image.getId().toString();
         this.name = image.getName();
         this.image = image;
@@ -53,12 +52,12 @@ public class TCCloudImage implements CloudImage {
         return instances.values();
     }
 
-    public void addInstance(TCCloudInstance cloudInstance) {
+    public void addInstance(DOCloudInstance cloudInstance) {
         instances.put(cloudInstance.getInstanceId(), cloudInstance);
         LOG.debug("New instance " + cloudInstance.getInstanceId() + " has been added to the image: " + this.getId());
     }
 
-    public void removeInstance(TCCloudInstance cloudInstance) {
+    public void removeInstance(DOCloudInstance cloudInstance) {
         instances.remove(cloudInstance.getInstanceId());
         LOG.info("Instance " + cloudInstance.getInstanceId() + " has been removed from the image: " + this.getId());
     }

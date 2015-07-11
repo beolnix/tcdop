@@ -21,7 +21,7 @@ import java.util.UUID;
 /**
  * Created by beolnix on 24/05/15.
  */
-public class TCCloudClient implements CloudClientEx {
+public class DOCloudClient implements CloudClientEx {
 
     // dependencies
     @NotNull private final DOSettings settings;
@@ -34,9 +34,9 @@ public class TCCloudClient implements CloudClientEx {
 
 
     // constants
-    private static final Logger LOG = Logger.getInstance(TCCloudClient.class.getName());
+    private static final Logger LOG = Logger.getInstance(DOCloudClient.class.getName());
 
-    TCCloudClient(@NotNull DOSettings settings,
+    DOCloudClient(@NotNull DOSettings settings,
                   @NotNull DOAsyncClientServiceWrapper client,
                   @NotNull CloudImageStorage imageStorage) {
         this.settings = settings;
@@ -57,9 +57,9 @@ public class TCCloudClient implements CloudClientEx {
     @NotNull
     public CloudInstance startNewInstance(@NotNull CloudImage cloudImage, @NotNull CloudInstanceUserData cloudInstanceUserData) throws QuotaException {
         LOG.info("Launch new instance in Digital Ocean with cloudImage: " + cloudImage.toString() + "; userData: " + cloudInstanceUserData.toString());
-        TCCloudImage tcCloudImage = (TCCloudImage) cloudImage;
+        DOCloudImage DOCloudImage = (DOCloudImage) cloudImage;
         try {
-            TCCloudInstance instance = client.initializeInstance(tcCloudImage, settings);
+            DOCloudInstance instance = client.initializeInstance(DOCloudImage, settings);
             return instance;
         } catch (DOError e) {
             setCloudErrorInfo(new CloudErrorInfo("Can't create new instance", e.getMessage(), e));
@@ -69,12 +69,12 @@ public class TCCloudClient implements CloudClientEx {
 
     public void restartInstance(@NotNull CloudInstance cloudInstance) {
         LOG.info("DO Instance restart is triggered for: " + cloudInstance.toString());
-        client.restartInstance((TCCloudInstance) cloudInstance);
+        client.restartInstance((DOCloudInstance) cloudInstance);
     }
 
     public void terminateInstance(@NotNull CloudInstance cloudInstance) {
         LOG.info("DO Instance termination is triggered for: " + cloudInstance.toString());
-        client.terminateInstance((TCCloudInstance) cloudInstance);
+        client.terminateInstance((DOCloudInstance) cloudInstance);
     }
 
     public void dispose() {
@@ -89,7 +89,7 @@ public class TCCloudClient implements CloudClientEx {
     public CloudImage findImageById(@NotNull String s) throws CloudException {
         LOG.debug("DO find image by id is triggered: " + s);
         if (DOIntegrationMode.PREPARED_IMAGE.equals(settings.getMode())) {
-            TCCloudImage cloudImage = imageStorage.getImageById(s);
+            DOCloudImage cloudImage = imageStorage.getImageById(s);
 
             if (cloudImage == null) {
                 LOG.debug("DO cloud image not found for id: " + s);
@@ -122,8 +122,8 @@ public class TCCloudClient implements CloudClientEx {
             LOG.debug("Agent ipv4 is: " + agentIPv4);
         }
 
-        Collection<TCCloudImage> images = imageStorage.getImagesList();
-        for (TCCloudImage image : images) {
+        Collection<DOCloudImage> images = imageStorage.getImagesList();
+        for (DOCloudImage image : images) {
             for (CloudInstance instance : image.getInstances()) {
                 if (instance.getNetworkIdentity().equals(agentIPv4)) {
                     LOG.debug("Instance with the same ipv4 has been found: " + instance.toString());
@@ -142,9 +142,9 @@ public class TCCloudClient implements CloudClientEx {
     public Collection<? extends CloudImage> getImages() throws CloudException {
         LOG.debug("DO get images triggered");
         if (DOIntegrationMode.PREPARED_IMAGE.equals(settings.getMode())) {
-            Collection<TCCloudImage> images = imageStorage.getImagesList();
+            Collection<DOCloudImage> images = imageStorage.getImagesList();
             LOG.debug(images.size() + " images found, trying to identify image with name: " + settings.getImageName());
-            for (TCCloudImage cloudImage : images) {
+            for (DOCloudImage cloudImage : images) {
                 if (cloudImage != null && settings.getImageName().equals(cloudImage.getName())) {
                     LOG.debug("Image found: " + cloudImage.toString());
                     return Collections.singleton(cloudImage);

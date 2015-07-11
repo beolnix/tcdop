@@ -1,7 +1,7 @@
 package io.cyberstock.tcdop.server.integration.digitalocean;
 
 import com.intellij.openapi.diagnostic.Logger;
-import io.cyberstock.tcdop.server.integration.teamcity.TCCloudImage;
+import io.cyberstock.tcdop.server.integration.teamcity.DOCloudImage;
 
 import java.util.*;
 import java.util.concurrent.Executor;
@@ -16,7 +16,7 @@ public class CloudImageStorage {
     private final Executor executor;
 
     // state
-    private volatile Map<String, TCCloudImage> imageMap = new HashMap<String, TCCloudImage>();
+    private volatile Map<String, DOCloudImage> imageMap = new HashMap<String, DOCloudImage>();
     private volatile Integer instancesCount = 0;
     private volatile CloudImagesChecker checker = new CloudImagesChecker();
     private volatile boolean stop = false;
@@ -58,7 +58,7 @@ public class CloudImageStorage {
     synchronized private void updateImages() {
         LOG.debug("updating images cache.");
 
-        Map<String, TCCloudImage> newImageMap = getImagesMapFromServer();
+        Map<String, DOCloudImage> newImageMap = getImagesMapFromServer();
 
         instancesCount = calculateInstances(newImageMap);
         LOG.debug(newImageMap.size() + " images contains: " + instancesCount);
@@ -66,23 +66,23 @@ public class CloudImageStorage {
         mergeOldImagesToNewImagesMap(newImageMap, imageMap);
     }
 
-    private Integer calculateInstances(Map<String, TCCloudImage> newImageMap) {
+    private Integer calculateInstances(Map<String, DOCloudImage> newImageMap) {
         int instancesCounter = 0;
 
-        for (TCCloudImage image : newImageMap.values()) {
+        for (DOCloudImage image : newImageMap.values()) {
             instancesCounter += image.getInstances().size();
         }
 
         return instancesCounter;
     }
 
-    private Map<String, TCCloudImage> getImagesMapFromServer() {
-        List<TCCloudImage> images = clientService.getImages();
+    private Map<String, DOCloudImage> getImagesMapFromServer() {
+        List<DOCloudImage> images = clientService.getImages();
         LOG.debug(images.size() + " images got.");
 
-        Map<String, TCCloudImage> newImageMap = new HashMap<String, TCCloudImage>();
+        Map<String, DOCloudImage> newImageMap = new HashMap<String, DOCloudImage>();
 
-        for (TCCloudImage image : images) {
+        for (DOCloudImage image : images) {
             newImageMap.put(image.getId(), image);
         }
 
@@ -96,8 +96,8 @@ public class CloudImageStorage {
      * @param newImageMap
      * @param oldMap
      */
-    private void mergeOldImagesToNewImagesMap(Map<String, TCCloudImage> newImageMap, Map<String, TCCloudImage> oldMap) {
-        for (TCCloudImage image : oldMap.values()) {
+    private void mergeOldImagesToNewImagesMap(Map<String, DOCloudImage> newImageMap, Map<String, DOCloudImage> oldMap) {
+        for (DOCloudImage image : oldMap.values()) {
             if (newImageMap.containsKey(image.getId())) {
                 newImageMap.put(image.getId(), image);
             }
@@ -105,7 +105,7 @@ public class CloudImageStorage {
         imageMap = newImageMap;
     }
 
-    public Collection<TCCloudImage> getImagesList() {
+    public Collection<DOCloudImage> getImagesList() {
         return imageMap.values();
     }
 
@@ -113,7 +113,7 @@ public class CloudImageStorage {
         return instancesCount;
     }
 
-    public TCCloudImage getImageById(String imageId) {
+    public DOCloudImage getImageById(String imageId) {
         return imageMap.get(imageId);
     }
 

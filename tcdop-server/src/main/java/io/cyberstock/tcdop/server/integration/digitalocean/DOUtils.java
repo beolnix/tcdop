@@ -8,7 +8,7 @@ import com.myjeeva.digitalocean.impl.DigitalOceanClient;
 import com.myjeeva.digitalocean.pojo.*;
 import io.cyberstock.tcdop.model.DropletConfig;
 import io.cyberstock.tcdop.model.error.DOError;
-import io.cyberstock.tcdop.server.integration.teamcity.TCCloudImage;
+import io.cyberstock.tcdop.server.integration.teamcity.DOCloudImage;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -26,7 +26,7 @@ public class DOUtils {
     private final static Integer ACTION_RESULT_CHECK_INTERVAL = 2 * 1000;
 
     @NotNull
-    public static Droplet createInstance(DigitalOceanClient doClient, DropletConfig dropletConfig, TCCloudImage cloudImage) throws DOError {
+    public static Droplet createInstance(DigitalOceanClient doClient, DropletConfig dropletConfig, DOCloudImage cloudImage) throws DOError {
         Droplet droplet = new Droplet();
         droplet.setDiskSize(dropletConfig.getDiskSize());
         droplet.setMemorySizeInMb(dropletConfig.getMemorySizeInMb());

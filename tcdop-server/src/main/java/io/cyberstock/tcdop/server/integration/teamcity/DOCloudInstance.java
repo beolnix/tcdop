@@ -1,10 +1,6 @@
 package io.cyberstock.tcdop.server.integration.teamcity;
 
 import com.intellij.openapi.diagnostic.Logger;
-import com.myjeeva.digitalocean.pojo.Droplet;
-import io.cyberstock.tcdop.model.AgentParamKey;
-import io.cyberstock.tcdop.model.DOConfigConstants;
-import io.cyberstock.tcdop.model.DOSettings;
 import jetbrains.buildServer.clouds.*;
 import jetbrains.buildServer.serverSide.AgentDescription;
 import jetbrains.buildServer.serverSide.impl.auth.SecuredBuildAgent;
@@ -12,20 +8,19 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Date;
-import java.util.Map;
 
 /**
  * Created by beolnix on 16/05/15.
  */
-public class TCCloudInstance implements CloudInstance {
+public class DOCloudInstance implements CloudInstance {
 
     // dependencies
-    private final TCCloudImage cloudImage;
+    private final DOCloudImage cloudImage;
     private final String instanceId;
     private final String instanceName;
 
     // constants
-    private static final Logger LOG = Logger.getInstance(TCCloudInstance.class.getName());
+    private static final Logger LOG = Logger.getInstance(DOCloudInstance.class.getName());
 
     // state
     private InstanceStatus instanceStatus = InstanceStatus.SCHEDULED_TO_START;
@@ -33,7 +28,7 @@ public class TCCloudInstance implements CloudInstance {
     private CloudErrorInfo cloudErrorInfo;
     private Date startTime;
 
-    public TCCloudInstance(@NotNull TCCloudImage cloudImage,
+    public DOCloudInstance(@NotNull DOCloudImage cloudImage,
                            @NotNull String instanceId,
                            @NotNull String instanceName) {
         this.cloudImage = cloudImage;

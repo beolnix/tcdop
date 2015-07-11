@@ -26,7 +26,7 @@ import java.util.*;
 /**
  * Created by beolnix on 08/05/15.
  */
-public class TCCloudClientFactory implements CloudClientFactory {
+public class DOCloudClientFactory implements CloudClientFactory {
 
     // dependencies
     private final DOAsyncClientServiceFactory asyncClientServiceFactory;
@@ -36,11 +36,11 @@ public class TCCloudClientFactory implements CloudClientFactory {
     private final String doProfileHtmlPath;
 
     // constants
-    private static final Logger LOG = Logger.getInstance(TCCloudClientFactory.class.getName());
+    private static final Logger LOG = Logger.getInstance(DOCloudClientFactory.class.getName());
 
     private final static String DISPLAY_NAME = "Digital ocean type";
 
-    public TCCloudClientFactory(@NotNull final CloudRegistrar cloudRegistrar,
+    public DOCloudClientFactory(@NotNull final CloudRegistrar cloudRegistrar,
                                 @NotNull final PluginDescriptor pluginDescriptor,
                                 @NotNull final DOAsyncClientServiceFactory asyncClientServiceFactory,
                                 @NotNull final CloudImageStorageFactory cloudImageStorageFactory) {
@@ -64,7 +64,7 @@ public class TCCloudClientFactory implements CloudClientFactory {
         DOAsyncClientServiceWrapper client = asyncClientServiceFactory.createClient(settings.getToken());
         CloudImageStorage imageStorage = cloudImageStorageFactory.getStorage(settings.getToken());
 
-        TCCloudClient cloudClient = new TCCloudClient(settings, client, imageStorage);
+        DOCloudClient cloudClient = new DOCloudClient(settings, client, imageStorage);
         cloudClient.setReadyFlag(true);
 
         return cloudClient;
