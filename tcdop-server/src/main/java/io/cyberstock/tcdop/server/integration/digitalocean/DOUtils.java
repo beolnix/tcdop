@@ -22,7 +22,7 @@ import java.util.List;
 public class DOUtils {
 
     // constants
-    private static final Logger LOG = Logger.getInstance(DOAsyncClientServiceWrapper.class.getName());
+    private static final Logger LOG = Logger.getInstance(DOUtils.class.getName());
     private final static Integer ACTION_RESULT_CHECK_INTERVAL = 2 * 1000;
 
     @NotNull
@@ -38,7 +38,7 @@ public class DOUtils {
 
         try {
             Droplet createdDroplet = doClient.createDroplet(droplet);
-            LOG.info("Droplet created successfully: " + droplet.toString());
+            LOG.info("Droplet created successfully: " + droplet.getId());
             return createdDroplet;
         } catch (Exception e) {
             LOG.error("Can't create droplet:" + e.getMessage(), e);

@@ -56,7 +56,7 @@ public class DOCloudClient implements CloudClientEx {
 
     @NotNull
     public CloudInstance startNewInstance(@NotNull CloudImage cloudImage, @NotNull CloudInstanceUserData cloudInstanceUserData) throws QuotaException {
-        LOG.info("Launch new instance in Digital Ocean with cloudImage: " + cloudImage.toString() + "; userData: " + cloudInstanceUserData.toString());
+        LOG.info("Launch new instance in Digital Ocean with cloudImage: " + cloudImage.getName());
         DOCloudImage DOCloudImage = (DOCloudImage) cloudImage;
         try {
             DOCloudInstance instance = client.initializeInstance(DOCloudImage, settings);
