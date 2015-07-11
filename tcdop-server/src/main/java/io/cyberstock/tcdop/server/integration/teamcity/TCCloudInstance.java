@@ -7,6 +7,7 @@ import io.cyberstock.tcdop.model.DOConfigConstants;
 import io.cyberstock.tcdop.model.DOSettings;
 import jetbrains.buildServer.clouds.*;
 import jetbrains.buildServer.serverSide.AgentDescription;
+import jetbrains.buildServer.serverSide.impl.auth.SecuredBuildAgent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,18 +21,18 @@ public class TCCloudInstance implements CloudInstance {
 
     // dependencies
     private final TCCloudImage cloudImage;
-    private String instanceId;
-    private String instanceName;
-    private Droplet droplet;
-
-
-    // state
-    private InstanceStatus instanceStatus = InstanceStatus.SCHEDULED_TO_START;
-    private CloudErrorInfo cloudErrorInfo;
-    private Date startTime;
+    private final String instanceId;
+    private final String instanceName;
+    private final Droplet droplet;
 
     // constants
     private static final Logger LOG = Logger.getInstance(TCCloudInstance.class.getName());
+    private static final InstanceStatus DEFAULT_STATE = InstanceStatus.UNKNOWN;
+
+    // state
+    private InstanceStatus instanceStatus = DEFAULT_STATE;
+    private CloudErrorInfo cloudErrorInfo;
+    private Date startTime;
 
     public TCCloudInstance(@NotNull TCCloudImage cloudImage,
                            @NotNull Droplet droplet) {
@@ -39,6 +40,24 @@ public class TCCloudInstance implements CloudInstance {
         this.droplet = droplet;
         this.instanceId = droplet.getId().toString();
         this.instanceName = droplet.getName();
+
+        switch (droplet.getStatus()) {
+            case NEW:
+                this.instanceStatus = InstanceStatus.SCHEDULED_TO_START;
+                break;
+            case ACTIVE:
+                this.instanceStatus = InstanceStatus.RUNNING;
+                break;
+            case OFF:
+                this.instanceStatus = InstanceStatus.STOPPED;
+                break;
+            case ARCHIVE:
+                this.instanceStatus = InstanceStatus.STOPPED;
+                break;
+            default:
+                this.instanceStatus = DEFAULT_STATE;
+                break;
+        }
     }
 
     @NotNull
@@ -102,8 +121,10 @@ public class TCCloudInstance implements CloudInstance {
     public boolean containsAgent(AgentDescription agentDescription) {
         LOG.debug("Contains agent is triggered in instance: " + instanceId + " for agent: " + agentDescription.toString());
 
-        final Map<String, String> configParams = agentDescription.getConfigurationParameters();
-        boolean result = getNetworkIdentity().equals(configParams.get(DOConfigConstants.AGENT_IPV4_PROP_KEY));
+        String agentIPv4 = ((SecuredBuildAgent)agentDescription).getHostAddress();
+        String instanceIPv4 = getNetworkIdentity();
+
+        boolean result = instanceIPv4.equals(agentIPv4);
         if (result) {
             LOG.debug("Instance " + instanceId + " contains agent: " + agentDescription.toString());
         } else {

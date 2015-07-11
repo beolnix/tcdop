@@ -1,11 +1,13 @@
 package io.cyberstock.tcdop.server.integration.digitalocean;
 
 import com.intellij.openapi.diagnostic.Logger;
+import com.sun.javafx.iio.ImageStorage;
 import io.cyberstock.tcdop.model.DOSettings;
 import io.cyberstock.tcdop.server.integration.teamcity.TCCloudImage;
 import io.cyberstock.tcdop.server.integration.teamcity.TCCloudInstance;
 import jetbrains.buildServer.clouds.InstanceStatus;
 
+import java.awt.*;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -20,7 +22,8 @@ public class DOAsyncClientServiceWrapper {
     // constants
     private static final Logger LOG = Logger.getInstance(DOAsyncClientServiceWrapper.class.getName());
 
-    public DOAsyncClientServiceWrapper(ExecutorService executorService, DOClientService clientService) {
+    public DOAsyncClientServiceWrapper(ExecutorService executorService,
+                                       DOClientService clientService) {
         this.executorService = executorService;
         this.clientService = clientService;
     }
@@ -38,7 +41,11 @@ public class DOAsyncClientServiceWrapper {
         cloudInstance.updateStatus(InstanceStatus.SCHEDULED_TO_STOP);
         executorService.execute(new Runnable() {
             public void run() {
+                cloudInstance.updateErrorInfo(null);
                 clientService.terminateInstance(cloudInstance);
+                if (cloudInstance.getErrorInfo() == null) {
+                    ((TCCloudImage)cloudInstance.getImage()).removeInstance(cloudInstance);
+                }
             }
         });
     }

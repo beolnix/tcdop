@@ -21,6 +21,7 @@ import java.util.*;
  */
 public class DOClientService {
 
+    //  dependencies
     private final DigitalOceanClient doClient;
 
     // constants
@@ -86,17 +87,19 @@ public class DOClientService {
         Integer instanceId = Integer.parseInt(cloudInstance.getInstanceId());
         cloudInstance.updateStatus(InstanceStatus.SCHEDULED_TO_STOP);
         try {
-            DOUtils.stopInstance(doClient, instanceId);
             boolean successFlag = DOUtils.terminateInstance(doClient, instanceId);
             if (successFlag) {
                 cloudInstance.updateStatus(InstanceStatus.STOPPED);
+                LOG.info("Cloud instance " + cloudInstance.getName() + " stopped successfully.");
             } else {
                 cloudInstance.updateStatus(InstanceStatus.ERROR_CANNOT_STOP);
                 cloudInstance.updateErrorInfo(new CloudErrorInfo("Can't terminate instance with id: " + instanceId));
+                LOG.error("Cloud instance " + cloudInstance.getName() + " can't be stopped.");
             }
         } catch (DOError e) {
             cloudInstance.updateStatus(InstanceStatus.ERROR_CANNOT_STOP);
             cloudInstance.updateErrorInfo(new CloudErrorInfo("Can't stop instance with id: " + instanceId, e.getMessage()));
+            LOG.error("Cloud instance " + cloudInstance.getName() + " can't be stopped: " + e.getMessage());
         }
     }
 

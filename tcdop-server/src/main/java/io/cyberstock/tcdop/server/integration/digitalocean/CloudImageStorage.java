@@ -51,6 +51,10 @@ public class CloudImageStorage {
         }
     }
 
+    public void forceUpdate() {
+        updateImages();
+    }
+
     synchronized private void updateImages() {
         LOG.debug("updating images cache.");
 

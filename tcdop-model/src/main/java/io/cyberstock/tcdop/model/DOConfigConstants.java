@@ -7,8 +7,10 @@ public interface DOConfigConstants {
     public static final String STYLES_PATH = "stylesPath";
     public static final String REFRESHABLE_PATH = "refreshablePath";
 
+    public static final String ENV_AGENT_TYPE="env.AGENT_TYPE";
+
     public static final String IDENTITY_KEY = "DO_AGENT_TYPE";
-    public static final String IDENTITY_VALUE = "DIGITALOCEAN_AGENT_01";
+    public static final String IDENTITY_VALUE = "DIGITALOCEAN_AGENT_TYPE";
     public static final String CLOUD_CODE = "DO";
 
     public static final String TOKEN = "api_key";

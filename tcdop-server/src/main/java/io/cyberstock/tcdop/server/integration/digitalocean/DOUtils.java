@@ -1,6 +1,7 @@
 package io.cyberstock.tcdop.server.integration.digitalocean;
 
 import com.google.common.base.Optional;
+import com.myjeeva.digitalocean.common.ActionStatus;
 import com.myjeeva.digitalocean.exception.DigitalOceanException;
 import com.myjeeva.digitalocean.exception.RequestUnsuccessfulException;
 import com.myjeeva.digitalocean.impl.DigitalOceanClient;
@@ -18,6 +19,8 @@ import java.util.List;
  * Created by beolnix on 24/05/15.
  */
 public class DOUtils {
+
+    private final static Integer ACTION_RESULT_CHECK_INTERVAL = 1 * 1000;
 
     public static Optional<Droplet> findDropletById(DigitalOceanClient doClient, Integer dropletId) throws DOError {
         Droplet dropletInfo = null;
@@ -80,7 +83,8 @@ public class DOUtils {
     public static Date startInstance(DigitalOceanClient doClient, Integer instanceId) throws DOError {
         try {
             Action action = doClient.powerOnDroplet(instanceId);
-            return action.getCompletedAt();
+            Date completedAt = waitForActionResult(doClient, action);
+            return completedAt;
         } catch (DigitalOceanException e) {
             throw new DOError("Can't start instance with id: " + instanceId , e);
         } catch (RequestUnsuccessfulException e) {
@@ -90,9 +94,33 @@ public class DOUtils {
         }
     }
 
+    private static Date waitForActionResult(DigitalOceanClient doClient, Action actionInfo) throws DOError {
+        Integer actionId = actionInfo.getId();
+        try {
+            while (ActionStatus.IN_PROGRESS.equals(actionInfo.getStatus())) {
+                actionInfo = doClient.getActionInfo(actionId);
+                Thread.sleep(ACTION_RESULT_CHECK_INTERVAL);
+            }
+
+            if (ActionStatus.COMPLETED.equals(actionInfo.getStatus())) {
+                return actionInfo.getCompletedAt();
+            } else {
+                throw new DOError("Action hasn't been completed successfully");
+            }
+
+        } catch (DigitalOceanException e) {
+            throw new DOError("Can't get actionInfo with id: " + actionId , e);
+        } catch (RequestUnsuccessfulException e) {
+            throw new DOError("Can't get actionInfo with id: " + actionId , e);
+        } catch (Throwable e) {
+            throw new DOError("Can't get actionInfo with id: " + actionId , e);
+        }
+    }
+
     public static Boolean terminateInstance(DigitalOceanClient doClient, Integer instanceId) throws DOError {
         try {
 //            Action action = doClient.shutdownDroplet(instanceId);
+//            waitForActionResult(doClient, action);
             Delete delete = doClient.deleteDroplet(instanceId);
             return delete.getIsRequestSuccess();
         } catch (DigitalOceanException e) {
@@ -107,7 +135,8 @@ public class DOUtils {
     public static Date stopInstance(DigitalOceanClient doClient, Integer instanceId) throws DOError {
         try {
             Action action = doClient.powerOffDroplet(instanceId);
-            return action.getCompletedAt();
+            Date completedAt = waitForActionResult(doClient, action);
+            return completedAt;
         } catch (DigitalOceanException e) {
             throw new DOError("Can't stop instance with id: " + instanceId , e);
         } catch (RequestUnsuccessfulException e) {
@@ -120,7 +149,8 @@ public class DOUtils {
     public static Date restartInstance(DigitalOceanClient doClient, Integer instanceId) throws DOError {
         try {
             Action action = doClient.rebootDroplet(instanceId);
-            return action.getCompletedAt();
+            Date completedAt = waitForActionResult(doClient, action);
+            return completedAt;
         } catch (DigitalOceanException e) {
             throw new DOError("Can't restart instance with id: " + instanceId , e);
         } catch (RequestUnsuccessfulException e) {

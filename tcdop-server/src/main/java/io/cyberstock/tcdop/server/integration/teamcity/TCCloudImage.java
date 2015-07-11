@@ -54,8 +54,13 @@ public class TCCloudImage implements CloudImage {
     }
 
     public void addInstance(TCCloudInstance cloudInstance) {
-        LOG.debug("New instance " + cloudInstance.getInstanceId() + " has been added to the image: " + this.getId());
         instances.put(cloudInstance.getInstanceId(), cloudInstance);
+        LOG.debug("New instance " + cloudInstance.getInstanceId() + " has been added to the image: " + this.getId());
+    }
+
+    public void removeInstance(TCCloudInstance cloudInstance) {
+        instances.remove(cloudInstance.getInstanceId());
+        LOG.debug("Instance " + cloudInstance.getInstanceId() + " has been removed from the image: " + this.getId());
     }
 
     @Nullable

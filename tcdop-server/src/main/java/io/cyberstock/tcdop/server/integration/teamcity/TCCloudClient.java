@@ -10,6 +10,7 @@ import io.cyberstock.tcdop.server.integration.digitalocean.CloudImageStorage;
 import io.cyberstock.tcdop.server.integration.digitalocean.DOAsyncClientServiceWrapper;
 import jetbrains.buildServer.clouds.*;
 import jetbrains.buildServer.serverSide.AgentDescription;
+import jetbrains.buildServer.serverSide.impl.auth.SecuredBuildAgent;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -117,7 +118,7 @@ public class TCCloudClient implements CloudClientEx {
     @Nullable
     public CloudInstance findInstanceByAgent(@NotNull AgentDescription agentDescription) {
         LOG.debug("Find instance by agent is triggered.");
-        String agentIPv4 = agentDescription.getConfigurationParameters().get(DOConfigConstants.AGENT_IPV4_PROP_KEY);
+        String agentIPv4 = ((SecuredBuildAgent)agentDescription).getHostAddress();
         if (StringUtils.isEmpty(agentIPv4)) {
             LOG.error("Agent ipv4 is empty.");
             return null;

@@ -60,6 +60,10 @@
         </dependency>
         <dependency>
             <groupId>org.jetbrains.teamcity</groupId>
+            <artifactId>server</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.teamcity</groupId>
             <artifactId>tests-support</artifactId>
         </dependency>
 

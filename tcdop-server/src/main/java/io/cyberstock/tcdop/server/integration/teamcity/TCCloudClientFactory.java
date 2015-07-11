@@ -101,9 +101,9 @@ public class TCCloudClientFactory implements CloudClientFactory {
     }
 
     public boolean canBeAgentOfType(AgentDescription agentDescription) {
-        final Map<String, String> configParams = agentDescription.getConfigurationParameters();
-
-        return configParams.containsKey(DOConfigConstants.IDENTITY_KEY)
-                && DOConfigConstants.IDENTITY_VALUE.equals(configParams.get(DOConfigConstants.IDENTITY_KEY));
+        final Map<String, String> configParams = agentDescription.getAvailableParameters();
+        boolean result = configParams.containsKey(DOConfigConstants.ENV_AGENT_TYPE)
+                && DOConfigConstants.IDENTITY_VALUE.equals(configParams.get(DOConfigConstants.ENV_AGENT_TYPE));
+        return result;
     }
 }
