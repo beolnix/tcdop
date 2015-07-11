@@ -50,7 +50,7 @@ public class TCCloudClientFactory implements CloudClientFactory {
         this.doProfileHtmlPath = pluginDescriptor.getPluginResourcesPath(TCDOPSettingsController.HTML_PAGE_NAME);
         cloudRegistrar.registerCloudFactory(this);
 
-        LOG.debug("Digital Ocean client factory initialized. Settings HTML path: " + doProfileHtmlPath);
+        LOG.info("Digital Ocean client factory initialized. Settings HTML path: " + doProfileHtmlPath);
     }
 
     @NotNull
@@ -104,6 +104,12 @@ public class TCCloudClientFactory implements CloudClientFactory {
         final Map<String, String> configParams = agentDescription.getAvailableParameters();
         boolean result = configParams.containsKey(DOConfigConstants.ENV_AGENT_TYPE)
                 && DOConfigConstants.IDENTITY_VALUE.equals(configParams.get(DOConfigConstants.ENV_AGENT_TYPE));
+
+        if (LOG.isDebugEnabled()) {
+            String agentName = agentDescription.getConfigurationParameters().get(DOConfigConstants.AGENT_NAME_PROP);
+            LOG.debug("Agent with name: " + agentName + " can be managed by DO plugin: " + result);
+        }
+
         return result;
     }
 }

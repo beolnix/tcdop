@@ -19,8 +19,6 @@ public class DOAsyncClientServiceWrapper {
     private final ExecutorService executorService;
     private final DOClientService clientService;
 
-    // constants
-    private static final Logger LOG = Logger.getInstance(DOAsyncClientServiceWrapper.class.getName());
 
     public DOAsyncClientServiceWrapper(ExecutorService executorService,
                                        DOClientService clientService) {
@@ -41,20 +39,15 @@ public class DOAsyncClientServiceWrapper {
         cloudInstance.updateStatus(InstanceStatus.SCHEDULED_TO_STOP);
         executorService.execute(new Runnable() {
             public void run() {
+                Logger LOG = Logger.getInstance(DOAsyncClientServiceWrapper.class.getName());
                 cloudInstance.updateErrorInfo(null);
                 clientService.terminateInstance(cloudInstance);
                 if (cloudInstance.getErrorInfo() == null) {
-                    ((TCCloudImage)cloudInstance.getImage()).removeInstance(cloudInstance);
+                    LOG.info("Instance " + cloudInstance.getInstanceId() + " got terminated successfully.");
+                } else {
+                    LOG.error("Instance " + cloudInstance.getInstanceId() + " hasn't been terminated " +
+                            "successfully because of: " + cloudInstance.getErrorInfo().getDetailedMessage());
                 }
-            }
-        });
-    }
-
-    public void startInstance(final TCCloudInstance cloudInstance) {
-        cloudInstance.updateStatus(InstanceStatus.SCHEDULED_TO_START);
-        executorService.execute(new Runnable() {
-            public void run() {
-                clientService.startInstance(cloudInstance);
             }
         });
     }

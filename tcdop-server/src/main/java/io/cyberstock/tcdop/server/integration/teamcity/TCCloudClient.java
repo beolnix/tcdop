@@ -58,11 +58,10 @@ public class TCCloudClient implements CloudClientEx {
 
     @NotNull
     public CloudInstance startNewInstance(@NotNull CloudImage cloudImage, @NotNull CloudInstanceUserData cloudInstanceUserData) throws QuotaException {
-        LOG.debug("Launch new instance in Digital Ocean with cloudImage: " + cloudImage.toString() + "; userData: " + cloudInstanceUserData.toString());
+        LOG.info("Launch new instance in Digital Ocean with cloudImage: " + cloudImage.toString() + "; userData: " + cloudInstanceUserData.toString());
         TCCloudImage tcCloudImage = (TCCloudImage) cloudImage;
         try {
             TCCloudInstance instance = client.getClientService().createInstance(tcCloudImage, settings);
-            tcCloudImage.addInstance(instance);
             return instance;
         } catch (DOError e) {
             setCloudErrorInfo(new CloudErrorInfo("Can't create new instance", e.getMessage(), e));
@@ -71,13 +70,14 @@ public class TCCloudClient implements CloudClientEx {
     }
 
     public void restartInstance(@NotNull CloudInstance cloudInstance) {
-        LOG.debug("DO Instance restart is triggered for: " + cloudInstance.toString());
+        LOG.info("DO Instance restart is triggered for: " + cloudInstance.toString());
         client.restartInstance((TCCloudInstance) cloudInstance);
     }
 
     public void terminateInstance(@NotNull CloudInstance cloudInstance) {
-        LOG.debug("DO Instance termination is triggered for: " + cloudInstance.toString());
+        LOG.info("DO Instance termination is triggered for: " + cloudInstance.toString());
         client.terminateInstance((TCCloudInstance) cloudInstance);
+        imageStorage.forceUpdate();
     }
 
     public void dispose() {
@@ -100,7 +100,6 @@ public class TCCloudClient implements CloudClientEx {
             } else {
                 LOG.debug("DO cloud image found: " + cloudImage.toString());
             }
-
 
             if (settings.getImageName().equals(cloudImage.getName())) {
                 LOG.debug("DO cloud image is correct. Find Image by id returns successful result: " + cloudImage.toString());
@@ -147,13 +146,13 @@ public class TCCloudClient implements CloudClientEx {
         LOG.debug("DO get images triggered");
         if (DOIntegrationMode.PREPARED_IMAGE.equals(settings.getMode())) {
             Collection<TCCloudImage> images = imageStorage.getImagesList();
-//            LOG.debug(images.size() + " images found, trying to identify image with name: " + settings.getImageName());
+            LOG.debug(images.size() + " images found, trying to identify image with name: " + settings.getImageName());
             for (TCCloudImage cloudImage : images) {
                 if (cloudImage != null && settings.getImageName().equals(cloudImage.getName())) {
-//                    LOG.debug("Image found: " + cloudImage.toString());
+                    LOG.debug("Image found: " + cloudImage.toString());
                     return Collections.singleton(cloudImage);
                 } else {
-//                    LOG.debug("Image " + cloudImage.getName() + " skipped.");
+                    LOG.debug("Image " + cloudImage.getName() + " skipped.");
                 }
 
             }
@@ -162,7 +161,7 @@ public class TCCloudClient implements CloudClientEx {
             throw new NotImplementedException();
         }
 
-//        LOG.debug("Image with name " + settings.getImageName() + " hasn't been found.");
+        LOG.debug("Image with name " + settings.getImageName() + " hasn't been found.");
         return Collections.EMPTY_LIST;
     }
 

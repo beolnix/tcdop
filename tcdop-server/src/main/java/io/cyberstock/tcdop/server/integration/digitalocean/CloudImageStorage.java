@@ -22,7 +22,7 @@ public class CloudImageStorage {
     private volatile boolean stop = false;
 
     // constants
-    private final static Integer CHECK_INTERVAL = 60 * 1000;
+    private final static Integer CHECK_INTERVAL = 30 * 1000;
     private static final Logger LOG = Logger.getInstance(CloudImageStorage.class.getName());
 
     public CloudImageStorage(DOClientService clientService, Executor executor) {
@@ -58,19 +58,50 @@ public class CloudImageStorage {
     synchronized private void updateImages() {
         LOG.debug("updating images cache.");
 
-        List<TCCloudImage> images = clientService.getImages();
-//        LOG.debug(images.size() + " images got.");
+        Map<String, TCCloudImage> newImageMap = getImagesMapFromServer();
 
+        instancesCount = calculateInstances(newImageMap);
+        LOG.debug(newImageMap.size() + " images contains: " + instancesCount);
+
+        mergeOldImagesToNewImagesMap(newImageMap, imageMap);
+    }
+
+    private Integer calculateInstances(Map<String, TCCloudImage> newImageMap) {
         int instancesCounter = 0;
+
+        for (TCCloudImage image : newImageMap.values()) {
+            instancesCounter += image.getInstances().size();
+        }
+
+        return instancesCounter;
+    }
+
+    private Map<String, TCCloudImage> getImagesMapFromServer() {
+        List<TCCloudImage> images = clientService.getImages();
+        LOG.debug(images.size() + " images got.");
+
         Map<String, TCCloudImage> newImageMap = new HashMap<String, TCCloudImage>();
 
         for (TCCloudImage image : images) {
             newImageMap.put(image.getId(), image);
-            instancesCounter += image.getInstances().size();
         }
 
-        instancesCount = instancesCounter;
-//        LOG.debug(images.size() + " images contains: " + instancesCounter);
+        return newImageMap;
+    }
+
+    /**
+     * Merges state of already downloaded images with downloaded images from the server
+     * It is important do not lose state of images which are already downloaded because they consist of
+     * TeamCity specific status info like InstanceStatus or CloudErrorInfo
+     * @param newImageMap
+     * @param oldMap
+     */
+    private void mergeOldImagesToNewImagesMap(Map<String, TCCloudImage> newImageMap, Map<String, TCCloudImage> oldMap) {
+        for (TCCloudImage image : oldMap.values()) {
+            if (newImageMap.containsKey(image.getId())) {
+                newImageMap.put(image.getId(), image);
+            }
+        }
         imageMap = newImageMap;
     }
 

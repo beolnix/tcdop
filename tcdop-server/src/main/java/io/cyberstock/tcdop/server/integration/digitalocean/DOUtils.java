@@ -1,6 +1,7 @@
 package io.cyberstock.tcdop.server.integration.digitalocean;
 
 import com.google.common.base.Optional;
+import com.intellij.openapi.diagnostic.Logger;
 import com.myjeeva.digitalocean.common.ActionStatus;
 import com.myjeeva.digitalocean.exception.DigitalOceanException;
 import com.myjeeva.digitalocean.exception.RequestUnsuccessfulException;
@@ -20,42 +21,9 @@ import java.util.List;
  */
 public class DOUtils {
 
+    // constants
+    private static final Logger LOG = Logger.getInstance(DOAsyncClientServiceWrapper.class.getName());
     private final static Integer ACTION_RESULT_CHECK_INTERVAL = 1 * 1000;
-
-    public static Optional<Droplet> findDropletById(DigitalOceanClient doClient, Integer dropletId) throws DOError {
-        Droplet dropletInfo = null;
-        try {
-            dropletInfo = doClient.getDropletInfo(dropletId);
-        } catch (DigitalOceanException e) {
-            throw new DOError("Can't find droplet with id: " + dropletId, e);
-        } catch (RequestUnsuccessfulException e) {
-            throw new DOError("Can't find droplet with id: " + dropletId, e);
-        } catch (Throwable e) {
-            throw new DOError("Can't find droplet with id: " + dropletId, e);
-        }
-        return Optional.fromNullable(dropletInfo);
-    }
-
-    public static Optional<Droplet> findDropletByName(DigitalOceanClient doClient, String dropletName) throws DigitalOceanException, RequestUnsuccessfulException {
-        int pageNumber = 0;
-        while (true) {
-            Droplets droplets = doClient.getAvailableDroplets(pageNumber);
-            List<Droplet> dropletList = droplets.getDroplets();
-            if (dropletList.isEmpty()) {
-                break;
-            } else {
-                for (Droplet droplet : dropletList) {
-                    if (droplet.getName().equals(dropletName)) {
-                        return Optional.of(droplet);
-                    }
-                }
-            }
-
-            ++pageNumber;
-        }
-
-        return Optional.absent();
-    }
 
     @NotNull
     public static Droplet createInstance(DigitalOceanClient doClient, DropletConfig dropletConfig, TCCloudImage cloudImage) throws DOError {
@@ -70,27 +38,11 @@ public class DOUtils {
 
         try {
             Droplet createdDroplet = doClient.createDroplet(droplet);
+            LOG.info("Droplet created successfully: " + droplet.toString());
             return createdDroplet;
-        } catch (DigitalOceanException e) {
+        } catch (Exception e) {
+            LOG.error("Can't create droplet:" + e.getMessage(), e);
             throw new DOError("Can't create droplet:" + e.getMessage(), e);
-        } catch (RequestUnsuccessfulException e) {
-            throw new DOError("Can't create droplet:" + e.getMessage(), e);
-        } catch (Throwable e) {
-            throw new DOError("Can't create droplet:" + e.getMessage(), e);
-        }
-    }
-
-    public static Date startInstance(DigitalOceanClient doClient, Integer instanceId) throws DOError {
-        try {
-            Action action = doClient.powerOnDroplet(instanceId);
-            Date completedAt = waitForActionResult(doClient, action);
-            return completedAt;
-        } catch (DigitalOceanException e) {
-            throw new DOError("Can't start instance with id: " + instanceId , e);
-        } catch (RequestUnsuccessfulException e) {
-            throw new DOError("Can't start instance with id: " + instanceId , e);
-        } catch (Throwable e) {
-            throw new DOError("Can't start instance with id: " + instanceId , e);
         }
     }
 
@@ -105,43 +57,22 @@ public class DOUtils {
             if (ActionStatus.COMPLETED.equals(actionInfo.getStatus())) {
                 return actionInfo.getCompletedAt();
             } else {
+                LOG.error("Action hasn't been completed successfully");
                 throw new DOError("Action hasn't been completed successfully");
             }
 
-        } catch (DigitalOceanException e) {
-            throw new DOError("Can't get actionInfo with id: " + actionId , e);
-        } catch (RequestUnsuccessfulException e) {
-            throw new DOError("Can't get actionInfo with id: " + actionId , e);
-        } catch (Throwable e) {
+        } catch (Exception e) {
+            LOG.error("Can't get actionInfo with id: " + actionId , e);
             throw new DOError("Can't get actionInfo with id: " + actionId , e);
         }
     }
 
     public static Boolean terminateInstance(DigitalOceanClient doClient, Integer instanceId) throws DOError {
         try {
-//            Action action = doClient.shutdownDroplet(instanceId);
-//            waitForActionResult(doClient, action);
             Delete delete = doClient.deleteDroplet(instanceId);
             return delete.getIsRequestSuccess();
-        } catch (DigitalOceanException e) {
-            throw new DOError("Can't stop instance with id: " + instanceId , e);
-        } catch (RequestUnsuccessfulException e) {
-            throw new DOError("Can't stop instance with id: " + instanceId , e);
-        } catch (Throwable e) {
-            throw new DOError("Can't stop instance with id: " + instanceId , e);
-        }
-    }
-
-    public static Date stopInstance(DigitalOceanClient doClient, Integer instanceId) throws DOError {
-        try {
-            Action action = doClient.powerOffDroplet(instanceId);
-            Date completedAt = waitForActionResult(doClient, action);
-            return completedAt;
-        } catch (DigitalOceanException e) {
-            throw new DOError("Can't stop instance with id: " + instanceId , e);
-        } catch (RequestUnsuccessfulException e) {
-            throw new DOError("Can't stop instance with id: " + instanceId , e);
-        } catch (Throwable e) {
+        } catch (Exception e) {
+            LOG.error("Can't stop instance with id: " + instanceId + " because: " + e.getMessage(), e);
             throw new DOError("Can't stop instance with id: " + instanceId , e);
         }
     }
@@ -151,11 +82,8 @@ public class DOUtils {
             Action action = doClient.rebootDroplet(instanceId);
             Date completedAt = waitForActionResult(doClient, action);
             return completedAt;
-        } catch (DigitalOceanException e) {
-            throw new DOError("Can't restart instance with id: " + instanceId , e);
-        } catch (RequestUnsuccessfulException e) {
-            throw new DOError("Can't restart instance with id: " + instanceId , e);
-        } catch (Throwable e) {
+        } catch (Exception e) {
+            LOG.error("Can't restart instance with id: " + instanceId , e);
             throw new DOError("Can't restart instance with id: " + instanceId , e);
         }
     }
@@ -166,9 +94,8 @@ public class DOUtils {
             Images images = null;
             try {
                 images = doClient.getUserImages(pageNumber);
-            } catch (DigitalOceanException e) {
-                throw new DOError("Can't find image by name \"" + imageName + "\".", e);
-            } catch (RequestUnsuccessfulException e) {
+            } catch (Exception e) {
+                LOG.error("Can't find image by name \"" + imageName + "\".", e);
                 throw new DOError("Can't find image by name \"" + imageName + "\".", e);
             }
             List<Image> imageList = images.getImages();
@@ -203,11 +130,8 @@ public class DOUtils {
 
                 ++pageNumber;
             }
-        } catch (DigitalOceanException e) {
-            throw new DOError("Can't get user images:" + e.getMessage(), e);
-        } catch (RequestUnsuccessfulException e) {
-            throw new DOError("Communication issue while: " + e.getMessage(), e);
-        } catch (Throwable e) {
+        } catch (Exception e) {
+            LOG.error("Can't get user images:" + e.getMessage(), e);
             throw new DOError("Can't get user images:" + e.getMessage(), e);
         }
 
@@ -229,11 +153,8 @@ public class DOUtils {
 
                 ++pageNumber;
             }
-        } catch (DigitalOceanException e) {
-            throw new DOError("Can't get available droplets:" + e.getMessage(), e);
-        } catch (RequestUnsuccessfulException e) {
-            throw new DOError("Communication issue while: " + e.getMessage(), e);
-        } catch (Throwable e) {
+        } catch (Exception e) {
+            LOG.error("Can't get available droplets:" + e.getMessage(), e);
             throw new DOError("Can't get available droplets:" + e.getMessage(), e);
         }
 

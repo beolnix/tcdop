@@ -70,7 +70,7 @@ public class TCCloudInstance implements CloudInstance {
     }
 
     public void updateStatus(InstanceStatus newStatus) {
-        LOG.debug("new status of " + instanceId + " is: " + newStatus.getName());
+        LOG.info("new status of " + instanceId + " is: " + newStatus.getName());
         this.instanceStatus = newStatus;
     }
 

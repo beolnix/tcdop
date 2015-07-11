@@ -60,7 +60,7 @@ public class TCCloudImage implements CloudImage {
 
     public void removeInstance(TCCloudInstance cloudInstance) {
         instances.remove(cloudInstance.getInstanceId());
-        LOG.debug("Instance " + cloudInstance.getInstanceId() + " has been removed from the image: " + this.getId());
+        LOG.info("Instance " + cloudInstance.getInstanceId() + " has been removed from the image: " + this.getId());
     }
 
     @Nullable

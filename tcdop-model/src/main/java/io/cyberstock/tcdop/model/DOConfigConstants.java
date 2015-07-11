@@ -12,6 +12,7 @@ public interface DOConfigConstants {
     public static final String IDENTITY_KEY = "DO_AGENT_TYPE";
     public static final String IDENTITY_VALUE = "DIGITALOCEAN_AGENT_TYPE";
     public static final String CLOUD_CODE = "DO";
+    public static final String AGENT_NAME_PROP = "teamcity.agent.name";
 
     public static final String TOKEN = "api_key";
     public static final String INSTANCE_ID = "instance_id";

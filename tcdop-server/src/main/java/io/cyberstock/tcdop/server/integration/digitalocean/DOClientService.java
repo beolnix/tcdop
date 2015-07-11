@@ -57,19 +57,6 @@ public class DOClientService {
         }
     }
 
-    public void startInstance(TCCloudInstance cloudInstance) {
-        Integer instanceId = Integer.parseInt(cloudInstance.getInstanceId());
-        cloudInstance.updateStatus(InstanceStatus.SCHEDULED_TO_START);
-        try {
-            Date startTime = DOUtils.startInstance(doClient, instanceId);
-            cloudInstance.setStartTime(startTime);
-            cloudInstance.updateStatus(InstanceStatus.RUNNING);
-        } catch (DOError e) {
-            cloudInstance.updateStatus(InstanceStatus.ERROR);
-            cloudInstance.updateErrorInfo(new CloudErrorInfo("Can't start instance with id: " + instanceId, e.getMessage()));
-        }
-    }
-
     public void restartInstance(TCCloudInstance cloudInstance) {
         Integer instanceId = Integer.parseInt(cloudInstance.getInstanceId());
         cloudInstance.updateStatus(InstanceStatus.RESTARTING);
@@ -77,9 +64,11 @@ public class DOClientService {
             Date restartTime = DOUtils.restartInstance(doClient, instanceId);
             cloudInstance.setStartTime(restartTime);
             cloudInstance.updateStatus(InstanceStatus.RUNNING);
+            LOG.info("Instance " + instanceId + " restarted successfully");
         } catch (DOError e) {
             cloudInstance.updateStatus(InstanceStatus.ERROR);
             cloudInstance.updateErrorInfo(new CloudErrorInfo("Can't restart instance with id: " + instanceId, e.getMessage()));
+            LOG.error("Can't restart instance " + instanceId + " because of: " + e.getMessage(), e);
         }
     }
 
@@ -89,6 +78,7 @@ public class DOClientService {
         try {
             boolean successFlag = DOUtils.terminateInstance(doClient, instanceId);
             if (successFlag) {
+                ((TCCloudImage)cloudInstance.getImage()).removeInstance(cloudInstance);
                 cloudInstance.updateStatus(InstanceStatus.STOPPED);
                 LOG.info("Cloud instance " + cloudInstance.getName() + " stopped successfully.");
             } else {
@@ -108,6 +98,7 @@ public class DOClientService {
 
         Droplet droplet = DOUtils.createInstance(doClient, dropletConfig, cloudImage);
         TCCloudInstance cloudInstance = new TCCloudInstance(cloudImage, droplet);
+        cloudImage.addInstance(cloudInstance);
         return cloudInstance;
     }
 
