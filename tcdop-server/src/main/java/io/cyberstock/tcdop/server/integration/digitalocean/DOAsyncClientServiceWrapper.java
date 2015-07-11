@@ -20,7 +20,6 @@ public class DOAsyncClientServiceWrapper {
     private final ExecutorService executorService;
     private final DOClientService clientService;
 
-
     public DOAsyncClientServiceWrapper(ExecutorService executorService,
                                        DOClientService clientService) {
         this.executorService = executorService;
@@ -28,7 +27,6 @@ public class DOAsyncClientServiceWrapper {
     }
 
     public void restartInstance(final TCCloudInstance cloudInstance) {
-        cloudInstance.updateStatus(InstanceStatus.RESTARTING);
         executorService.execute(new Runnable() {
             public void run() {
                 clientService.restartInstance(cloudInstance);

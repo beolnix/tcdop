@@ -95,6 +95,7 @@ public class DOClientService {
     public void restartInstance(TCCloudInstance cloudInstance) {
         Integer instanceId = Integer.parseInt(cloudInstance.getInstanceId());
         cloudInstance.updateStatus(InstanceStatus.RESTARTING);
+        LOG.debug("Restarting instance " + instanceId);
         try {
             Date restartTime = DOUtils.restartInstance(doClient, instanceId);
             cloudInstance.setStartTime(restartTime);

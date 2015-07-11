@@ -51,12 +51,10 @@ public class TCCloudInstance implements CloudInstance {
     }
 
     public void updateStatus(InstanceStatus newStatus) {
-        LOG.info("new status of " + instanceId + " is: " + newStatus.getName());
         this.instanceStatus = newStatus;
     }
 
     public void updateErrorInfo(CloudErrorInfo errorInfo) {
-        LOG.error("instance error: " + errorInfo.getMessage());
         cloudErrorInfo = errorInfo;
     }
 
