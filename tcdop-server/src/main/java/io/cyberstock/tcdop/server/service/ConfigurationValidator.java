@@ -32,7 +32,7 @@ public class ConfigurationValidator {
             return validatePreparedImageProperties(settings);
         } else {
             return Collections.singletonList(new InvalidProperty(DOConfigConstants.DO_INTEGRATION_MODE,
-                    "Selected mode insn't supported yet"));
+                    "Selected mode isn't supported yet"));
         }
     }
 
