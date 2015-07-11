@@ -10,7 +10,7 @@
 
     <files>
         <file>
-            <source>${basedir}/src/main/server-config/teamcity-plugin.xml</source>
+            <source>${basedir}/target/server-config/teamcity-plugin.xml</source>
             <outputDirectory>/</outputDirectory>
         </file>
         <file>
