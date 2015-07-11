@@ -23,41 +23,22 @@ public class TCCloudInstance implements CloudInstance {
     private final TCCloudImage cloudImage;
     private final String instanceId;
     private final String instanceName;
-    private final Droplet droplet;
 
     // constants
     private static final Logger LOG = Logger.getInstance(TCCloudInstance.class.getName());
-    private static final InstanceStatus DEFAULT_STATE = InstanceStatus.UNKNOWN;
 
     // state
-    private InstanceStatus instanceStatus = DEFAULT_STATE;
+    private InstanceStatus instanceStatus = InstanceStatus.SCHEDULED_TO_START;
+    private String ipv4;
     private CloudErrorInfo cloudErrorInfo;
     private Date startTime;
 
     public TCCloudInstance(@NotNull TCCloudImage cloudImage,
-                           @NotNull Droplet droplet) {
+                           @NotNull String instanceId,
+                           @NotNull String instanceName) {
         this.cloudImage = cloudImage;
-        this.droplet = droplet;
-        this.instanceId = droplet.getId().toString();
-        this.instanceName = droplet.getName();
-
-        switch (droplet.getStatus()) {
-            case NEW:
-                this.instanceStatus = InstanceStatus.SCHEDULED_TO_START;
-                break;
-            case ACTIVE:
-                this.instanceStatus = InstanceStatus.RUNNING;
-                break;
-            case OFF:
-                this.instanceStatus = InstanceStatus.STOPPED;
-                break;
-            case ARCHIVE:
-                this.instanceStatus = InstanceStatus.STOPPED;
-                break;
-            default:
-                this.instanceStatus = DEFAULT_STATE;
-                break;
-        }
+        this.instanceId = instanceId;
+        this.instanceName = instanceName;
     }
 
     @NotNull
@@ -77,6 +58,10 @@ public class TCCloudInstance implements CloudInstance {
     public void updateErrorInfo(CloudErrorInfo errorInfo) {
         LOG.error("instance error: " + errorInfo.getMessage());
         cloudErrorInfo = errorInfo;
+    }
+
+    public void updateNetworkIdentity(String ipv4) {
+        this.ipv4 = ipv4;
     }
 
     @NotNull
@@ -101,11 +86,7 @@ public class TCCloudInstance implements CloudInstance {
 
     @Nullable
     public String getNetworkIdentity() {
-        if (droplet != null) {
-            return droplet.getNetworks().getVersion4Networks().get(0).getIpAddress();
-        } else {
-            return null;
-        }
+        return ipv4;
     }
 
     @NotNull

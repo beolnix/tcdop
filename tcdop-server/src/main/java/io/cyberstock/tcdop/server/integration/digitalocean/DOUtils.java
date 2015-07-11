@@ -3,13 +3,13 @@ package io.cyberstock.tcdop.server.integration.digitalocean;
 import com.google.common.base.Optional;
 import com.intellij.openapi.diagnostic.Logger;
 import com.myjeeva.digitalocean.common.ActionStatus;
-import com.myjeeva.digitalocean.exception.DigitalOceanException;
-import com.myjeeva.digitalocean.exception.RequestUnsuccessfulException;
+import com.myjeeva.digitalocean.common.DropletStatus;
 import com.myjeeva.digitalocean.impl.DigitalOceanClient;
 import com.myjeeva.digitalocean.pojo.*;
 import io.cyberstock.tcdop.model.DropletConfig;
 import io.cyberstock.tcdop.model.error.DOError;
 import io.cyberstock.tcdop.server.integration.teamcity.TCCloudImage;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
@@ -23,7 +23,7 @@ public class DOUtils {
 
     // constants
     private static final Logger LOG = Logger.getInstance(DOAsyncClientServiceWrapper.class.getName());
-    private final static Integer ACTION_RESULT_CHECK_INTERVAL = 1 * 1000;
+    private final static Integer ACTION_RESULT_CHECK_INTERVAL = 2 * 1000;
 
     @NotNull
     public static Droplet createInstance(DigitalOceanClient doClient, DropletConfig dropletConfig, TCCloudImage cloudImage) throws DOError {
@@ -44,6 +44,44 @@ public class DOUtils {
             LOG.error("Can't create droplet:" + e.getMessage(), e);
             throw new DOError("Can't create droplet:" + e.getMessage(), e);
         }
+    }
+
+    public static String waitForDropletInitialization(DigitalOceanClient doClient, Integer dropletId) throws DOError {
+        try {
+            while(true) {
+                Droplet droplet = doClient.getDropletInfo(dropletId);
+                String ipv4 = getIpv4(droplet);
+                if (isDropletActive(droplet) && StringUtils.isNotEmpty(ipv4)) {
+                    return ipv4;
+                } else {
+                    Thread.sleep(ACTION_RESULT_CHECK_INTERVAL);
+                }
+
+            }
+        } catch (Exception e) {
+            LOG.error("Can't get dropletInfo of dropletId: " + dropletId , e);
+            throw new DOError("Can't get dropletInfo of dropletId: " + dropletId , e);
+        }
+    }
+
+    private static String getIpv4(Droplet droplet) {
+        if (droplet != null &&
+                droplet.getNetworks() != null &&
+                droplet.getNetworks().getVersion4Networks() != null &&
+                droplet.getNetworks().getVersion4Networks().size() > 0 &&
+                droplet.getNetworks().getVersion4Networks().get(0) != null
+                ) {
+            return droplet.getNetworks().getVersion4Networks().get(0).getIpAddress();
+        }
+
+        return null;
+    }
+
+    private static boolean isDropletActive(Droplet droplet) {
+        if (droplet == null) {
+            return false;
+        }
+        return DropletStatus.ACTIVE.equals(droplet.getStatus());
     }
 
     private static Date waitForActionResult(DigitalOceanClient doClient, Action actionInfo) throws DOError {

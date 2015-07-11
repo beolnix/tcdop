@@ -3,6 +3,7 @@ package io.cyberstock.tcdop.server.integration.digitalocean;
 import com.intellij.openapi.diagnostic.Logger;
 import com.sun.javafx.iio.ImageStorage;
 import io.cyberstock.tcdop.model.DOSettings;
+import io.cyberstock.tcdop.model.error.DOError;
 import io.cyberstock.tcdop.server.integration.teamcity.TCCloudImage;
 import io.cyberstock.tcdop.server.integration.teamcity.TCCloudInstance;
 import jetbrains.buildServer.clouds.InstanceStatus;
@@ -35,19 +36,21 @@ public class DOAsyncClientServiceWrapper {
         });
     }
 
-    public void terminateInstance(final TCCloudInstance cloudInstance) {
-        cloudInstance.updateStatus(InstanceStatus.SCHEDULED_TO_STOP);
+    public TCCloudInstance initializeInstance(TCCloudImage cloudImage, DOSettings doSettings) throws DOError {
+        final TCCloudInstance cloudInstance = clientService.createInstance(cloudImage, doSettings);
         executorService.execute(new Runnable() {
             public void run() {
-                Logger LOG = Logger.getInstance(DOAsyncClientServiceWrapper.class.getName());
-                cloudInstance.updateErrorInfo(null);
+                clientService.waitInstanceInitialization(cloudInstance);
+            }
+        });
+
+        return cloudInstance;
+    }
+
+    public void terminateInstance(final TCCloudInstance cloudInstance) {
+        executorService.execute(new Runnable() {
+            public void run() {
                 clientService.terminateInstance(cloudInstance);
-                if (cloudInstance.getErrorInfo() == null) {
-                    LOG.info("Instance " + cloudInstance.getInstanceId() + " got terminated successfully.");
-                } else {
-                    LOG.error("Instance " + cloudInstance.getInstanceId() + " hasn't been terminated " +
-                            "successfully because of: " + cloudInstance.getErrorInfo().getDetailedMessage());
-                }
             }
         });
     }

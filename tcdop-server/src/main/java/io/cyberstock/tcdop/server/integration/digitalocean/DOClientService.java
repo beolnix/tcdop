@@ -2,6 +2,7 @@ package io.cyberstock.tcdop.server.integration.digitalocean;
 
 import com.google.common.base.Optional;
 import com.intellij.openapi.diagnostic.Logger;
+import com.myjeeva.digitalocean.common.DropletStatus;
 import com.myjeeva.digitalocean.impl.DigitalOceanClient;
 import com.myjeeva.digitalocean.pojo.Droplet;
 import com.myjeeva.digitalocean.pojo.Image;
@@ -27,6 +28,8 @@ public class DOClientService {
     // constants
     private static final Logger LOG = Logger.getInstance(DOAsyncClientServiceWrapper.class.getName());
 
+    private volatile Boolean denyNewInstancesCreation = false;
+
     public DOClientService(DigitalOceanClient doClient) {
         this.doClient = doClient;
     }
@@ -41,9 +44,10 @@ public class DOClientService {
 
                 for (Droplet droplet : droplets) {
                     if (droplet.getImage() != null && droplet.getImage().getId().equals(image.getId())) {
-                        TCCloudInstance cloudInstance = new TCCloudInstance(cloudImage, droplet);
+                        TCCloudInstance cloudInstance = new TCCloudInstance(cloudImage, droplet.getId().toString(), droplet.getName());
+                        cloudInstance.updateStatus(transformStatus(droplet.getStatus()));
+                        cloudInstance.updateNetworkIdentity(droplet.getNetworks().getVersion4Networks().get(0).getIpAddress());
                         cloudImage.addInstance(cloudInstance);
-
                     }
                 }
 
@@ -54,6 +58,37 @@ public class DOClientService {
         } catch (DOError e) {
             LOG.error("Can't download DO images: " + e.getMessage(), e);
             return Collections.EMPTY_LIST;
+        }
+    }
+
+    private InstanceStatus transformStatus(DropletStatus dropletStatus) {
+        switch (dropletStatus) {
+            case NEW:
+                return InstanceStatus.STARTING;
+            case ACTIVE:
+                return InstanceStatus.RUNNING;
+            case ARCHIVE:
+                return InstanceStatus.STOPPED;
+            case OFF:
+                return InstanceStatus.STOPPED;
+            default:
+                return InstanceStatus.UNKNOWN;
+        }
+    }
+
+    public void waitInstanceInitialization(TCCloudInstance cloudInstance) {
+        Integer dropletId = Integer.parseInt(cloudInstance.getInstanceId());
+        cloudInstance.updateStatus(InstanceStatus.STARTING);
+        try {
+            String ipv4 = DOUtils.waitForDropletInitialization(doClient, dropletId);
+            cloudInstance.updateNetworkIdentity(ipv4);
+            cloudInstance.updateStatus(InstanceStatus.RUNNING);
+            cloudInstance.setStartTime(new Date());
+        } catch (DOError e) {
+            LOG.error("Instance can't be initializated " + dropletId + " because of: " + e.getMessage());
+            cloudInstance.updateStatus(InstanceStatus.ERROR);
+            cloudInstance.updateErrorInfo(new CloudErrorInfo("Instance can't be initializated " + dropletId + " because of: " + e.getMessage()));
+            denyNewInstancesCreation = true;
         }
     }
 
@@ -68,7 +103,7 @@ public class DOClientService {
         } catch (DOError e) {
             cloudInstance.updateStatus(InstanceStatus.ERROR);
             cloudInstance.updateErrorInfo(new CloudErrorInfo("Can't restart instance with id: " + instanceId, e.getMessage()));
-            LOG.error("Can't restart instance " + instanceId + " because of: " + e.getMessage(), e);
+            LOG.error("Can't restart instance " + instanceId + " because of: " + e.getMessage());
         }
     }
 
@@ -94,10 +129,15 @@ public class DOClientService {
     }
 
     public TCCloudInstance createInstance(TCCloudImage cloudImage, DOSettings doSettings) throws DOError {
+
+        if (denyNewInstancesCreation) {
+            throw new DOError("New Instances creation is denied because of previous errors.");
+        }
+
         DropletConfig dropletConfig = doSettings.getDropletConfig();
 
         Droplet droplet = DOUtils.createInstance(doClient, dropletConfig, cloudImage);
-        TCCloudInstance cloudInstance = new TCCloudInstance(cloudImage, droplet);
+        TCCloudInstance cloudInstance = new TCCloudInstance(cloudImage, droplet.getId().toString(), droplet.getName());
         cloudImage.addInstance(cloudInstance);
         return cloudInstance;
     }

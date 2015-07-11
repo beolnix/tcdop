@@ -61,7 +61,7 @@ public class TCCloudClient implements CloudClientEx {
         LOG.info("Launch new instance in Digital Ocean with cloudImage: " + cloudImage.toString() + "; userData: " + cloudInstanceUserData.toString());
         TCCloudImage tcCloudImage = (TCCloudImage) cloudImage;
         try {
-            TCCloudInstance instance = client.getClientService().createInstance(tcCloudImage, settings);
+            TCCloudInstance instance = client.initializeInstance(tcCloudImage, settings);
             return instance;
         } catch (DOError e) {
             setCloudErrorInfo(new CloudErrorInfo("Can't create new instance", e.getMessage(), e));
@@ -77,7 +77,6 @@ public class TCCloudClient implements CloudClientEx {
     public void terminateInstance(@NotNull CloudInstance cloudInstance) {
         LOG.info("DO Instance termination is triggered for: " + cloudInstance.toString());
         client.terminateInstance((TCCloudInstance) cloudInstance);
-        imageStorage.forceUpdate();
     }
 
     public void dispose() {
