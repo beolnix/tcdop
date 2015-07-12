@@ -12,15 +12,10 @@
     <packaging>jar</packaging>
 
     <dependencies>
-        <!-- modules -->
+        <!-- tcdop modules dependencies -->
         <dependency>
             <groupId>io.cyberstock</groupId>
             <artifactId>tcdop-model</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.cyberstock</groupId>
-            <artifactId>tcdop-util</artifactId>
             <version>${project.version}</version>
         </dependency>
 

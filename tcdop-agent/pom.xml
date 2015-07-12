@@ -12,29 +12,28 @@
     <packaging>jar</packaging>
 
     <dependencies>
+        <!-- tcdop modules dependencies -->
         <dependency>
             <groupId>io.cyberstock</groupId>
             <artifactId>tcdop-model</artifactId>
             <version>${project.version}</version>
         </dependency>
 
+        <!-- teamcity dependencies -->
         <dependency>
             <groupId>org.jetbrains.teamcity</groupId>
             <artifactId>cloud-shared</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.jetbrains.teamcity</groupId>
             <artifactId>agent-api</artifactId>
             <scope>provided</scope>
         </dependency>
-
         <dependency>
             <groupId>org.jetbrains.teamcity</groupId>
             <artifactId>tests-support</artifactId>
             <scope>test</scope>
         </dependency>
-
 
     </dependencies>
 
