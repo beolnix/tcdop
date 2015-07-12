@@ -25,7 +25,6 @@
             <includes>
                 <include>io.cyberstock:tcdop-server</include>
                 <include>io.cyberstock:tcdop-model</include>
-                <include>io.cyberstock:tcdop-util</include>
             </includes>
             <binaries>
                 <outputDirectory>server</outputDirectory>
