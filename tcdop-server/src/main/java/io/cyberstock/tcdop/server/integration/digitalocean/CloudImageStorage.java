@@ -19,10 +19,12 @@ public class CloudImageStorage {
     private volatile Map<String, DOCloudImage> imageMap = new HashMap<String, DOCloudImage>();
     private volatile Integer instancesCount = 0;
     private volatile CloudImagesChecker checker = new CloudImagesChecker();
+    private volatile Long lastUpdateTimestamp;
     private volatile boolean stop = false;
 
     // constants
-    private final static Integer CHECK_INTERVAL = 30 * 1000;
+    private final static Integer UPDATE_INTERVAL = 30 * 1000;
+
     private static final Logger LOG = Logger.getInstance(CloudImageStorage.class.getName());
 
     public CloudImageStorage(DOClientService clientService, Executor executor) {
@@ -31,16 +33,17 @@ public class CloudImageStorage {
     }
 
     public void init() {
-        updateImages();
         executor.execute(checker);
     }
 
     private class CloudImagesChecker implements Runnable {
         public void run() {
             while (!stop) {
-                updateImages();
+                if (shouldUpdate()) {
+                    updateImages();
+                }
                 try {
-                    Thread.sleep(CHECK_INTERVAL);
+                    Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     LOG.error("Abort background images checks, setup new checker.", e);
                     init();
@@ -48,6 +51,12 @@ public class CloudImageStorage {
                 }
             }
 
+        }
+
+        private boolean shouldUpdate() {
+            Long currentTimestamp = System.currentTimeMillis();
+            return lastUpdateTimestamp == null ||
+                    (currentTimestamp - lastUpdateTimestamp) >= UPDATE_INTERVAL;
         }
     }
 
@@ -64,7 +73,10 @@ public class CloudImageStorage {
         LOG.debug(newImageMap.size() + " images contains: " + instancesCount);
 
         mergeOldImagesToNewImagesMap(newImageMap, imageMap);
+
+        lastUpdateTimestamp = System.currentTimeMillis();
     }
+
 
     private Integer calculateInstances(Map<String, DOCloudImage> newImageMap) {
         int instancesCounter = 0;
