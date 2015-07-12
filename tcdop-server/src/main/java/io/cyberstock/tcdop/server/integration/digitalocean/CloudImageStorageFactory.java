@@ -10,14 +10,12 @@ import java.util.concurrent.Executor;
 public class CloudImageStorageFactory {
 
     private final DOClientServiceFactory clientServiceFactory;
-    private final Executor executor;
 
-    public CloudImageStorageFactory(DOClientServiceFactory clientServiceFactory, Executor executor) {
+    public CloudImageStorageFactory(DOClientServiceFactory clientServiceFactory) {
         this.clientServiceFactory = clientServiceFactory;
-        this.executor = executor;
     }
 
-    public CloudImageStorage getStorage(String token) {
+    public CloudImageStorage getStorage(Executor executor, String token) {
         DOClientService clientService = clientServiceFactory.createClient(token);
         CloudImageStorage cloudImageStorage = new CloudImageStorage(clientService, executor);
         cloudImageStorage.init();

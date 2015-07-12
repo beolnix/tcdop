@@ -17,6 +17,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
 
 /**
  * Created by beolnix on 24/05/15.
@@ -27,6 +28,7 @@ public class DOCloudClient implements CloudClientEx {
     @NotNull private final DOSettings settings;
     @NotNull private final DOAsyncClientServiceWrapper client;
     @NotNull private final CloudImageStorage imageStorage;
+    @NotNull private final ExecutorService executorService;
 
     // State
     private Boolean readyFlag = true;
@@ -38,10 +40,12 @@ public class DOCloudClient implements CloudClientEx {
 
     DOCloudClient(@NotNull DOSettings settings,
                   @NotNull DOAsyncClientServiceWrapper client,
-                  @NotNull CloudImageStorage imageStorage) {
+                  @NotNull CloudImageStorage imageStorage,
+                  @NotNull ExecutorService executorService) {
         this.settings = settings;
         this.client = client;
         this.imageStorage = imageStorage;
+        this.executorService = executorService;
     }
 
     public void setReadyFlag(Boolean readyFlag) {
@@ -60,6 +64,7 @@ public class DOCloudClient implements CloudClientEx {
         DOCloudImage DOCloudImage = (DOCloudImage) cloudImage;
         try {
             DOCloudInstance instance = client.initializeInstance(DOCloudImage, settings);
+            imageStorage.forceUpdate();
             return instance;
         } catch (DOError e) {
             setCloudErrorInfo(new CloudErrorInfo("Can't create new instance", e.getMessage(), e));
@@ -79,6 +84,7 @@ public class DOCloudClient implements CloudClientEx {
 
     public void dispose() {
         imageStorage.shutdownStorage();
+        executorService.shutdown();
     }
 
     public boolean isInitialized() {
@@ -169,20 +175,24 @@ public class DOCloudClient implements CloudClientEx {
 
     public boolean canStartNewInstance(@NotNull CloudImage cloudImage) {
         LOG.debug("Can start new instance? is triggered");
-        if (settings.getInstancesLimit() > imageStorage.getInstancesCount()) {
+        if (settings.getInstancesLimit() > imageStorage.getInstancesCount() &&
+                cloudErrorInfo == null) {
             LOG.debug("new instance can be started. Limit: " + settings.getInstancesLimit() +
                     "; current: " + imageStorage.getInstancesCount());
             return true;
         } else {
-            LOG.debug("new instance can NOT be started. Limit: " + settings.getInstancesLimit() +
+            LOG.error("new instance can NOT be started. Limit: " + settings.getInstancesLimit() +
                     "; current: " + imageStorage.getInstancesCount());
+            if (cloudErrorInfo != null) {
+                LOG.error("Cloud error info: " + cloudErrorInfo.getDetailedMessage());
+            }
             return false;
         }
     }
 
     @Nullable
     public String generateAgentName(@NotNull AgentDescription agentDescription) {
-        String agentName = "DO_AGENT_" + UUID.randomUUID();
+        String agentName = settings.getDropletNamePrefix() + "_AGENT_" + UUID.randomUUID();
         LOG.debug("Agent name generation is triggered. Generated name is: " + agentName);
         return agentName;
     }

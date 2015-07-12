@@ -1,28 +1,19 @@
 package io.cyberstock.tcdop.server.integration.teamcity.web;
 
 import com.intellij.openapi.diagnostic.Logger;
-import io.cyberstock.tcdop.model.DOConfigConstants;
-import io.cyberstock.tcdop.model.DOSettings;
-import jetbrains.buildServer.controllers.ActionErrors;
+import io.cyberstock.tcdop.model.WebConstants;
 import jetbrains.buildServer.controllers.BaseFormXmlController;
-import jetbrains.buildServer.controllers.BasePropertiesBean;
-import jetbrains.buildServer.serverSide.InvalidProperty;
 import jetbrains.buildServer.serverSide.SBuildServer;
 import jetbrains.buildServer.web.openapi.PluginDescriptor;
 import jetbrains.buildServer.web.openapi.WebControllerManager;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.web.servlet.ModelAndView;
-import jetbrains.buildServer.controllers.admin.projects.PluginPropertiesUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.net.URL;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-
-import static io.cyberstock.tcdop.server.service.ConfigurationValidator.validateConfiguration;
 
 /**
  * Created by beolnix on 20/06/15.
@@ -66,8 +57,8 @@ public class TCDOPSettingsController extends BaseFormXmlController {
     protected ModelAndView doGet(@NotNull HttpServletRequest request,
                                  @NotNull HttpServletResponse response) {
         Map<String, String> webConfig = new HashMap<String, String>();
-        webConfig.put(DOConfigConstants.REFRESHABLE_PATH, myHtmlPath);
-        webConfig.put(DOConfigConstants.STYLES_PATH, myStylesPath);
+        webConfig.put(WebConstants.REFRESHABLE_PATH, myHtmlPath);
+        webConfig.put(WebConstants.STYLES_PATH, myStylesPath);
 
         final ModelAndView mv = new ModelAndView(myJspPath);
         mv.getModel().put("webConfig", webConfig);

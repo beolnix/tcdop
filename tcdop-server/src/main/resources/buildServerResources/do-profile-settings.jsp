@@ -5,19 +5,18 @@
 <%@ taglib prefix="intprop" uri="/WEB-INF/functions/intprop" %>
 
 <%@ page import="io.cyberstock.tcdop.model.DOConfigConstants" %>
-<c:set var="apiKey" value="<%=DOConfigConstants.TOKEN%>"/>
-<c:set var="imageId" value="<%=DOConfigConstants.IMAGE_NAME%>"/>
-<c:set var="sshPrivateKey" value="<%=DOConfigConstants.SSH_PRIVATE_KEY%>"/>
-<c:set var="sshPublicKey" value="<%=DOConfigConstants.SSH_PUBLIC_KEY%>"/>
-<c:set var="agentConfigType" value="<%=DOConfigConstants.DO_INTEGRATION_MODE%>"/>
-<c:set var="AGENT_CONFIG_TYPE" value="<%=DOConfigConstants.DO_INTEGRATION_MODE%>"/>
+<%@ page import="io.cyberstock.tcdop.model.WebConstants" %>
+<c:set var="API_KEY" value="<%=WebConstants.TOKEN%>"/>
+<c:set var="IMAGE_ID" value="<%=WebConstants.IMAGE_NAME%>"/>
+<c:set var="INSTANCES_LIMIT" value="<%=WebConstants.INSTANCES_COUNT_LIMIT%>"/>
+<c:set var="AGENT_CONFIG_TYPE" value="<%=WebConstants.DO_INTEGRATION_MODE%>"/>
 <c:set var="SINGLE_INSTANCE_TYPE" value="<%=DOConfigConstants.PREPARED_IMAGE_MODE_CODE%>"/>
-<c:set var="DROPLET_SIZE" value="<%=DOConfigConstants.DROPLET_SIZE%>"/>
-<c:set var="DROPLET_NAME_PREFIX" value="<%=DOConfigConstants.DROPLET_NAME_PREFIX%>"/>
+<c:set var="DROPLET_SIZE" value="<%=WebConstants.DROPLET_SIZE%>"/>
+<c:set var="DROPLET_NAME_PREFIX" value="<%=WebConstants.DROPLET_NAME_PREFIX%>"/>
 
 <c:set var="MULTIPLE_DOCKER_BASED_INSTANCE_TYPE" value="<%=DOConfigConstants.DOCKER_BASED_MODE_CODE%>"/>
 
-<c:set var="STYLES_PATH" value="<%=DOConfigConstants.STYLES_PATH%>"/>
+<c:set var="STYLES_PATH" value="<%=WebConstants.STYLES_PATH%>"/>
 
 <!-- injected by io.cyberstock.tcdop.server.integration.teamcity.web.TCDOPSettingsController -->
 <%--@elvariable id="webConfig" type="java.util.Map"--%>
@@ -37,10 +36,20 @@
     <tr>
         <th class="tcdop-property-label-container">Token</th>
         <td>
-            <props:textProperty name="${apiKey}" id="${apiKey}" className="longField"/>
+            <props:textProperty name="${API_KEY}" id="${API_KEY}" className="longField"/>
         </td>
         <td class="tcdop-error-container">
-            <span class="error tcdop-error-msg" id="error_${apiKey}"></span>
+            <span class="error tcdop-error-msg" id="error_${API_KEY}"></span>
+        </td>
+    </tr>
+    <tr>
+        <th class="tcdop-property-label-container">Instances number limit</th>
+        <td>
+            <props:textProperty name="${INSTANCES_LIMIT}" id="${INSTANCES_LIMIT}"
+                                className="longField" value="4"/>
+        </td>
+        <td class="tcdop-error-container">
+            <span class="error tcdop-error-msg" id="error_${INSTANCES_LIMIT}"></span>
         </td>
     </tr>
     <tr>
@@ -64,10 +73,10 @@
     <tr id="${SINGLE_INSTANCE_TYPE}_section">
         <th class="tcdop-property-label-container">Image Name</th>
         <td>
-            <props:textProperty name="${imageId}" className="longField"/>
+            <props:textProperty name="${IMAGE_ID}" className="longField"/>
         </td>
         <td class="tcdop-error-container">
-            <span class="error tcdop-error-msg" id="error_${imageId}"></span>
+            <span class="error tcdop-error-msg" id="error_${IMAGE_ID}"></span>
         </td>
     </tr>
     <tr>

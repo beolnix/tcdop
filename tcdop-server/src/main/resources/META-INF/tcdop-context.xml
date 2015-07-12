@@ -17,16 +17,10 @@
     <bean id="DOClientFactory" class="io.cyberstock.tcdop.server.integration.digitalocean.DOClientServiceFactory"/>
 
     <bean id="DOAsyncClientFactory" class="io.cyberstock.tcdop.server.integration.digitalocean.DOAsyncClientServiceFactory">
-        <constructor-arg ref="TCDOPExecutorService"/>
         <constructor-arg ref="DOClientFactory"/>
     </bean>
 
-    <bean id="TCDOPExecutorService" class="java.util.concurrent.Executors" factory-method="newFixedThreadPool">
-        <constructor-arg value="${tcdop.internalFixedThreadpool.size}"/>
-    </bean>
-
     <bean id="cloudImageStorageFactory" class="io.cyberstock.tcdop.server.integration.digitalocean.CloudImageStorageFactory">
-        <constructor-arg ref="TCDOPExecutorService"/>
         <constructor-arg ref="DOClientFactory"/>
     </bean>
 

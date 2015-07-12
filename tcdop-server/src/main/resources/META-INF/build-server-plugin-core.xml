@@ -8,7 +8,9 @@
     <import resource="classpath:/META-INF/tcdop-context.xml"/>
 
     <!-- integration with TeamCity -->
-    <bean id="TCCloudClientFactory" class="io.cyberstock.tcdop.server.integration.teamcity.DOCloudClientFactory"/>
+    <bean id="TCCloudClientFactory" class="io.cyberstock.tcdop.server.integration.teamcity.DOCloudClientFactory">
+        <property name="backgroundThreadsLimit" value="${tcdop.internalFixedThreadpool.size}"/>
+    </bean>
     <bean id="TCDOPSettingsController" class="io.cyberstock.tcdop.server.integration.teamcity.web.TCDOPSettingsController"/>
 
 </beans>

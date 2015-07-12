@@ -10,16 +10,14 @@ import java.util.concurrent.ExecutorService;
  */
 public class DOAsyncClientServiceFactory {
 
-    private final ExecutorService executor;
+
     private final DOClientServiceFactory clientServiceFactory;
 
-    public DOAsyncClientServiceFactory(ExecutorService executor,
-                                       DOClientServiceFactory clientServiceFactory) {
-        this.executor = executor;
+    public DOAsyncClientServiceFactory(DOClientServiceFactory clientServiceFactory) {
         this.clientServiceFactory = clientServiceFactory;
     }
 
-    public DOAsyncClientServiceWrapper createClient(String token) {
+    public DOAsyncClientServiceWrapper createClient(ExecutorService executor, String token) {
         DOClientService clientService = clientServiceFactory.createClient(token);
         return new DOAsyncClientServiceWrapper(executor, clientService);
     }
