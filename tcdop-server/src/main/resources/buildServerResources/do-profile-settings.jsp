@@ -12,6 +12,9 @@
 <c:set var="agentConfigType" value="<%=DOConfigConstants.DO_INTEGRATION_MODE%>"/>
 <c:set var="AGENT_CONFIG_TYPE" value="<%=DOConfigConstants.DO_INTEGRATION_MODE%>"/>
 <c:set var="SINGLE_INSTANCE_TYPE" value="<%=DOConfigConstants.PREPARED_IMAGE_MODE_CODE%>"/>
+<c:set var="DROPLET_SIZE" value="<%=DOConfigConstants.DROPLET_SIZE%>"/>
+<c:set var="DROPLET_NAME_PREFIX" value="<%=DOConfigConstants.DROPLET_NAME_PREFIX%>"/>
+
 <c:set var="MULTIPLE_DOCKER_BASED_INSTANCE_TYPE" value="<%=DOConfigConstants.DOCKER_BASED_MODE_CODE%>"/>
 
 <c:set var="STYLES_PATH" value="<%=DOConfigConstants.STYLES_PATH%>"/>
@@ -48,8 +51,9 @@
                 <props:option id="${SINGLE_INSTANCE_TYPE}" value="${SINGLE_INSTANCE_TYPE}"><c:out
                         value="single instance"/></props:option>
                 <props:option id="${MULTIPLE_DOCKER_BASED_INSTANCE_TYPE}"
-                              value="${MULTIPLE_DOCKER_BASED_INSTANCE_TYPE}"><c:out
-                        value="docker based instances"/></props:option>
+                              value="${MULTIPLE_DOCKER_BASED_INSTANCE_TYPE}">
+                    <c:out value="docker based instances"/>
+                </props:option>
             </props:selectProperty>
         </td>
         <td class="tcdop-error-container">
@@ -64,6 +68,50 @@
         </td>
         <td class="tcdop-error-container">
             <span class="error tcdop-error-msg" id="error_${imageId}"></span>
+        </td>
+    </tr>
+    <tr>
+        <th class="tcdop-property-label-container">Size</th>
+        <td>
+            <props:selectProperty name="${DROPLET_SIZE}" className="longField">
+                <props:option id="DROPLET_512MB" value="512MB">
+                    <c:out value="512MB"/>
+                </props:option>
+                <props:option id="DROPLET_1GB" value="1GB">
+                    <c:out value="1GB"/>
+                </props:option>
+                <props:option id="DROPLET_2GB" value="2GB">
+                    <c:out value="2GB"/>
+                </props:option>
+                <props:option id="DROPLET_4GB" value="4GB">
+                    <c:out value="4GB"/>
+                </props:option>
+                <props:option id="DROPLET_8GB" value="8GB">
+                    <c:out value="8GB"/>
+                </props:option>
+                <props:option id="DROPLET_16GB" value="16GB">
+                    <c:out value="16GB"/>
+                </props:option>
+                <props:option id="DROPLET_32GB" value="32GB">
+                    <c:out value="32GB"/>
+                </props:option>
+                <props:option id="DROPLET_64GB" value="64GB">
+                    <c:out value="64GB"/>
+                </props:option>
+            </props:selectProperty>
+        </td>
+        <td class="tcdop-error-container">
+            <span class="error tcdop-error-msg" id="error_${DROPLET_SIZE}"></span>
+        </td>
+    </tr>
+    <tr>
+        <th class="tcdop-property-label-container">Droplet instance name prefix</th>
+        <td>
+            <props:textProperty name="${DROPLET_NAME_PREFIX}" id="${DROPLET_NAME_PREFIX}" className="longField"
+                                value="TCDOP"/>
+        </td>
+        <td class="tcdop-error-container">
+            <span class="error tcdop-error-msg" id="error_${DROPLET_NAME_PREFIX}"></span>
         </td>
     </tr>
 

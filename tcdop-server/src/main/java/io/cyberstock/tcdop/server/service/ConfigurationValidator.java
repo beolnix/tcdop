@@ -10,6 +10,7 @@ import com.myjeeva.digitalocean.pojo.Image;
 import io.cyberstock.tcdop.model.DOConfigConstants;
 import io.cyberstock.tcdop.model.DOIntegrationMode;
 import io.cyberstock.tcdop.model.DOSettings;
+import io.cyberstock.tcdop.model.DropletSize;
 import io.cyberstock.tcdop.model.error.DOError;
 import io.cyberstock.tcdop.server.integration.digitalocean.DOUtils;
 import jetbrains.buildServer.serverSide.InvalidProperty;
@@ -42,12 +43,20 @@ public class ConfigurationValidator {
                     "Image id must be provided for " + settings.getMode().toString() + " mode"));
         }
 
-        return validateImage(settings.getImageName(), settings.getToken());
+        return validateImage(settings.getImageName(), settings.getSize(), settings.getToken());
     }
 
 
     private static Collection<InvalidProperty> validateCommonProperties(DOSettings settings) {
+        if (null == settings.getSize()) {
+            return Collections.singletonList(new InvalidProperty(DOConfigConstants.DROPLET_SIZE,
+                    "Droplet size must be provided."));
+        }
 
+        if (Strings.isNullOrEmpty(settings.getDropletNamePrefix())) {
+            return Collections.singletonList(new InvalidProperty(DOConfigConstants.DROPLET_NAME_PREFIX,
+                    "Droplet name prefix must be provided."));
+        }
 
         if (Strings.isNullOrEmpty(settings.getToken())) {
             return Collections.singletonList(new InvalidProperty(DOConfigConstants.TOKEN,
@@ -72,7 +81,7 @@ public class ConfigurationValidator {
         return Collections.EMPTY_LIST;
     }
 
-    private static Collection<InvalidProperty> validateImage(String imageName, String token) {
+    private static Collection<InvalidProperty> validateImage(String imageName, DropletSize dropletSize, String token) {
         DigitalOceanClient client = new DigitalOceanClient(token);
 
         try {
@@ -80,6 +89,14 @@ public class ConfigurationValidator {
             if (!imageOpt.isPresent()) {
                 return Collections.singletonList(new InvalidProperty(DOConfigConstants.IMAGE_NAME,
                         "Image with name \"" + imageName + "\" not found in user images."));
+            } else {
+                Image image = imageOpt.get();
+                Integer minDiskSize = image.getMinDiskSize();
+                DropletSize minSize = DropletSize.resolveByDiskSize(minDiskSize);
+                if (!minSize.isLessOrEqualThen(dropletSize)) {
+                    return Collections.singletonList(new InvalidProperty(DOConfigConstants.DROPLET_SIZE,
+                            "Selected image requires droplet with minimum " + minDiskSize + " disk size."));
+                }
             }
         } catch (DOError e) {
             return Collections.singletonList(new InvalidProperty(DOConfigConstants.IMAGE_NAME,

@@ -6,7 +6,7 @@ import com.myjeeva.digitalocean.common.ActionStatus;
 import com.myjeeva.digitalocean.common.DropletStatus;
 import com.myjeeva.digitalocean.impl.DigitalOceanClient;
 import com.myjeeva.digitalocean.pojo.*;
-import io.cyberstock.tcdop.model.DropletConfig;
+import io.cyberstock.tcdop.model.DOSettings;
 import io.cyberstock.tcdop.model.error.DOError;
 import io.cyberstock.tcdop.server.integration.teamcity.DOCloudImage;
 import org.apache.commons.lang3.StringUtils;
@@ -15,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by beolnix on 24/05/15.
@@ -26,14 +27,11 @@ public class DOUtils {
     private final static Integer ACTION_RESULT_CHECK_INTERVAL = 2 * 1000;
 
     @NotNull
-    public static Droplet createInstance(DigitalOceanClient doClient, DropletConfig dropletConfig, DOCloudImage cloudImage) throws DOError {
+    public static Droplet createInstance(DigitalOceanClient doClient, DOSettings doSettings, DOCloudImage cloudImage) throws DOError {
         Droplet droplet = new Droplet();
-        droplet.setDiskSize(dropletConfig.getDiskSize());
-        droplet.setMemorySizeInMb(dropletConfig.getMemorySizeInMb());
-        droplet.setName(dropletConfig.getDropletName());
+        droplet.setName(doSettings.getDropletNamePrefix() + "-" + UUID.randomUUID());
         droplet.setRegion(new Region(cloudImage.getImage().getRegions().iterator().next()));
-        droplet.setKeys(dropletConfig.getKeys());
-        droplet.setSize(dropletConfig.getSizeSlug());
+        droplet.setSize(doSettings.getSize().getSlug());
         droplet.setImage(cloudImage.getImage());
 
         try {
@@ -142,7 +140,7 @@ public class DOUtils {
             } else {
                 for (Image image : imageList) {
                     if (image.getName().equals(imageName)) {
-                        return Optional.of(image);
+                        return getImageById(doClient, image.getId());
                     }
                 }
             }
@@ -151,6 +149,20 @@ public class DOUtils {
         }
 
         return Optional.absent();
+    }
+
+    public static Optional<Image> getImageById(DigitalOceanClient doClient, Integer imageId) throws DOError {
+        try {
+            Image image = doClient.getImageInfo(imageId);
+            if (image != null) {
+                return Optional.of(image);
+            } else {
+                return Optional.absent();
+            }
+        } catch (Exception e) {
+            LOG.error("Can't get image info by id: " + imageId, e);
+            throw new DOError("Can't get image info by id: " + imageId, e);
+        }
     }
 
     public static List<Image> getImages(DigitalOceanClient doClient) throws DOError {

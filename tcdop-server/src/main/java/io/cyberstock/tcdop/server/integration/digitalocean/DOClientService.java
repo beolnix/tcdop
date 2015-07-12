@@ -6,7 +6,6 @@ import com.myjeeva.digitalocean.impl.DigitalOceanClient;
 import com.myjeeva.digitalocean.pojo.Droplet;
 import com.myjeeva.digitalocean.pojo.Image;
 import io.cyberstock.tcdop.model.DOSettings;
-import io.cyberstock.tcdop.model.DropletConfig;
 import io.cyberstock.tcdop.model.error.DOError;
 import io.cyberstock.tcdop.server.integration.teamcity.DOCloudImage;
 import io.cyberstock.tcdop.server.integration.teamcity.DOCloudInstance;
@@ -136,9 +135,7 @@ public class DOClientService {
             throw new DOError("New Instances creation is denied because of previous errors.");
         }
 
-        DropletConfig dropletConfig = doSettings.getDropletConfig();
-
-        Droplet droplet = DOUtils.createInstance(doClient, dropletConfig, cloudImage);
+        Droplet droplet = DOUtils.createInstance(doClient, doSettings, cloudImage);
         DOCloudInstance cloudInstance = new DOCloudInstance(cloudImage, droplet.getId().toString(), droplet.getName());
         cloudImage.addInstance(cloudInstance);
         return cloudInstance;

@@ -28,4 +28,8 @@ public interface DOConfigConstants {
     public static final String DOCKER_BASED_MODE_CODE = "docer_based";
 
     public static final String AGENT_IPV4_PROP_KEY = "agent_ipv4";
+
+
+    public static final String DROPLET_SIZE = "droplet_size";
+    public static final String DROPLET_NAME_PREFIX = "droplet_name_prefix";
 }

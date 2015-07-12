@@ -12,8 +12,9 @@ public class DOSettings {
     private DOIntegrationMode mode;
     private String token;
     private String imageName;
-    private DropletConfig dropletConfig;
     private Integer instancesLimit = 4;
+    private DropletSize size;
+    private String dropletNamePrefix;
 
 
     public DOSettings(Map<String, String> stringStringMap) {
@@ -26,7 +27,10 @@ public class DOSettings {
             this.instancesLimit = Integer.parseInt(stringStringMap.get(DOConfigConstants.INSTANCES_COUNT_LIMIT));
         }
 
-        this.dropletConfig = new DropletConfig(imageName);
+        String sizeSlug = stringStringMap.get(DOConfigConstants.DROPLET_SIZE);
+        this.size = DropletSize.resolveBySlug(sizeSlug);
+
+        this.dropletNamePrefix = stringStringMap.get(DOConfigConstants.DROPLET_NAME_PREFIX);
     }
 
     public String getStrMode() {
@@ -49,12 +53,16 @@ public class DOSettings {
         return DOIntegrationMode.PREPARED_IMAGE.equals(mode);
     }
 
-    public DropletConfig getDropletConfig() {
-        return dropletConfig;
+    public String getDropletNamePrefix() {
+        return dropletNamePrefix;
     }
 
     public Integer getInstancesLimit() {
         return instancesLimit;
+    }
+
+    public DropletSize getSize() {
+        return size;
     }
 
     @Override
@@ -64,8 +72,8 @@ public class DOSettings {
                 ", mode=" + mode +
                 ", token='" + token + '\'' +
                 ", imageName='" + imageName + '\'' +
-                ", dropletConfig=" + dropletConfig +
                 ", instancesLimit=" + instancesLimit +
+                ", size=" + size +
                 '}';
     }
 }

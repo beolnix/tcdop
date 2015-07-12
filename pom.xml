@@ -35,7 +35,7 @@
 
         <!-- versions -->
         <spring-test.version>4.0.5.RELEASE</spring-test.version>
-        <do.restclient.version>2.1-SNAPSHOT</do.restclient.version>
+        <do.restclient.version>2.2-SNAPSHOT</do.restclient.version>
         <guava.version>18.0</guava.version>
 
         <!-- build settings -->
@@ -63,16 +63,16 @@
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </repository>
 
-        <!--<repository>-->
-            <!--<id>beolnix-releases</id>-->
-            <!--<name>releases repo</name>-->
-            <!--<url>http://nexus.beolnix.com/content/repositories/releases/</url>-->
-        <!--</repository>-->
-        <!--<repository>-->
-            <!--<id>beolnix-snapshots</id>-->
-            <!--<name>snapshots repo</name>-->
-            <!--<url>http://nexus.beolnix.com/content/repositories/snapshots/</url>-->
-        <!--</repository>-->
+        <repository>
+            <id>beolnix-releases</id>
+            <name>releases repo</name>
+            <url>http://nexus.beolnix.com/content/repositories/releases/</url>
+        </repository>
+        <repository>
+            <id>beolnix-snapshots</id>
+            <name>snapshots repo</name>
+            <url>http://nexus.beolnix.com/content/repositories/snapshots/</url>
+        </repository>
     </repositories>
 
     <distributionManagement>

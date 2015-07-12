@@ -2,6 +2,7 @@ package io.cyberstock.tcdop.util;
 
 import io.cyberstock.tcdop.model.DOConfigConstants;
 import io.cyberstock.tcdop.model.DOSettings;
+import io.cyberstock.tcdop.model.DropletSize;
 import jetbrains.buildServer.clouds.CloudClientParameters;
 
 import java.util.HashMap;
@@ -22,6 +23,12 @@ public class SettingsUtils {
 
         String imageId = cloudClientParameters.getParameter(DOConfigConstants.IMAGE_NAME);
         paramsMap.put(DOConfigConstants.IMAGE_NAME, imageId);
+
+        String sizeSlug = cloudClientParameters.getParameter(DOConfigConstants.DROPLET_SIZE);
+        paramsMap.put(DOConfigConstants.DROPLET_SIZE, sizeSlug);
+
+        String dropletNamePrefix = cloudClientParameters.getParameter(DOConfigConstants.DROPLET_NAME_PREFIX);
+        paramsMap.put(DOConfigConstants.DROPLET_NAME_PREFIX, dropletNamePrefix);
 
         return new DOSettings(paramsMap);
     }
