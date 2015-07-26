@@ -2,7 +2,7 @@ package io.cyberstock.tcdop.server.integration.teamcity.web
 
 import io.cyberstock.tcdop.model.DOConfigConstants
 import io.cyberstock.tcdop.model.WebConstants
-import org.junit.Test
+import org.testng.annotations.Test
 
 
 public class ConfigurationValidatorTestCase {
