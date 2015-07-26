@@ -8,7 +8,7 @@ import org.testng.annotations.Test
 public class ConfigurationValidatorTestCase {
 
     @Test
-    def void testCheckNotNull() {
+    public void testCheckNotNull() {
         def result = ConfigurationValidator.checkNotNull(getParametersMap(), WebConstants.DO_INTEGRATION_MODE)
         assert result.size() == 0
     }
