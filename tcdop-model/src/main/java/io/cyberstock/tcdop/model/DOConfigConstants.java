@@ -10,7 +10,7 @@ public interface DOConfigConstants {
 
     // cloud integration modes
     public static final String PREPARED_IMAGE_MODE_CODE = "prepared_image_mode";
-    public static final String DOCKER_BASED_MODE_CODE = "docer_based";
+    public static final String DOCKER_BASED_MODE_CODE = "docker_based";
 
     // agent configuration constants
     public static final String IDENTITY_KEY = "env.AGENT_TYPE";

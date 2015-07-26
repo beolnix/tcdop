@@ -196,6 +196,13 @@
                 <version>${spring-test.version}</version>
                 <scope>provided</scope>
             </dependency>
+
+            <dependency>
+                <groupId>org.codehaus.groovy</groupId>
+                <artifactId>groovy-all</artifactId>
+                <version>2.4.4</version>
+                <scope>test</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -215,6 +222,11 @@
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>sonar-maven3-plugin</artifactId>
                     <version>5.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.groovy</groupId>
+                    <artifactId>groovy</artifactId>
+                    <version>2.4.4</version>
                 </plugin>
             </plugins>
         </pluginManagement>
