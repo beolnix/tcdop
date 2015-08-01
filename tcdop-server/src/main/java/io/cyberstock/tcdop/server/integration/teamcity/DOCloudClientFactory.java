@@ -5,11 +5,11 @@ import io.cyberstock.tcdop.model.DOConfigConstants;
 import io.cyberstock.tcdop.model.DOSettings;
 import io.cyberstock.tcdop.server.error.UnsupportedDOModeError;
 import io.cyberstock.tcdop.server.integration.digitalocean.storage.CloudImageStorage;
-import io.cyberstock.tcdop.server.integration.digitalocean.storage.impl.CloudImageStorageImpl;
 import io.cyberstock.tcdop.server.integration.digitalocean.storage.CloudImageStorageFactory;
 import io.cyberstock.tcdop.server.integration.digitalocean.DOAsyncClientServiceWrapper;
 import io.cyberstock.tcdop.server.integration.digitalocean.DOAsyncClientServiceFactory;
 import io.cyberstock.tcdop.server.integration.teamcity.web.ConfigurationValidator;
+import io.cyberstock.tcdop.server.integration.teamcity.web.SettingsUtils;
 import io.cyberstock.tcdop.server.integration.teamcity.web.TCDOPSettingsController;
 import jetbrains.buildServer.clouds.*;
 import jetbrains.buildServer.serverSide.AgentDescription;
@@ -19,7 +19,7 @@ import jetbrains.buildServer.web.openapi.PluginDescriptor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static io.cyberstock.tcdop.server.integration.teamcity.web.SettingsUtils.convertClientParametersToDOSettings;
+import static io.cyberstock.tcdop.server.integration.teamcity.web.SettingsUtils.convertToDOSettings;
 
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -61,7 +61,7 @@ public class DOCloudClientFactory implements CloudClientFactory {
 
     @NotNull
     public CloudClientEx createNewClient(CloudState cloudState, CloudClientParameters cloudClientParameters) {
-        DOSettings settings = convertClientParametersToDOSettings(cloudClientParameters);
+        DOSettings settings = convertToDOSettings(cloudClientParameters);
 
         if (!settings.isPreparedInstanceMode()) {
             throw new UnsupportedDOModeError(settings.getMode());
@@ -106,7 +106,7 @@ public class DOCloudClientFactory implements CloudClientFactory {
                 if (errors.size() > 0) {
                     return errors;
                 } else {
-                    DOSettings doSettings = new DOSettings(stringStringMap);
+                    DOSettings doSettings = SettingsUtils.convertToDOSettings(stringStringMap);
                     return configValidator.validateConfigurationValues(doSettings);
                 }
             }

@@ -38,7 +38,7 @@ public enum DropletSize {
             }
         }
 
-        return null;
+        throw new IllegalArgumentException("unknown slug: " + slug);
     }
 
     public static DropletSize resolveByDiskSize(Integer diskSize) {

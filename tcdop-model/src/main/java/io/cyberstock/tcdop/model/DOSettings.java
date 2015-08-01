@@ -8,7 +8,6 @@ import java.util.Map;
  */
 public class DOSettings {
 
-    private String strMode;
     private DOIntegrationMode mode;
     private String token;
     private String imageName;
@@ -16,25 +15,13 @@ public class DOSettings {
     private DropletSize size;
     private String dropletNamePrefix;
 
-
-    public DOSettings(Map<String, String> stringStringMap) {
-        this.strMode = stringStringMap.get(WebConstants.DO_INTEGRATION_MODE);
-        this.mode = DOIntegrationMode.getByCode(strMode);
-
-        this.token = stringStringMap.get(WebConstants.TOKEN);
-        this.imageName = stringStringMap.get(WebConstants.IMAGE_NAME);
-        if (stringStringMap.get(WebConstants.INSTANCES_COUNT_LIMIT) != null) {
-            this.instancesLimit = Integer.parseInt(stringStringMap.get(WebConstants.INSTANCES_COUNT_LIMIT));
-        }
-
-        String sizeSlug = stringStringMap.get(WebConstants.DROPLET_SIZE);
-        this.size = DropletSize.resolveBySlug(sizeSlug);
-
-        this.dropletNamePrefix = stringStringMap.get(WebConstants.DROPLET_NAME_PREFIX);
-    }
-
-    public String getStrMode() {
-        return strMode;
+    public DOSettings(DOIntegrationMode mode, String token, String imageName, Integer instancesLimit, DropletSize size, String dropletNamePrefix) {
+        this.mode = mode;
+        this.token = token;
+        this.imageName = imageName;
+        this.instancesLimit = instancesLimit;
+        this.size = size;
+        this.dropletNamePrefix = dropletNamePrefix;
     }
 
     public DOIntegrationMode getMode() {
@@ -68,8 +55,7 @@ public class DOSettings {
     @Override
     public String toString() {
         return "DOSettings{" +
-                "strMode='" + strMode + '\'' +
-                ", mode=" + mode +
+                "mode=" + mode +
                 ", token='" + token + '\'' +
                 ", imageName='" + imageName + '\'' +
                 ", instancesLimit=" + instancesLimit +

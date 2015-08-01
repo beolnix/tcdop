@@ -1,16 +1,10 @@
 package io.cyberstock.tcdop.server.integration.teamcity.web;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Strings;
-import com.myjeeva.digitalocean.impl.DigitalOceanClient;
-import com.myjeeva.digitalocean.pojo.Image;
 import io.cyberstock.tcdop.model.*;
 import io.cyberstock.tcdop.model.error.DOError;
 import io.cyberstock.tcdop.server.integration.digitalocean.DOClientService;
 import io.cyberstock.tcdop.server.integration.digitalocean.DOClientServiceFactory;
-import io.cyberstock.tcdop.server.integration.digitalocean.impl.DOClientServiceImpl;
-import io.cyberstock.tcdop.server.integration.digitalocean.impl.DOClientServiceFactoryImpl;
-import io.cyberstock.tcdop.server.integration.digitalocean.DOUtils;
 import io.cyberstock.tcdop.server.integration.teamcity.DOCloudImage;
 import jetbrains.buildServer.serverSide.InvalidProperty;
 
@@ -51,7 +45,19 @@ public class ConfigurationValidator {
     }
 
     private Collection<InvalidProperty> checkDropletSize(Map<String, String> stringStringMap) {
-        return checkNotNull(stringStringMap, WebConstants.DROPLET_SIZE);
+        Collection<InvalidProperty> result = checkNotNull(stringStringMap, WebConstants.DROPLET_SIZE);
+        if (result.size() > 0 ) {
+            return result;
+        }
+
+        String sizeSlug = stringStringMap.get(WebConstants.DROPLET_SIZE);
+        try {
+            DropletSize.resolveBySlug(sizeSlug);
+        } catch (IllegalArgumentException e) {
+            return singleErrorList(WebConstants.DROPLET_SIZE, e.getMessage());
+        }
+
+        return Collections.emptyList();
     }
 
     private Collection<InvalidProperty> checkDropletNamePrefix(Map<String, String> stringStringMap) {
