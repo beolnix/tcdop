@@ -3,13 +3,14 @@ package io.cyberstock.tcdop.server.integration.teamcity.web;
 import io.cyberstock.tcdop.model.*;
 import jetbrains.buildServer.clouds.CloudClientParameters;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Created by beolnix on 18/06/15.
  */
 public class SettingsUtils {
+
+    private SettingsUtils() {}
 
     public static DOSettings convertToDOSettings(CloudClientParameters cloudClientParameters) {
         DOSettingsBuilder builder = new DOSettingsBuilder();
