@@ -79,10 +79,38 @@ public class ConfigurationValidatorTestCase {
 
     @Test
     def void testCheckInstancesLimitFormat3() {
-        def result = emptyValidator.checkInstancesLimitFormat(getWrongParametersMap())
+        def result = emptyValidator.checkInstancesLimitFormat(getWrongValueParametersMap())
 
         assert result.size() == 1
         assert result.getAt(0).propertyName == WebConstants.INSTANCES_COUNT_LIMIT
+    }
+
+    @Test
+    def void testCheckInstancesLimitFormat4() {
+        def result = emptyValidator.checkInstancesLimitFormat(getWrongFormatParametersMap())
+
+        assert result.size() == 1
+        assert result.getAt(0).propertyName == WebConstants.INSTANCES_COUNT_LIMIT
+    }
+
+    @Test
+    def void testValidateConfigurationValues() {
+        def result = successValidator.validateConfigurationValues(new DOSettings(getParametersMap()))
+        assert result.size() == 0
+    }
+
+    @Test
+    def void testValidateConfigurationValuesNegative() {
+        def result = failureValidator.validateConfigurationValues(new DOSettings(getEmptyParametersMap()))
+        assert result.size() == 1
+        assert result.getAt(0).propertyName == WebConstants.TOKEN
+    }
+
+    @Test
+    def void testValidateConfigurationValuesNegative2() {
+        def result = successValidator.validateConfigurationValues(new DOSettings(getEmptyParametersMap()))
+        assert result.size() == 1
+        assert result.getAt(0).propertyName == WebConstants.DO_INTEGRATION_MODE
     }
 
     static class SuccessClientFactory implements DOClientServiceFactory {
@@ -220,18 +248,30 @@ public class ConfigurationValidatorTestCase {
         def params = [:]
         params[WebConstants.DO_INTEGRATION_MODE] = DOConfigConstants.PREPARED_IMAGE_MODE_CODE
         params[WebConstants.INSTANCES_COUNT_LIMIT] = '5'
+        params[WebConstants.TOKEN] = 'test'
+        params[WebConstants.DROPLET_SIZE] = '32GB'
         params
     }
 
-    def getWrongParametersMap() {
+    def getWrongValueParametersMap() {
         def params = [:]
         params[WebConstants.DO_INTEGRATION_MODE] = 'test'
         params[WebConstants.INSTANCES_COUNT_LIMIT] = '-1'
         params
     }
 
+    def getWrongFormatParametersMap() {
+        def params = [:]
+        params[WebConstants.DO_INTEGRATION_MODE] = '123'
+        params[WebConstants.INSTANCES_COUNT_LIMIT] = 'test'
+        params
+    }
+
     def getEmptyParametersMap() {
-        [:]
+        def params = [:]
+        params[WebConstants.DROPLET_SIZE] = '32GB'
+
+        params
     }
 
 }
