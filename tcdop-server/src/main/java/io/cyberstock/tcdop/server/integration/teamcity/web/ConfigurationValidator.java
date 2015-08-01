@@ -46,7 +46,7 @@ public class ConfigurationValidator {
 
     private Collection<InvalidProperty> checkDropletSize(Map<String, String> stringStringMap) {
         Collection<InvalidProperty> result = checkNotNull(stringStringMap, WebConstants.DROPLET_SIZE);
-        if (result.isEmpty()) {
+        if (!result.isEmpty()) {
             return result;
         }
 
