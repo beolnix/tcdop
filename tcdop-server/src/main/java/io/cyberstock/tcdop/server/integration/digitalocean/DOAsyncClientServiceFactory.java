@@ -1,7 +1,6 @@
 package io.cyberstock.tcdop.server.integration.digitalocean;
 
-import com.myjeeva.digitalocean.impl.DigitalOceanClient;
-import jetbrains.buildServer.clouds.CloudImage;
+import io.cyberstock.tcdop.server.integration.digitalocean.impl.DOClientServiceImpl;
 
 import java.util.concurrent.ExecutorService;
 

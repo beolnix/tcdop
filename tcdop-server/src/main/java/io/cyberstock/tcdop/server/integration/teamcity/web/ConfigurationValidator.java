@@ -2,16 +2,17 @@ package io.cyberstock.tcdop.server.integration.teamcity.web;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
-import com.myjeeva.digitalocean.exception.DigitalOceanException;
-import com.myjeeva.digitalocean.exception.RequestUnsuccessfulException;
 import com.myjeeva.digitalocean.impl.DigitalOceanClient;
-import com.myjeeva.digitalocean.pojo.Droplet;
 import com.myjeeva.digitalocean.pojo.Image;
 import io.cyberstock.tcdop.model.*;
 import io.cyberstock.tcdop.model.error.DOError;
+import io.cyberstock.tcdop.server.integration.digitalocean.DOClientService;
+import io.cyberstock.tcdop.server.integration.digitalocean.DOClientServiceFactory;
+import io.cyberstock.tcdop.server.integration.digitalocean.impl.DOClientServiceImpl;
+import io.cyberstock.tcdop.server.integration.digitalocean.impl.DOClientServiceFactoryImpl;
 import io.cyberstock.tcdop.server.integration.digitalocean.DOUtils;
+import io.cyberstock.tcdop.server.integration.teamcity.DOCloudImage;
 import jetbrains.buildServer.serverSide.InvalidProperty;
-import org.springframework.format.annotation.NumberFormat;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -23,7 +24,13 @@ import java.util.Map;
  */
 public class ConfigurationValidator {
 
-    public static Collection<InvalidProperty> formatValidation(Map<String, String> stringStringMap) {
+    private final DOClientServiceFactory clientFactory;
+
+    public ConfigurationValidator(DOClientServiceFactory clientFactory) {
+        this.clientFactory = clientFactory;
+    }
+
+    public Collection<InvalidProperty> formatValidation(Map<String, String> stringStringMap) {
 
         Collection<InvalidProperty> errors = new LinkedHashSet<InvalidProperty>();
         errors.addAll(checkInstancesLimitFormat(stringStringMap));
@@ -35,52 +42,52 @@ public class ConfigurationValidator {
         return errors;
     }
 
-    private static Collection<InvalidProperty> checkImageName(Map<String, String> stringStringMap) {
+    private Collection<InvalidProperty> checkImageName(Map<String, String> stringStringMap) {
         return checkNotNull(stringStringMap, WebConstants.IMAGE_NAME);
     }
 
-    private static Collection<InvalidProperty> checkToken(Map<String, String> stringStringMap) {
+    private Collection<InvalidProperty> checkToken(Map<String, String> stringStringMap) {
         return checkNotNull(stringStringMap, WebConstants.TOKEN);
     }
 
-    private static Collection<InvalidProperty> checkDropletSize(Map<String, String> stringStringMap) {
+    private Collection<InvalidProperty> checkDropletSize(Map<String, String> stringStringMap) {
         return checkNotNull(stringStringMap, WebConstants.DROPLET_SIZE);
     }
 
-    private static Collection<InvalidProperty> checkDropletNamePrefix(Map<String, String> stringStringMap) {
+    private Collection<InvalidProperty> checkDropletNamePrefix(Map<String, String> stringStringMap) {
         return checkNotNull(stringStringMap, WebConstants.DROPLET_NAME_PREFIX);
     }
 
-    private static Collection<InvalidProperty> checkNotNull(Map<String, String> stringStringMap, String prop) {
+    private Collection<InvalidProperty> checkNotNull(Map<String, String> stringStringMap, String prop) {
         String propValue = stringStringMap.get(prop);
         if (Strings.isNullOrEmpty(propValue)) {
-            return Collections.singletonList(new InvalidProperty(prop, "Must be provided."));
+            return singleErrorList(prop, "Must be provided.");
         }
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
-    private static Collection<InvalidProperty> checkInstancesLimitFormat(Map<String, String> stringStringMap) {
+    private Collection<InvalidProperty> checkInstancesLimitFormat(Map<String, String> stringStringMap) {
         String instancesLimitNumber = stringStringMap.get(WebConstants.INSTANCES_COUNT_LIMIT);
         if (Strings.isNullOrEmpty(instancesLimitNumber)) {
-            return Collections.singletonList(new InvalidProperty(WebConstants.INSTANCES_COUNT_LIMIT,
-                    "Must be provided."));
+            return singleErrorList(WebConstants.INSTANCES_COUNT_LIMIT,
+                    "Must be provided.");
         } else {
             try {
                 Integer parsedInteger = Integer.parseInt(instancesLimitNumber);
                 if (parsedInteger <= 0) {
-                    return Collections.singletonList(new InvalidProperty(WebConstants.INSTANCES_COUNT_LIMIT,
-                            "Must be positive number."));
+                    return singleErrorList(WebConstants.INSTANCES_COUNT_LIMIT,
+                            "Must be positive number.");
                 }
             } catch (NumberFormatException e) {
-                return Collections.singletonList(new InvalidProperty(WebConstants.INSTANCES_COUNT_LIMIT,
-                        "Must be number."));
+                return singleErrorList(WebConstants.INSTANCES_COUNT_LIMIT,
+                        "Must be number.");
             }
         }
 
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
-    public static Collection<InvalidProperty> validateConfigurationValues(DOSettings settings) {
+    public Collection<InvalidProperty> validateConfigurationValues(DOSettings settings) {
         Collection<InvalidProperty> validationErrors = validateToken(settings.getToken());
         if (!validationErrors.isEmpty()) {
             return validationErrors;
@@ -89,50 +96,44 @@ public class ConfigurationValidator {
         if (DOIntegrationMode.PREPARED_IMAGE.equals(settings.getMode())) {
             return validateImage(settings.getImageName(), settings.getSize(), settings.getToken());
         } else {
-            return Collections.singletonList(new InvalidProperty(WebConstants.DO_INTEGRATION_MODE,
-                    "Selected mode isn't supported yet"));
+            return singleErrorList(WebConstants.DO_INTEGRATION_MODE,
+                    "Selected mode isn't supported yet");
         }
     }
 
 
-    private static Collection<InvalidProperty> validateToken(String token) {
-        DigitalOceanClient client = new DigitalOceanClient(token);
+    private Collection<InvalidProperty> validateToken(String token) {
+        DOClientService client = clientFactory.createClient(token);
 
         try {
-            client.getAccountInfo();
-        } catch (DigitalOceanException e) {
-            return Collections.singletonList(new InvalidProperty(WebConstants.TOKEN, "Token isn't valid."));
-        } catch (RequestUnsuccessfulException e) {
-            return Collections.singletonList(new InvalidProperty(WebConstants.TOKEN,
-                    "Can't reach Digital Ocean in order to verify token."));
+            client.accountCheck();
+        } catch (DOError e) {
+            return singleErrorList(WebConstants.TOKEN, e.getMessage());
         }
 
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
-    private static Collection<InvalidProperty> validateImage(String imageName, DropletSize dropletSize, String token) {
-        DigitalOceanClient client = new DigitalOceanClient(token);
+    private Collection<InvalidProperty> validateImage(String imageName, DropletSize dropletSize, String token) {
+        DOClientService client = clientFactory.createClient(token);
 
         try {
-            Optional<Image> imageOpt = DOUtils.findImageByName(client, imageName);
-            if (!imageOpt.isPresent()) {
-                return Collections.singletonList(new InvalidProperty(WebConstants.IMAGE_NAME,
-                        "Image with name \"" + imageName + "\" not found in user images."));
-            } else {
-                Image image = imageOpt.get();
-                Integer minDiskSize = image.getMinDiskSize();
-                DropletSize minSize = DropletSize.resolveByDiskSize(minDiskSize);
-                if (!minSize.isLessOrEqualThen(dropletSize)) {
-                    return Collections.singletonList(new InvalidProperty(WebConstants.DROPLET_SIZE,
-                            "Selected image requires droplet with minimum " + minDiskSize + " disk size."));
-                }
+            DOCloudImage image = client.findImageByName(imageName);
+
+            Integer minDiskSize = image.getImage().getMinDiskSize();
+            DropletSize minSize = DropletSize.resolveByDiskSize(minDiskSize);
+            if (!minSize.isLessOrEqualThen(dropletSize)) {
+                return singleErrorList(WebConstants.DROPLET_SIZE,
+                        "Selected image requires droplet with minimum " + minDiskSize + " disk size.");
             }
         } catch (DOError e) {
-            return Collections.singletonList(new InvalidProperty(WebConstants.IMAGE_NAME,
-                    "Provided image id doesn't seem to be valid"));
+            return singleErrorList(WebConstants.IMAGE_NAME, e.getMessage());
         }
 
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
+    private Collection<InvalidProperty> singleErrorList(String fieldId, String msg) {
+        return Collections.singleton(new InvalidProperty(fieldId, msg));
+    }
 }

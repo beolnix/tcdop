@@ -1,6 +1,8 @@
-package io.cyberstock.tcdop.server.integration.digitalocean;
+package io.cyberstock.tcdop.server.integration.digitalocean.storage.impl;
 
 import com.intellij.openapi.diagnostic.Logger;
+import io.cyberstock.tcdop.server.integration.digitalocean.DOClientService;
+import io.cyberstock.tcdop.server.integration.digitalocean.storage.CloudImageStorage;
 import io.cyberstock.tcdop.server.integration.teamcity.DOCloudImage;
 
 import java.util.*;
@@ -9,7 +11,7 @@ import java.util.concurrent.Executor;
 /**
  * Created by beolnix on 27/06/15.
  */
-public class CloudImageStorage {
+public class CloudImageStorageImpl implements CloudImageStorage {
 
     // dependencies
     private final DOClientService clientService;
@@ -25,14 +27,14 @@ public class CloudImageStorage {
     // constants
     private final static Integer UPDATE_INTERVAL = 30 * 1000;
 
-    private static final Logger LOG = Logger.getInstance(CloudImageStorage.class.getName());
+    private static final Logger LOG = Logger.getInstance(CloudImageStorageImpl.class.getName());
 
-    public CloudImageStorage(DOClientService clientService, Executor executor) {
+    public CloudImageStorageImpl(DOClientService clientService, Executor executor) {
         this.clientService = clientService;
         this.executor = executor;
     }
 
-    public void init() {
+    void init() {
         executor.execute(checker);
     }
 

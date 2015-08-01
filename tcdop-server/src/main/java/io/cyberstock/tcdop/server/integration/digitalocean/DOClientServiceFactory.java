@@ -1,15 +1,12 @@
 package io.cyberstock.tcdop.server.integration.digitalocean;
 
-import com.myjeeva.digitalocean.impl.DigitalOceanClient;
+import io.cyberstock.tcdop.server.integration.digitalocean.impl.DOClientServiceImpl;
 
 /**
- * Created by beolnix on 27/06/15.
+ * Created by beolnix on 01/08/15.
  */
-public class DOClientServiceFactory {
+public interface DOClientServiceFactory {
 
-    public DOClientService createClient(String token) {
-        DigitalOceanClient doClient = new DigitalOceanClient(token);
-        DOClientService clientService = new DOClientService(doClient);
-        return clientService;
-    }
+    DOClientService createClient(String token);
+
 }

@@ -2,6 +2,7 @@ package io.cyberstock.tcdop.server.integration.digitalocean;
 
 import io.cyberstock.tcdop.model.DOSettings;
 import io.cyberstock.tcdop.model.error.DOError;
+import io.cyberstock.tcdop.server.integration.digitalocean.impl.DOClientServiceImpl;
 import io.cyberstock.tcdop.server.integration.teamcity.DOCloudImage;
 import io.cyberstock.tcdop.server.integration.teamcity.DOCloudInstance;
 

@@ -4,18 +4,19 @@ import com.google.common.base.Optional;
 import com.intellij.openapi.diagnostic.Logger;
 import com.myjeeva.digitalocean.common.ActionStatus;
 import com.myjeeva.digitalocean.common.DropletStatus;
+import com.myjeeva.digitalocean.exception.DigitalOceanException;
+import com.myjeeva.digitalocean.exception.RequestUnsuccessfulException;
 import com.myjeeva.digitalocean.impl.DigitalOceanClient;
 import com.myjeeva.digitalocean.pojo.*;
 import io.cyberstock.tcdop.model.DOSettings;
+import io.cyberstock.tcdop.model.WebConstants;
 import io.cyberstock.tcdop.model.error.DOError;
 import io.cyberstock.tcdop.server.integration.teamcity.DOCloudImage;
+import jetbrains.buildServer.serverSide.InvalidProperty;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Created by beolnix on 24/05/15.
@@ -41,6 +42,16 @@ public class DOUtils {
         } catch (Exception e) {
             LOG.error("Can't create droplet:" + e.getMessage(), e);
             throw new DOError("Can't create droplet:" + e.getMessage(), e);
+        }
+    }
+
+    public static void checkAccount(DigitalOceanClient doClient) throws DOError {
+        try {
+            doClient.getAccountInfo();
+        } catch (DigitalOceanException e) {
+            throw new DOError("Token isn't valid.", e);
+        } catch (RequestUnsuccessfulException e) {
+            throw new DOError("Can't reach Digital Ocean in order to verify token.", e);
         }
     }
 

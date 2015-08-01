@@ -14,14 +14,18 @@
     </bean>
 
     <!-- core plugin services -->
-    <bean id="DOClientFactory" class="io.cyberstock.tcdop.server.integration.digitalocean.DOClientServiceFactory"/>
+    <bean id="DOClientFactory" class="io.cyberstock.tcdop.server.integration.digitalocean.impl.DOClientServiceFactoryImpl"/>
 
     <bean id="DOAsyncClientFactory" class="io.cyberstock.tcdop.server.integration.digitalocean.DOAsyncClientServiceFactory">
         <constructor-arg ref="DOClientFactory"/>
     </bean>
 
-    <bean id="cloudImageStorageFactory" class="io.cyberstock.tcdop.server.integration.digitalocean.CloudImageStorageFactory">
+    <bean id="cloudImageStorageFactory" class="io.cyberstock.tcdop.server.integration.digitalocean.storage.impl.CloudImageStorageFactoryImpl">
         <constructor-arg ref="DOClientFactory"/>
+    </bean>
+
+    <bean id="ConfigurationValidator" class="io.cyberstock.tcdop.server.integration.teamcity.web.ConfigurationValidator">
+        <constructor-arg name="clientFactory" ref="DOClientFactory"/>
     </bean>
 
 </beans>

@@ -4,8 +4,9 @@ import com.intellij.openapi.diagnostic.Logger;
 import io.cyberstock.tcdop.model.DOConfigConstants;
 import io.cyberstock.tcdop.model.DOSettings;
 import io.cyberstock.tcdop.server.error.UnsupportedDOModeError;
-import io.cyberstock.tcdop.server.integration.digitalocean.CloudImageStorage;
-import io.cyberstock.tcdop.server.integration.digitalocean.CloudImageStorageFactory;
+import io.cyberstock.tcdop.server.integration.digitalocean.storage.CloudImageStorage;
+import io.cyberstock.tcdop.server.integration.digitalocean.storage.impl.CloudImageStorageImpl;
+import io.cyberstock.tcdop.server.integration.digitalocean.storage.CloudImageStorageFactory;
 import io.cyberstock.tcdop.server.integration.digitalocean.DOAsyncClientServiceWrapper;
 import io.cyberstock.tcdop.server.integration.digitalocean.DOAsyncClientServiceFactory;
 import io.cyberstock.tcdop.server.integration.teamcity.web.ConfigurationValidator;
@@ -17,13 +18,10 @@ import jetbrains.buildServer.serverSide.PropertiesProcessor;
 import jetbrains.buildServer.web.openapi.PluginDescriptor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 
-import static io.cyberstock.tcdop.server.integration.teamcity.web.ConfigurationValidator.validateConfigurationValues;
 import static io.cyberstock.tcdop.server.integration.teamcity.web.SettingsUtils.convertClientParametersToDOSettings;
 
 import java.util.*;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -35,6 +33,7 @@ public class DOCloudClientFactory implements CloudClientFactory {
     // dependencies
     private final DOAsyncClientServiceFactory asyncClientServiceFactory;
     private final CloudImageStorageFactory cloudImageStorageFactory;
+    private final ConfigurationValidator configValidator;
 
     // state
     private final String doProfileHtmlPath;
@@ -48,9 +47,11 @@ public class DOCloudClientFactory implements CloudClientFactory {
     public DOCloudClientFactory(@NotNull final CloudRegistrar cloudRegistrar,
                                 @NotNull final PluginDescriptor pluginDescriptor,
                                 @NotNull final DOAsyncClientServiceFactory asyncClientServiceFactory,
-                                @NotNull final CloudImageStorageFactory cloudImageStorageFactory) {
+                                @NotNull final CloudImageStorageFactory cloudImageStorageFactory,
+                                @NotNull final ConfigurationValidator configValidator) {
         this.asyncClientServiceFactory = asyncClientServiceFactory;
         this.cloudImageStorageFactory = cloudImageStorageFactory;
+        this.configValidator = configValidator;
 
         this.doProfileHtmlPath = pluginDescriptor.getPluginResourcesPath(TCDOPSettingsController.HTML_PAGE_NAME);
         cloudRegistrar.registerCloudFactory(this);
@@ -101,12 +102,12 @@ public class DOCloudClientFactory implements CloudClientFactory {
     public PropertiesProcessor getPropertiesProcessor() {
         return new PropertiesProcessor() {
             public Collection<InvalidProperty> process(Map<String, String> stringStringMap) {
-                Collection<InvalidProperty> errors = ConfigurationValidator.formatValidation(stringStringMap);
+                Collection<InvalidProperty> errors = configValidator.formatValidation(stringStringMap);
                 if (errors.size() > 0) {
                     return errors;
                 } else {
                     DOSettings doSettings = new DOSettings(stringStringMap);
-                    return validateConfigurationValues(doSettings);
+                    return configValidator.validateConfigurationValues(doSettings);
                 }
             }
         };
