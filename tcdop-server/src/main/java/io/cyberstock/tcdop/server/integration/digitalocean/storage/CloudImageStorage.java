@@ -1,5 +1,6 @@
 package io.cyberstock.tcdop.server.integration.digitalocean.storage;
 
+import io.cyberstock.tcdop.model.error.DOError;
 import io.cyberstock.tcdop.server.integration.teamcity.DOCloudImage;
 
 import java.util.Collection;
@@ -9,7 +10,9 @@ import java.util.Collection;
  */
 public interface CloudImageStorage {
 
-    void forceUpdate();
+    boolean isInitialized();
+
+    void waitInitialization() throws DOError;
 
     Collection<DOCloudImage> getImagesList();
 

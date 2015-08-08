@@ -65,7 +65,7 @@ public class DOCloudClient implements CloudClientEx {
         DOCloudImage DOCloudImage = (DOCloudImage) cloudImage;
         try {
             DOCloudInstance instance = client.initializeInstance(DOCloudImage, settings);
-            imageStorage.forceUpdate();
+            imageStorage.waitInitialization();
             return instance;
         } catch (DOError e) {
             setCloudErrorInfo(new CloudErrorInfo("Can't create new instance", e.getMessage(), e));

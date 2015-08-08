@@ -1,6 +1,7 @@
 package io.cyberstock.tcdop.server.integration.digitalocean.storage.impl;
 
 import com.intellij.openapi.diagnostic.Logger;
+import io.cyberstock.tcdop.model.error.DOError;
 import io.cyberstock.tcdop.server.integration.digitalocean.DOClientService;
 import io.cyberstock.tcdop.server.integration.digitalocean.storage.CloudImageStorage;
 import io.cyberstock.tcdop.server.integration.teamcity.DOCloudImage;
@@ -23,9 +24,12 @@ public class CloudImageStorageImpl implements CloudImageStorage {
     private volatile CloudImagesChecker checker = new CloudImagesChecker();
     private volatile Long lastUpdateTimestamp;
     private volatile boolean stop = false;
+    private volatile boolean initialized = false;
 
     // constants
     private final static Integer UPDATE_INTERVAL = 30 * 1000;
+    private final static Integer INITIALIZATION_CHECK_INTERVAL = 50;
+    private final static Integer INITIALIZATION_THRESHOLD = 90 * 1000;
 
     private static final Logger LOG = Logger.getInstance(CloudImageStorageImpl.class.getName());
 
@@ -62,8 +66,27 @@ public class CloudImageStorageImpl implements CloudImageStorage {
         }
     }
 
-    public void forceUpdate() {
-        updateImages();
+    public boolean isInitialized() {
+        return initialized;
+    }
+
+    public void waitInitialization() throws DOError {
+        long initializationDelay = 0;
+        while (!initialized) {
+
+            if (initializationDelay > INITIALIZATION_THRESHOLD) {
+                String msg = "initialization took too long. Cant retrieve images from Digital Ocean in 1m 30s, something wrong.";
+                LOG.error(msg);
+                throw new DOError(msg);
+            }
+
+            try {
+                initializationDelay += INITIALIZATION_CHECK_INTERVAL;
+                Thread.sleep(INITIALIZATION_CHECK_INTERVAL);
+            } catch (InterruptedException e) {
+                return;
+            }
+        }
     }
 
     synchronized private void updateImages() {
@@ -77,6 +100,7 @@ public class CloudImageStorageImpl implements CloudImageStorage {
         mergeOldImagesToNewImagesMap(newImageMap, imageMap);
 
         lastUpdateTimestamp = System.currentTimeMillis();
+        initialized = true;
     }
 
 

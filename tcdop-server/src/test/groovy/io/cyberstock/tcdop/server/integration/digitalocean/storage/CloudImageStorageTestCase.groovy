@@ -6,6 +6,7 @@ import io.cyberstock.tcdop.model.error.DOError
 import io.cyberstock.tcdop.server.integration.digitalocean.DOClientService
 import io.cyberstock.tcdop.server.integration.digitalocean.DOClientServiceFactory
 import io.cyberstock.tcdop.server.integration.digitalocean.storage.impl.CloudImageStorageFactoryImpl
+import io.cyberstock.tcdop.server.integration.digitalocean.storage.impl.CloudImageStorageImpl
 import io.cyberstock.tcdop.server.integration.teamcity.DOCloudImage
 import io.cyberstock.tcdop.server.integration.teamcity.DOCloudInstance
 import org.testng.annotations.Test
@@ -21,7 +22,24 @@ import static org.testng.Assert.assertTrue
  */
 class CloudImageStorageTestCase {
 
-    private final static Integer IMAGE_ID = Random.newInstance().nextInt();
+    private final static Integer IMAGE_ID = Random.newInstance().nextInt()
+
+    @Test
+    public void testMerge() {
+        def storage = new CloudImageStorageImpl(null, null)
+
+        def A = new DOCloudImage(new Image(id:234, name: "test"))
+        def B = new DOCloudImage(new Image(id:234, name: "test2"))
+
+        def oldMap = [:]
+        oldMap[A.id] = A
+
+        def newMap = [:]
+        newMap[B.id] = B
+
+        storage.mergeOldImagesToNewImagesMap(newMap, oldMap)
+        assertEquals(storage.imageMap, oldMap)
+    }
 
     @Test
     public void testGetById() {
@@ -29,7 +47,7 @@ class CloudImageStorageTestCase {
         def factory = new CloudImageStorageFactoryImpl(new DOClientServiceFactoryTestImpl())
         def storage = factory.getStorage(executorService, "test")
 
-        delay();
+        storage.waitInitialization();
 
         assertNotNull(storage.getImageById(IMAGE_ID.toString()))
     }
@@ -41,7 +59,7 @@ class CloudImageStorageTestCase {
         def factory = new CloudImageStorageFactoryImpl(new DOClientServiceFactoryTestImpl())
         def storage = factory.getStorage(executorService, "test")
 
-        delay();
+        storage.waitInitialization();
 
         def map = storage.getImagesList()
 
@@ -55,19 +73,11 @@ class CloudImageStorageTestCase {
         def factory = new CloudImageStorageFactoryImpl(new DOClientServiceFactoryTestImpl())
         def storage = factory.getStorage(executorService, "test")
 
-        delay();
+        storage.waitInitialization();
 
         def count = storage.getInstancesCount()
 
         assertEquals(count, 1)
-    }
-
-    public void delay() {
-        try {
-            sleep(500)
-        } catch (InterruptedException e) {
-            e.printStackTrace()
-        }
     }
 
     public static class DOClientServiceFactoryTestImpl implements DOClientServiceFactory {
