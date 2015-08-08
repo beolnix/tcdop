@@ -89,47 +89,16 @@ class CloudImageStorageTestCase {
     public static class DOClientServiceFactoryTestImpl implements DOClientServiceFactory {
         @Override
         DOClientService createClient(String token) {
-            return new DOClientService() {
-                @Override
-                List<DOCloudImage> getImages() {
-                    def doImage = new Image(id: CloudImageStorageTestCase.IMAGE_ID, name: "test")
-                    def image = new DOCloudImage(doImage)
 
-                    image.addInstance(new DOCloudInstance(image, "123", "test"))
+            return [getImages: {
+                def doImage = new Image(id: CloudImageStorageTestCase.IMAGE_ID, name: "test")
+                def image = new DOCloudImage(doImage)
 
-                    return [image]
-                }
+                image.addInstance(new DOCloudInstance(image, "123", "test"))
 
-                @Override
-                void waitInstanceInitialization(DOCloudInstance cloudInstance) {
+                return [image]
+            }] as DOClientService
 
-                }
-
-                @Override
-                void restartInstance(DOCloudInstance cloudInstance) {
-
-                }
-
-                @Override
-                void terminateInstance(DOCloudInstance cloudInstance) {
-
-                }
-
-                @Override
-                DOCloudInstance createInstance(DOCloudImage cloudImage, DOSettings doSettings) throws DOError {
-                    return null
-                }
-
-                @Override
-                void accountCheck() throws DOError {
-
-                }
-
-                @Override
-                DOCloudImage findImageByName(String imageName) throws DOError {
-                    return null
-                }
-            }
         }
     }
 }

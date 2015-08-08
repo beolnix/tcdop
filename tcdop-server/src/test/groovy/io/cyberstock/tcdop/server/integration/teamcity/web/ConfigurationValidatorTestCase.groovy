@@ -9,7 +9,6 @@ import io.cyberstock.tcdop.model.error.DOError
 import io.cyberstock.tcdop.server.integration.digitalocean.DOClientService
 import io.cyberstock.tcdop.server.integration.digitalocean.DOClientServiceFactory
 import io.cyberstock.tcdop.server.integration.teamcity.DOCloudImage
-import io.cyberstock.tcdop.server.integration.teamcity.DOCloudInstance
 import org.testng.annotations.Test
 
 
@@ -193,129 +192,30 @@ public class ConfigurationValidatorTestCase {
         private DOCloudImage cloudImage = new DOCloudImage(
                 new Image(id: 123, slug:"test", minDiskSize: 320)
         )
-
         @Override
         DOClientService createClient(String token) {
-            return new DOClientService() {
-                @Override
-                List<DOCloudImage> getImages() {
-                    return Collections.singleton(cloudImage)
-                }
 
-                @Override
-                void waitInstanceInitialization(DOCloudInstance cloudInstance) {
+            return [getImages: {Collections.singleton(cloudImage)},
+                    findImageByName: {cloudImage},
+                    accountCheck: { /* nop */ }] as DOClientService
 
-                }
-
-                @Override
-                void restartInstance(DOCloudInstance cloudInstance) {
-
-                }
-
-                @Override
-                void terminateInstance(DOCloudInstance cloudInstance) {
-
-                }
-
-                @Override
-                DOCloudInstance createInstance(DOCloudImage cloudImage, DOSettings doSettings) throws DOError {
-                    return null
-                }
-
-                @Override
-                void accountCheck() throws DOError {
-
-                }
-
-                @Override
-                DOCloudImage findImageByName(String imageName) throws DOError {
-                    return cloudImage;
-                }
-            }
         }
     }
 
     static class EmptyClientFactory implements DOClientServiceFactory {
         @Override
         DOClientService createClient(String token) {
-            return new DOClientService() {
-                @Override
-                List<DOCloudImage> getImages() {
-                    return Collections.emptyList()
-                }
-
-                @Override
-                void waitInstanceInitialization(DOCloudInstance cloudInstance) {
-
-                }
-
-                @Override
-                void restartInstance(DOCloudInstance cloudInstance) {
-
-                }
-
-                @Override
-                void terminateInstance(DOCloudInstance cloudInstance) {
-
-                }
-
-                @Override
-                DOCloudInstance createInstance(DOCloudImage cloudImage, DOSettings doSettings) throws DOError {
-                    return null
-                }
-
-                @Override
-                void accountCheck() throws DOError {
-
-                }
-
-                @Override
-                DOCloudImage findImageByName(String imageName) throws DOError {
-                    return null
-                }
-            }
+            return [getImages: {Collections.emptyList()},
+                    accountCheck: { /* nop */ }] as DOClientService
         }
     }
 
     static class FailureClientFactory implements DOClientServiceFactory {
         @Override
         DOClientService createClient(String token) {
-            return new DOClientService() {
-                @Override
-                List<DOCloudImage> getImages() {
-                    throw new DOError("Test")
-                }
-
-                @Override
-                void waitInstanceInitialization(DOCloudInstance cloudInstance) {
-                    throw new DOError("Test")
-                }
-
-                @Override
-                void restartInstance(DOCloudInstance cloudInstance) {
-                    throw new DOError("Test")
-                }
-
-                @Override
-                void terminateInstance(DOCloudInstance cloudInstance) {
-                    throw new DOError("Test")
-                }
-
-                @Override
-                DOCloudInstance createInstance(DOCloudImage cloudImage, DOSettings doSettings) throws DOError {
-                    throw new DOError("Test")
-                }
-
-                @Override
-                void accountCheck() throws DOError {
-                    throw new DOError("Test")
-                }
-
-                @Override
-                DOCloudImage findImageByName(String imageName) throws DOError {
-                    throw new DOError("test")
-                }
-            }
+            return [getImages: { throw new DOError("Test") },
+                    findImageByName: { throw new DOError("Test") },
+                    accountCheck: { throw new DOError("Test") }] as DOClientService;
         }
     }
 
