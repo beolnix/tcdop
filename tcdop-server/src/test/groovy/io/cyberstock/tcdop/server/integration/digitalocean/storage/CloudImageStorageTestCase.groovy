@@ -24,9 +24,15 @@ class CloudImageStorageTestCase {
 
     private final static Integer IMAGE_ID = Random.newInstance().nextInt()
 
+    @Test(expectedExceptions = [DOError.class])
+    public void testInitializationThreshold() {
+        def storage = new CloudImageStorageImpl(null, null, -1)
+        storage.waitInitialization()
+    }
+
     @Test
     public void testMerge() {
-        def storage = new CloudImageStorageImpl(null, null)
+        def storage = new CloudImageStorageImpl(null, null, 10)
 
         def A = new DOCloudImage(new Image(id:234, name: "test"))
         def B = new DOCloudImage(new Image(id:234, name: "test2"))

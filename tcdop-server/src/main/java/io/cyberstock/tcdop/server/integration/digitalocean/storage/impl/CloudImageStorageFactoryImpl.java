@@ -14,14 +14,19 @@ import java.util.concurrent.Executor;
 public class CloudImageStorageFactoryImpl implements CloudImageStorageFactory {
 
     private final DOClientServiceFactory clientServiceFactory;
+    private Long initThreashold = 90 * 1000L; // default init threashold
 
     public CloudImageStorageFactoryImpl(DOClientServiceFactory clientServiceFactory) {
         this.clientServiceFactory = clientServiceFactory;
     }
 
+    public void setInitThreashold(Long initThreashold) {
+        this.initThreashold = initThreashold;
+    }
+
     public CloudImageStorage getStorage(Executor executor, String token) {
         DOClientService clientService = clientServiceFactory.createClient(token);
-        CloudImageStorageImpl cloudImageStorageImpl = new CloudImageStorageImpl(clientService, executor);
+        CloudImageStorageImpl cloudImageStorageImpl = new CloudImageStorageImpl(clientService, executor, initThreashold);
         cloudImageStorageImpl.init();
         return cloudImageStorageImpl;
     }

@@ -17,6 +17,7 @@ public class CloudImageStorageImpl implements CloudImageStorage {
     // dependencies
     private final DOClientService clientService;
     private final Executor executor;
+    private final Long initThreashold;
 
     // state
     private volatile Map<String, DOCloudImage> imageMap = new HashMap<String, DOCloudImage>();
@@ -29,13 +30,15 @@ public class CloudImageStorageImpl implements CloudImageStorage {
     // constants
     private final static Integer UPDATE_INTERVAL = 30 * 1000;
     private final static Integer INITIALIZATION_CHECK_INTERVAL = 50;
-    private final static Integer INITIALIZATION_THRESHOLD = 90 * 1000;
 
     private static final Logger LOG = Logger.getInstance(CloudImageStorageImpl.class.getName());
 
-    public CloudImageStorageImpl(DOClientService clientService, Executor executor) {
+    public CloudImageStorageImpl(DOClientService clientService,
+                                 Executor executor,
+                                 Long initThreashold) {
         this.clientService = clientService;
         this.executor = executor;
+        this.initThreashold = initThreashold;
     }
 
     void init() {
@@ -43,6 +46,7 @@ public class CloudImageStorageImpl implements CloudImageStorage {
     }
 
     private class CloudImagesChecker implements Runnable {
+
         public void run() {
             while (!stop) {
                 if (shouldUpdate()) {
@@ -74,7 +78,7 @@ public class CloudImageStorageImpl implements CloudImageStorage {
         long initializationDelay = 0;
         while (!initialized) {
 
-            if (initializationDelay > INITIALIZATION_THRESHOLD) {
+            if (initializationDelay > initThreashold) {
                 String msg = "initialization took too long. Cant retrieve images from Digital Ocean in 1m 30s, something wrong.";
                 LOG.error(msg);
                 throw new DOError(msg);

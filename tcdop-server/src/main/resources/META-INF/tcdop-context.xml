@@ -22,6 +22,7 @@
 
     <bean id="cloudImageStorageFactory" class="io.cyberstock.tcdop.server.integration.digitalocean.storage.impl.CloudImageStorageFactoryImpl">
         <constructor-arg ref="DOClientFactory"/>
+        <property name="initThreashold" value="${tcdop.imageStorage.init.threashold}"/>
     </bean>
 
     <bean id="ConfigurationValidator" class="io.cyberstock.tcdop.server.integration.teamcity.web.ConfigurationValidator">
