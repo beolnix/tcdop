@@ -2,6 +2,7 @@ package io.cyberstock.tcdop.server.integration.digitalocean;
 
 import com.google.common.base.Optional;
 import com.intellij.openapi.diagnostic.Logger;
+import com.myjeeva.digitalocean.DigitalOcean;
 import com.myjeeva.digitalocean.common.ActionStatus;
 import com.myjeeva.digitalocean.common.DropletStatus;
 import com.myjeeva.digitalocean.exception.DigitalOceanException;
@@ -28,7 +29,7 @@ public class DOUtils {
     private final static Integer ACTION_RESULT_CHECK_INTERVAL = 2 * 1000;
 
     @NotNull
-    public static Droplet createInstance(DigitalOceanClient doClient, DOSettings doSettings, DOCloudImage cloudImage) throws DOError {
+    public static Droplet createInstance(DigitalOcean doClient, DOSettings doSettings, DOCloudImage cloudImage) throws DOError {
         Droplet droplet = new Droplet();
         droplet.setName(doSettings.getDropletNamePrefix() + "-" + UUID.randomUUID());
         droplet.setRegion(new Region(cloudImage.getImage().getRegions().iterator().next()));
@@ -45,7 +46,7 @@ public class DOUtils {
         }
     }
 
-    public static void checkAccount(DigitalOceanClient doClient) throws DOError {
+    public static void checkAccount(DigitalOcean doClient) throws DOError {
         try {
             doClient.getAccountInfo();
         } catch (DigitalOceanException e) {
@@ -55,7 +56,7 @@ public class DOUtils {
         }
     }
 
-    public static String waitForDropletInitialization(DigitalOceanClient doClient, Integer dropletId) throws DOError {
+    public static String waitForDropletInitialization(DigitalOcean doClient, Integer dropletId) throws DOError {
         try {
             while(true) {
                 Droplet droplet = doClient.getDropletInfo(dropletId);
@@ -93,7 +94,7 @@ public class DOUtils {
         return DropletStatus.ACTIVE.equals(droplet.getStatus());
     }
 
-    private static Date waitForActionResult(DigitalOceanClient doClient, Action actionInfo) throws DOError {
+    private static Date waitForActionResult(DigitalOcean doClient, Action actionInfo) throws DOError {
         Integer actionId = actionInfo.getId();
         try {
             while (ActionStatus.IN_PROGRESS.equals(actionInfo.getStatus())) {
@@ -114,7 +115,7 @@ public class DOUtils {
         }
     }
 
-    public static Boolean terminateInstance(DigitalOceanClient doClient, Integer instanceId) throws DOError {
+    public static Boolean terminateInstance(DigitalOcean doClient, Integer instanceId) throws DOError {
         try {
             Delete delete = doClient.deleteDroplet(instanceId);
             return delete.getIsRequestSuccess();
@@ -124,7 +125,7 @@ public class DOUtils {
         }
     }
 
-    public static Date restartInstance(DigitalOceanClient doClient, Integer instanceId) throws DOError {
+    public static Date restartInstance(DigitalOcean doClient, Integer instanceId) throws DOError {
         try {
             Action action = doClient.rebootDroplet(instanceId);
             Date completedAt = waitForActionResult(doClient, action);
@@ -135,7 +136,7 @@ public class DOUtils {
         }
     }
 
-    public static Optional<Image> findImageByName(DigitalOceanClient doClient, String imageName) throws DOError{
+    public static Optional<Image> findImageByName(DigitalOcean doClient, String imageName) throws DOError{
         int pageNumber = 0;
         while (true) {
             Images images = null;
@@ -162,7 +163,7 @@ public class DOUtils {
         return Optional.absent();
     }
 
-    public static Optional<Image> getImageById(DigitalOceanClient doClient, Integer imageId) throws DOError {
+    public static Optional<Image> getImageById(DigitalOcean doClient, Integer imageId) throws DOError {
         try {
             Image image = doClient.getImageInfo(imageId);
             if (image != null) {
@@ -176,7 +177,7 @@ public class DOUtils {
         }
     }
 
-    public static List<Image> getImages(DigitalOceanClient doClient) throws DOError {
+    public static List<Image> getImages(DigitalOcean doClient) throws DOError {
         List<Image> resultList = new LinkedList<Image>();
         int pageNumber = 0;
         try {
@@ -199,7 +200,7 @@ public class DOUtils {
         return resultList;
     }
 
-    public static List<Droplet> getDroplets(DigitalOceanClient doClient) throws DOError {
+    public static List<Droplet> getDroplets(DigitalOcean doClient) throws DOError {
         List<Droplet> resultList = new LinkedList<Droplet>();
         int pageNumber = 0;
         try {

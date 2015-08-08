@@ -9,7 +9,7 @@ import io.cyberstock.tcdop.server.integration.digitalocean.storage.CloudImageSto
 import io.cyberstock.tcdop.server.integration.digitalocean.DOAsyncClientServiceWrapper;
 import io.cyberstock.tcdop.server.integration.digitalocean.DOAsyncClientServiceFactory;
 import io.cyberstock.tcdop.server.integration.teamcity.web.ConfigurationValidator;
-import io.cyberstock.tcdop.server.integration.teamcity.web.SettingsUtils;
+import io.cyberstock.tcdop.server.integration.teamcity.web.DOSettingsUtils;
 import io.cyberstock.tcdop.server.integration.teamcity.web.TCDOPSettingsController;
 import jetbrains.buildServer.clouds.*;
 import jetbrains.buildServer.serverSide.AgentDescription;
@@ -19,7 +19,7 @@ import jetbrains.buildServer.web.openapi.PluginDescriptor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static io.cyberstock.tcdop.server.integration.teamcity.web.SettingsUtils.convertToDOSettings;
+import static io.cyberstock.tcdop.server.integration.teamcity.web.DOSettingsUtils.convertToDOSettings;
 
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -106,7 +106,7 @@ public class DOCloudClientFactory implements CloudClientFactory {
                 if (errors.size() > 0) {
                     return errors;
                 } else {
-                    DOSettings doSettings = SettingsUtils.convertToDOSettings(stringStringMap);
+                    DOSettings doSettings = DOSettingsUtils.convertToDOSettings(stringStringMap);
                     return configValidator.validateConfigurationValues(doSettings);
                 }
             }

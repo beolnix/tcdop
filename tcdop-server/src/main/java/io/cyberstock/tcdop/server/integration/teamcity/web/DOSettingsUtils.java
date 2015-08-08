@@ -8,9 +8,9 @@ import java.util.Map;
 /**
  * Created by beolnix on 18/06/15.
  */
-public class SettingsUtils {
+public class DOSettingsUtils {
 
-    private SettingsUtils() {}
+    private DOSettingsUtils() {}
 
     public static DOSettings convertToDOSettings(CloudClientParameters cloudClientParameters) {
         DOSettingsBuilder builder = new DOSettingsBuilder();

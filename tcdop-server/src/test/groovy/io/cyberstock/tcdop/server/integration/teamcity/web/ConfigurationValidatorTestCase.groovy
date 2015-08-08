@@ -2,7 +2,6 @@ package io.cyberstock.tcdop.server.integration.teamcity.web
 
 import com.myjeeva.digitalocean.pojo.Image
 import io.cyberstock.tcdop.model.DOConfigConstants
-import io.cyberstock.tcdop.model.DOSettings
 import io.cyberstock.tcdop.model.DropletSize
 import io.cyberstock.tcdop.model.WebConstants
 import io.cyberstock.tcdop.model.error.DOError
@@ -132,7 +131,7 @@ public class ConfigurationValidatorTestCase {
      */
     @Test
     def void testValidateConfigurationValues() {
-        def result = successValidator.validateConfigurationValues(SettingsUtils.convertToDOSettings(getParametersMap()))
+        def result = successValidator.validateConfigurationValues(DOSettingsUtils.convertToDOSettings(getParametersMap()))
         assert result.size() == 0
     }
 
@@ -142,7 +141,7 @@ public class ConfigurationValidatorTestCase {
      */
     @Test
     def void testValidateConfigurationValuesNegative() {
-        def result = failureValidator.validateConfigurationValues(SettingsUtils.convertToDOSettings(getEmptyParametersMap()))
+        def result = failureValidator.validateConfigurationValues(DOSettingsUtils.convertToDOSettings(getEmptyParametersMap()))
         assert result.size() == 1
         assert result.getAt(0).propertyName == WebConstants.TOKEN
     }
@@ -152,7 +151,7 @@ public class ConfigurationValidatorTestCase {
      */
     @Test
     def void testValidateConfigurationValuesNegative2() {
-        def result = successValidator.validateConfigurationValues(SettingsUtils.convertToDOSettings(getEmptyParametersMap()))
+        def result = successValidator.validateConfigurationValues(DOSettingsUtils.convertToDOSettings(getEmptyParametersMap()))
         assert result.size() == 1
         assert result.getAt(0).propertyName == WebConstants.DO_INTEGRATION_MODE
     }
