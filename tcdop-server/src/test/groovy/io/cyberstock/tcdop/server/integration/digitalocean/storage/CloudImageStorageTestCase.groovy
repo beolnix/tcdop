@@ -76,7 +76,7 @@ class CloudImageStorageTestCase {
             return new DOClientService() {
                 @Override
                 List<DOCloudImage> getImages() {
-                    def doImage = new Image(id: IMAGE_ID, name: "test")
+                    def doImage = new Image(id: CloudImageStorageTestCase.IMAGE_ID, name: "test")
                     def image = new DOCloudImage(doImage)
 
                     image.addInstance(new DOCloudInstance(image, "123", "test"))
