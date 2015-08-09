@@ -1,9 +1,11 @@
 package io.cyberstock.tcdop.server.integration.digitalocean
 
 import com.myjeeva.digitalocean.DigitalOcean
+import com.myjeeva.digitalocean.common.ActionStatus
 import com.myjeeva.digitalocean.common.DropletStatus
 import com.myjeeva.digitalocean.impl.DigitalOceanClient
 import com.myjeeva.digitalocean.pojo.Account
+import com.myjeeva.digitalocean.pojo.Action
 import com.myjeeva.digitalocean.pojo.Droplet
 import com.myjeeva.digitalocean.pojo.Image
 import com.myjeeva.digitalocean.pojo.Network
@@ -107,6 +109,19 @@ class DOUtilsTestCase {
         String ipv4 = DOUtils.waitForDropletInitialization(client, 123, -1L, 1)
 
         assertNotNull(ipv4)
+    }
+
+    @Test
+    public void waitForActionResultTestPositive() {
+        def client = [getActionInfo: { id ->
+            def action = new Action(id: id)
+            action.completedAt = new Date()
+            action.status = ActionStatus.COMPLETED
+            return action
+        }] as DigitalOcean
+
+        Date endDate = DOUtils.waitForActionResult(client, new Action(id: 1), 500L, 1)
+        assertNotNull(endDate)
     }
 
     def getParametersMap() {

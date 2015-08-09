@@ -66,9 +66,9 @@ public class DOUtils {
                                                       Long waitThreshold,
                                                       Integer checkInterval) throws DOError {
         long start = System.currentTimeMillis();
-        boolean thresholdReached = false;
+
         try {
-            while(!thresholdReached) {
+            while(true) {
                 Droplet droplet = doClient.getDropletInfo(dropletId);
                 String ipv4 = getIpv4(droplet);
                 if (isDropletActive(droplet) && StringUtils.isNotEmpty(ipv4)) {
@@ -77,17 +77,12 @@ public class DOUtils {
                     Thread.sleep(checkInterval);
                 }
 
-                long duration = System.currentTimeMillis() - start;
-                if (duration > waitThreshold) {
-                    thresholdReached = true;
-                }
+                checkDuration(start, waitThreshold);
             }
         } catch (Exception e) {
             LOG.error("Can't get dropletInfo of dropletId: " + dropletId , e);
             throw new DOError("Can't get dropletInfo of dropletId: " + dropletId , e);
         }
-
-        throw new DOError("Result wait threshold reached.");
     }
 
     private static String getIpv4(Droplet droplet) {
@@ -110,12 +105,31 @@ public class DOUtils {
         return DropletStatus.ACTIVE.equals(droplet.getStatus());
     }
 
-    private static Date waitForActionResult(DigitalOcean doClient, Action actionInfo) throws DOError {
+    private static Date waitForActionResult(DigitalOcean doClient,
+                                            Action actionInfo) throws DOError {
+        return waitForActionResult(doClient, actionInfo, ACTION_WAIT_THRESHOLD, ACTION_RESULT_CHECK_INTERVAL);
+
+    }
+
+    private static Date waitForActionResult(DigitalOcean doClient,
+                                            Action actionInfo,
+                                            Long waitThreshold,
+                                            Integer checkInterval) throws DOError {
+        long start = System.currentTimeMillis();
         Integer actionId = actionInfo.getId();
+
         try {
-            while (ActionStatus.IN_PROGRESS.equals(actionInfo.getStatus())) {
+            boolean completed = false;
+
+            while (!completed) {
                 actionInfo = doClient.getActionInfo(actionId);
-                Thread.sleep(ACTION_RESULT_CHECK_INTERVAL);
+                if (ActionStatus.IN_PROGRESS.equals(actionInfo.getStatus())) {
+                    Thread.sleep(checkInterval);
+                } else {
+                    completed = true;
+                }
+
+                checkDuration(start, waitThreshold);
             }
 
             if (ActionStatus.COMPLETED.equals(actionInfo.getStatus())) {
@@ -125,9 +139,22 @@ public class DOUtils {
                 throw new DOError("Action hasn't been completed successfully");
             }
 
-        } catch (Exception e) {
+        } catch (InterruptedException e) {
             LOG.error("Can't get actionInfo with id: " + actionId , e);
             throw new DOError("Can't get actionInfo with id: " + actionId , e);
+        } catch (DigitalOceanException e) {
+            LOG.error("Can't get actionInfo with id: " + actionId , e);
+            throw new DOError("Can't get actionInfo with id: " + actionId , e);
+        } catch (RequestUnsuccessfulException e) {
+            LOG.error("Can't get actionInfo with id: " + actionId , e);
+            throw new DOError("Can't get actionInfo with id: " + actionId , e);
+        }
+    }
+
+    private static void checkDuration(long start, long threshold) throws DOError {
+        long duration = System.currentTimeMillis() - start;
+        if (duration > threshold) {
+            throw new DOError("Result wait threshold reached.");
         }
     }
 
