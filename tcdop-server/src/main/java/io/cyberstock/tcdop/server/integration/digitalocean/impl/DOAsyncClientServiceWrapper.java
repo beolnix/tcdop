@@ -52,7 +52,4 @@ public class DOAsyncClientServiceWrapper implements DOAsyncClientService {
         });
     }
 
-    public DOClientService getClientService() {
-        return clientService;
-    }
 }

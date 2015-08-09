@@ -12,5 +12,4 @@ public interface DOAsyncClientService {
     void restartInstance(final DOCloudInstance cloudInstance);
     DOCloudInstance initializeInstance(DOCloudImage cloudImage, DOSettings doSettings) throws DOError;
     void terminateInstance(final DOCloudInstance cloudInstance);
-    DOClientService getClientService();
 }
