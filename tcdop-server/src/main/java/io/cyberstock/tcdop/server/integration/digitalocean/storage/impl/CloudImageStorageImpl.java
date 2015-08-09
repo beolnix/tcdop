@@ -36,7 +36,7 @@ public class CloudImageStorageImpl implements CloudImageStorage {
 
     private static final Logger LOG = Logger.getInstance(CloudImageStorageImpl.class.getName());
 
-    public CloudImageStorageImpl(DOClientService clientService,
+    CloudImageStorageImpl(DOClientService clientService,
                                  Executor executor,
                                  Long initThreashold) {
         this.clientService = clientService;

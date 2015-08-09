@@ -19,7 +19,7 @@ public class DOAsyncClientServiceWrapper implements DOAsyncClientService {
     private final ExecutorService executorService;
     private final DOClientService clientService;
 
-    public DOAsyncClientServiceWrapper(ExecutorService executorService,
+    DOAsyncClientServiceWrapper(ExecutorService executorService,
                                        DOClientService clientService) {
         this.executorService = executorService;
         this.clientService = clientService;
