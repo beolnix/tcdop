@@ -1,14 +1,18 @@
 package io.cyberstock.tcdop.server.integration.digitalocean
 
 import com.myjeeva.digitalocean.DigitalOcean
+import com.myjeeva.digitalocean.common.DropletStatus
 import com.myjeeva.digitalocean.impl.DigitalOceanClient
 import com.myjeeva.digitalocean.pojo.Account
 import com.myjeeva.digitalocean.pojo.Droplet
 import com.myjeeva.digitalocean.pojo.Image
+import com.myjeeva.digitalocean.pojo.Network
+import com.myjeeva.digitalocean.pojo.Networks
 import com.myjeeva.digitalocean.pojo.Region
 import io.cyberstock.tcdop.model.DOConfigConstants
 import io.cyberstock.tcdop.model.DOSettings
 import io.cyberstock.tcdop.model.WebConstants
+import io.cyberstock.tcdop.model.error.DOError
 import io.cyberstock.tcdop.server.integration.teamcity.DOCloudImage
 import io.cyberstock.tcdop.server.integration.teamcity.web.DOSettingsUtils
 import org.testng.annotations.Test
@@ -63,9 +67,46 @@ class DOUtilsTestCase {
             return new Account()
         }] as DigitalOcean
 
-        DOUtils.checkAccount(client)
+        Account account = DOUtils.checkAccount(client)
 
         assertTrue(getAccountInfoExecuted)
+        assertNotNull(account)
+    }
+
+    @Test
+    public void waitForDropletInitializationTestPositive() {
+        def client = [getDropletInfo: {
+            def droplet = new Droplet()
+            droplet.status = DropletStatus.ACTIVE
+
+            def networks = new Networks()
+            networks.version4Networks = [new Network(ipAddress: "127.0.0.1")]
+            droplet.networks = networks
+
+            return droplet
+        }] as DigitalOcean
+
+        String ipv4 = DOUtils.waitForDropletInitialization(client, 123)
+
+        assertNotNull(ipv4)
+    }
+
+    @Test(expectedExceptions = [DOError])
+    public void waitForDropletInitializationTestPositiveNegative1() {
+        def client = [getDropletInfo: {
+            def droplet = new Droplet()
+            droplet.status = DropletStatus.ARCHIVE
+
+            def networks = new Networks()
+            networks.version4Networks = [new Network(ipAddress: "127.0.0.1")]
+            droplet.networks = networks
+
+            return droplet
+        }] as DigitalOcean
+
+        String ipv4 = DOUtils.waitForDropletInitialization(client, 123, -1L, 1)
+
+        assertNotNull(ipv4)
     }
 
     def getParametersMap() {

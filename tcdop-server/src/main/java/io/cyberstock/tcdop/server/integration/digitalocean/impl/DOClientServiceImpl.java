@@ -5,6 +5,7 @@ import com.google.common.base.Optional;
 import com.intellij.openapi.diagnostic.Logger;
 import com.myjeeva.digitalocean.common.DropletStatus;
 import com.myjeeva.digitalocean.impl.DigitalOceanClient;
+import com.myjeeva.digitalocean.pojo.Account;
 import com.myjeeva.digitalocean.pojo.Droplet;
 import com.myjeeva.digitalocean.pojo.Image;
 import io.cyberstock.tcdop.model.DOSettings;
@@ -149,7 +150,10 @@ public class DOClientServiceImpl implements DOClientService {
     }
 
     public void accountCheck() throws DOError {
-        DOUtils.checkAccount(doClient);
+        Account account = DOUtils.checkAccount(doClient);
+        if (account == null) {
+            throw new DOError("Can't get account info from the server.");
+        }
     }
 
     public DOCloudImage findImageByName(String imageName) throws DOError {

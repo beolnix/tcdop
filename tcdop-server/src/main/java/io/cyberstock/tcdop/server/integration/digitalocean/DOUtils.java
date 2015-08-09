@@ -27,6 +27,7 @@ public class DOUtils {
     // constants
     private static final Logger LOG = Logger.getInstance(DOUtils.class.getName());
     private final static Integer ACTION_RESULT_CHECK_INTERVAL = 2 * 1000;
+    private final static Long ACTION_WAIT_THRESHOLD = 20 * 60 * 1000L;
 
     @NotNull
     public static Droplet createInstance(DigitalOcean doClient, DOSettings doSettings, DOCloudImage cloudImage) throws DOError {
@@ -46,9 +47,9 @@ public class DOUtils {
         }
     }
 
-    public static void checkAccount(DigitalOcean doClient) throws DOError {
+    public static Account checkAccount(DigitalOcean doClient) throws DOError {
         try {
-            doClient.getAccountInfo();
+            return doClient.getAccountInfo();
         } catch (DigitalOceanException e) {
             throw new DOError("Token isn't valid.", e);
         } catch (RequestUnsuccessfulException e) {
@@ -57,21 +58,36 @@ public class DOUtils {
     }
 
     public static String waitForDropletInitialization(DigitalOcean doClient, Integer dropletId) throws DOError {
+        return waitForDropletInitialization(doClient, dropletId, ACTION_WAIT_THRESHOLD, ACTION_RESULT_CHECK_INTERVAL);
+    }
+
+    private static String waitForDropletInitialization(DigitalOcean doClient,
+                                                      Integer dropletId,
+                                                      Long waitThreshold,
+                                                      Integer checkInterval) throws DOError {
+        long start = System.currentTimeMillis();
+        boolean thresholdReached = false;
         try {
-            while(true) {
+            while(!thresholdReached) {
                 Droplet droplet = doClient.getDropletInfo(dropletId);
                 String ipv4 = getIpv4(droplet);
                 if (isDropletActive(droplet) && StringUtils.isNotEmpty(ipv4)) {
                     return ipv4;
                 } else {
-                    Thread.sleep(ACTION_RESULT_CHECK_INTERVAL);
+                    Thread.sleep(checkInterval);
                 }
 
+                long duration = System.currentTimeMillis() - start;
+                if (duration > waitThreshold) {
+                    thresholdReached = true;
+                }
             }
         } catch (Exception e) {
             LOG.error("Can't get dropletInfo of dropletId: " + dropletId , e);
             throw new DOError("Can't get dropletInfo of dropletId: " + dropletId , e);
         }
+
+        throw new DOError("Result wait threshold reached.");
     }
 
     private static String getIpv4(Droplet droplet) {
