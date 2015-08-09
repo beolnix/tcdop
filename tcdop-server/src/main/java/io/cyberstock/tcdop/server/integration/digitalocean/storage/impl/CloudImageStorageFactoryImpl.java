@@ -1,10 +1,10 @@
 package io.cyberstock.tcdop.server.integration.digitalocean.storage.impl;
 
 import io.cyberstock.tcdop.server.integration.digitalocean.DOClientService;
+import io.cyberstock.tcdop.server.integration.digitalocean.DOClientServiceFactory;
 import io.cyberstock.tcdop.server.integration.digitalocean.storage.CloudImageStorage;
 import io.cyberstock.tcdop.server.integration.digitalocean.storage.CloudImageStorageFactory;
-import io.cyberstock.tcdop.server.integration.digitalocean.DOClientServiceFactory;
-import io.cyberstock.tcdop.server.integration.digitalocean.impl.DOClientServiceImpl;
+import io.cyberstock.tcdop.server.integration.digitalocean.DOAsyncClientServiceFactory;
 
 import java.util.concurrent.Executor;
 
@@ -13,20 +13,23 @@ import java.util.concurrent.Executor;
  */
 public class CloudImageStorageFactoryImpl implements CloudImageStorageFactory {
 
-    private final DOClientServiceFactory clientServiceFactory;
+    // dependencies
+    private final DOClientServiceFactory doClientServiceFactory;
+
+    // state
     private Long initThreashold = 90 * 1000L; // default init threashold
 
-    public CloudImageStorageFactoryImpl(DOClientServiceFactory clientServiceFactory) {
-        this.clientServiceFactory = clientServiceFactory;
+    public CloudImageStorageFactoryImpl(DOClientServiceFactory doClientServiceFactory) {
+        this.doClientServiceFactory = doClientServiceFactory;
     }
 
     public void setInitThreashold(Long initThreashold) {
         this.initThreashold = initThreashold;
     }
 
-    public CloudImageStorage getStorage(Executor executor, String token) {
-        DOClientService clientService = clientServiceFactory.createClient(token);
-        CloudImageStorageImpl cloudImageStorageImpl = new CloudImageStorageImpl(clientService, executor, initThreashold);
+    public CloudImageStorage createStorage(Executor executor, String token) {
+        DOClientService doClientService = doClientServiceFactory.createClient(token);
+        CloudImageStorageImpl cloudImageStorageImpl = new CloudImageStorageImpl(doClientService, executor, initThreashold);
         cloudImageStorageImpl.init();
         return cloudImageStorageImpl;
     }

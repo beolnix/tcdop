@@ -14,13 +14,13 @@
     </bean>
 
     <!-- core plugin services -->
+    <bean id="DOAsyncClientFactory" class="io.cyberstock.tcdop.server.integration.digitalocean.impl.DOAsyncClientServiceFactoryImpl">
+        <constructor-arg ref="DOClientFactory"/>
+    </bean>
+
     <bean id="DOClientFactory" class="io.cyberstock.tcdop.server.integration.digitalocean.impl.DOClientServiceFactoryImpl">
         <property name="actionResultCheckInterval" value="${tcdop.dititalocean.actionCheck.interval}"/>
         <property name="actionWaitThreshold" value="${tcdop.dititalocean.actionCheck.threshold}"/>
-    </bean>
-
-    <bean id="DOAsyncClientFactory" class="io.cyberstock.tcdop.server.integration.digitalocean.DOAsyncClientServiceFactory">
-        <constructor-arg ref="DOClientFactory"/>
     </bean>
 
     <bean id="cloudImageStorageFactory" class="io.cyberstock.tcdop.server.integration.digitalocean.storage.impl.CloudImageStorageFactoryImpl">

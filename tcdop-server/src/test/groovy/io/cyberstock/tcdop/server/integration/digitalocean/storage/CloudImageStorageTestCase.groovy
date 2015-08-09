@@ -1,9 +1,9 @@
 package io.cyberstock.tcdop.server.integration.digitalocean.storage
 
 import com.myjeeva.digitalocean.pojo.Image
-import io.cyberstock.tcdop.model.DOSettings
 import io.cyberstock.tcdop.model.error.DOError
 import io.cyberstock.tcdop.server.integration.digitalocean.DOClientService
+import io.cyberstock.tcdop.server.integration.digitalocean.DOAsyncClientServiceFactory
 import io.cyberstock.tcdop.server.integration.digitalocean.DOClientServiceFactory
 import io.cyberstock.tcdop.server.integration.digitalocean.storage.impl.CloudImageStorageFactoryImpl
 import io.cyberstock.tcdop.server.integration.digitalocean.storage.impl.CloudImageStorageImpl
@@ -51,7 +51,7 @@ class CloudImageStorageTestCase {
     public void testGetById() {
         def executorService = Executors.newFixedThreadPool(1)
         def factory = new CloudImageStorageFactoryImpl(new DOClientServiceFactoryTestImpl())
-        def storage = factory.getStorage(executorService, "test")
+        def storage = factory.createStorage(executorService, "test")
 
         storage.waitInitialization();
 
@@ -63,7 +63,7 @@ class CloudImageStorageTestCase {
     public void getImagesTest() {
         def executorService = Executors.newFixedThreadPool(1)
         def factory = new CloudImageStorageFactoryImpl(new DOClientServiceFactoryTestImpl())
-        def storage = factory.getStorage(executorService, "test")
+        def storage = factory.createStorage(executorService, "test")
 
         storage.waitInitialization();
 
@@ -77,7 +77,7 @@ class CloudImageStorageTestCase {
     public void instancesCountTest() {
         def executorService = Executors.newFixedThreadPool(1)
         def factory = new CloudImageStorageFactoryImpl(new DOClientServiceFactoryTestImpl())
-        def storage = factory.getStorage(executorService, "test")
+        def storage = factory.createStorage(executorService, "test")
 
         storage.waitInitialization();
 

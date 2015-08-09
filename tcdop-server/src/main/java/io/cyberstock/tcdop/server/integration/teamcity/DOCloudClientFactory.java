@@ -4,9 +4,9 @@ import com.intellij.openapi.diagnostic.Logger;
 import io.cyberstock.tcdop.model.DOConfigConstants;
 import io.cyberstock.tcdop.model.DOSettings;
 import io.cyberstock.tcdop.server.error.UnsupportedDOModeError;
+import io.cyberstock.tcdop.server.integration.digitalocean.DOAsyncClientService;
 import io.cyberstock.tcdop.server.integration.digitalocean.storage.CloudImageStorage;
 import io.cyberstock.tcdop.server.integration.digitalocean.storage.CloudImageStorageFactory;
-import io.cyberstock.tcdop.server.integration.digitalocean.DOAsyncClientServiceWrapper;
 import io.cyberstock.tcdop.server.integration.digitalocean.DOAsyncClientServiceFactory;
 import io.cyberstock.tcdop.server.integration.teamcity.web.ConfigurationValidator;
 import io.cyberstock.tcdop.server.integration.teamcity.web.DOSettingsUtils;
@@ -68,14 +68,10 @@ public class DOCloudClientFactory implements CloudClientFactory {
         }
 
         ExecutorService executor = Executors.newFixedThreadPool(backgroundThreadsLimit);
+        DOAsyncClientService asyncClient = asyncClientServiceFactory.createClient(executor, settings.getToken());
+        CloudImageStorage imageStorage = cloudImageStorageFactory.createStorage(executor, settings.getToken());
 
-        DOAsyncClientServiceWrapper client = asyncClientServiceFactory.createClient(executor, settings.getToken());
-        CloudImageStorage imageStorage = cloudImageStorageFactory.getStorage(executor, settings.getToken());
-
-        DOCloudClient cloudClient = new DOCloudClient(settings, client, imageStorage, executor);
-        cloudClient.setReadyFlag(true);
-
-        return cloudClient;
+        return new DOCloudClient(settings, asyncClient, imageStorage, executor);
     }
 
     @NotNull

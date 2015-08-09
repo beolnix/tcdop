@@ -5,20 +5,10 @@ import io.cyberstock.tcdop.server.integration.digitalocean.impl.DOClientServiceI
 import java.util.concurrent.ExecutorService;
 
 /**
- * Created by beolnix on 20/06/15.
+ * Created by beolnix on 01/08/15.
  */
-public class DOAsyncClientServiceFactory {
+public interface DOAsyncClientServiceFactory {
 
-    // dependencies
-    private final DOClientServiceFactory clientServiceFactory;
-
-    public DOAsyncClientServiceFactory(DOClientServiceFactory clientServiceFactory) {
-        this.clientServiceFactory = clientServiceFactory;
-    }
-
-    public DOAsyncClientServiceWrapper createClient(ExecutorService executor, String token) {
-        DOClientService clientService = clientServiceFactory.createClient(token);
-        return new DOAsyncClientServiceWrapper(executor, clientService);
-    }
+    DOAsyncClientService createClient(ExecutorService executorService, String token);
 
 }

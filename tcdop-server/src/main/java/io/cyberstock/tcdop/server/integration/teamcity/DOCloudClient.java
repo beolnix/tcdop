@@ -4,9 +4,9 @@ import com.intellij.openapi.diagnostic.Logger;
 import io.cyberstock.tcdop.model.DOIntegrationMode;
 import io.cyberstock.tcdop.model.DOSettings;
 import io.cyberstock.tcdop.model.error.DOError;
+import io.cyberstock.tcdop.server.integration.digitalocean.DOAsyncClientService;
 import io.cyberstock.tcdop.server.integration.digitalocean.storage.CloudImageStorage;
-import io.cyberstock.tcdop.server.integration.digitalocean.storage.impl.CloudImageStorageImpl;
-import io.cyberstock.tcdop.server.integration.digitalocean.DOAsyncClientServiceWrapper;
+import io.cyberstock.tcdop.server.integration.digitalocean.impl.DOAsyncClientServiceWrapper;
 import jetbrains.buildServer.clouds.*;
 import jetbrains.buildServer.serverSide.AgentDescription;
 import jetbrains.buildServer.serverSide.impl.auth.SecuredBuildAgent;
@@ -27,12 +27,11 @@ public class DOCloudClient implements CloudClientEx {
 
     // dependencies
     @NotNull private final DOSettings settings;
-    @NotNull private final DOAsyncClientServiceWrapper client;
+    @NotNull private final DOAsyncClientService client;
     @NotNull private final CloudImageStorage imageStorage;
     @NotNull private final ExecutorService executorService;
 
     // State
-    private Boolean readyFlag = true;
     private CloudErrorInfo cloudErrorInfo = null;
 
 
@@ -40,18 +39,13 @@ public class DOCloudClient implements CloudClientEx {
     private static final Logger LOG = Logger.getInstance(DOCloudClient.class.getName());
 
     DOCloudClient(@NotNull DOSettings settings,
-                  @NotNull DOAsyncClientServiceWrapper client,
+                  @NotNull DOAsyncClientService client,
                   @NotNull CloudImageStorage imageStorage,
                   @NotNull ExecutorService executorService) {
         this.settings = settings;
         this.client = client;
         this.imageStorage = imageStorage;
         this.executorService = executorService;
-    }
-
-    public void setReadyFlag(Boolean readyFlag) {
-        LOG.debug("Cloud client for DO ready flag updated: " + readyFlag);
-        this.readyFlag = readyFlag;
     }
 
     public void setCloudErrorInfo(CloudErrorInfo cloudErrorInfo) {
@@ -65,7 +59,7 @@ public class DOCloudClient implements CloudClientEx {
         DOCloudImage DOCloudImage = (DOCloudImage) cloudImage;
         try {
             DOCloudInstance instance = client.initializeInstance(DOCloudImage, settings);
-            imageStorage.waitInitialization();
+            imageStorage.countNewInstance();
             return instance;
         } catch (DOError e) {
             setCloudErrorInfo(new CloudErrorInfo("Can't create new instance", e.getMessage(), e));
@@ -89,7 +83,7 @@ public class DOCloudClient implements CloudClientEx {
     }
 
     public boolean isInitialized() {
-        return readyFlag;
+        return imageStorage.isInitialized();
     }
 
     @Nullable

@@ -21,4 +21,6 @@ public interface CloudImageStorage {
     DOCloudImage getImageById(String imageId);
 
     void shutdownStorage();
+
+    void countNewInstance();
 }

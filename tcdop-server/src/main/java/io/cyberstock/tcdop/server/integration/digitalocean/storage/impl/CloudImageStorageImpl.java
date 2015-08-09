@@ -2,12 +2,14 @@ package io.cyberstock.tcdop.server.integration.digitalocean.storage.impl;
 
 import com.intellij.openapi.diagnostic.Logger;
 import io.cyberstock.tcdop.model.error.DOError;
+import io.cyberstock.tcdop.model.error.DOFatalError;
 import io.cyberstock.tcdop.server.integration.digitalocean.DOClientService;
 import io.cyberstock.tcdop.server.integration.digitalocean.storage.CloudImageStorage;
 import io.cyberstock.tcdop.server.integration.teamcity.DOCloudImage;
 
 import java.util.*;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by beolnix on 27/06/15.
@@ -21,11 +23,12 @@ public class CloudImageStorageImpl implements CloudImageStorage {
 
     // state
     private volatile Map<String, DOCloudImage> imageMap = new HashMap<String, DOCloudImage>();
-    private volatile Integer instancesCount = 0;
     private volatile CloudImagesChecker checker = new CloudImagesChecker();
     private volatile Long lastUpdateTimestamp;
     private volatile boolean stop = false;
     private volatile boolean initialized = false;
+
+    private AtomicInteger instancesCount = new AtomicInteger(0);
 
     // constants
     private final static Integer UPDATE_INTERVAL = 30 * 1000;
@@ -74,6 +77,10 @@ public class CloudImageStorageImpl implements CloudImageStorage {
         return initialized;
     }
 
+    public void countNewInstance() {
+        instancesCount.incrementAndGet();
+    }
+
     public void waitInitialization() throws DOError {
         long initializationDelay = 0;
         while (!initialized) {
@@ -97,9 +104,10 @@ public class CloudImageStorageImpl implements CloudImageStorage {
         LOG.debug("updating images cache.");
 
         Map<String, DOCloudImage> newImageMap = getImagesMapFromServer();
+        int newInstancesCount = calculateInstances(newImageMap);
+        instancesCount.getAndSet(newInstancesCount);
 
-        instancesCount = calculateInstances(newImageMap);
-        LOG.debug(newImageMap.size() + " images contains: " + instancesCount);
+        LOG.debug(newImageMap.size() + " images contains: " + instancesCount.get() + " instances.");
 
         mergeOldImagesToNewImagesMap(newImageMap, imageMap);
 
@@ -152,7 +160,7 @@ public class CloudImageStorageImpl implements CloudImageStorage {
     }
 
     public Integer getInstancesCount() {
-        return instancesCount;
+        return instancesCount.get();
     }
 
     public DOCloudImage getImageById(String imageId) {

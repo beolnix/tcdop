@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import io.cyberstock.tcdop.model.*;
 import io.cyberstock.tcdop.model.error.DOError;
 import io.cyberstock.tcdop.server.integration.digitalocean.DOClientService;
+import io.cyberstock.tcdop.server.integration.digitalocean.DOAsyncClientServiceFactory;
 import io.cyberstock.tcdop.server.integration.digitalocean.DOClientServiceFactory;
 import io.cyberstock.tcdop.server.integration.teamcity.DOCloudImage;
 import jetbrains.buildServer.serverSide.InvalidProperty;
