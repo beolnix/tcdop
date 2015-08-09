@@ -1,4 +1,4 @@
-package io.cyberstock.tcdop.server.integration.digitalocean;
+package io.cyberstock.tcdop.server.integration.digitalocean.adapter.impl;
 
 import com.google.common.base.Optional;
 import com.intellij.openapi.diagnostic.Logger;
@@ -7,13 +7,13 @@ import com.myjeeva.digitalocean.common.ActionStatus;
 import com.myjeeva.digitalocean.common.DropletStatus;
 import com.myjeeva.digitalocean.exception.DigitalOceanException;
 import com.myjeeva.digitalocean.exception.RequestUnsuccessfulException;
-import com.myjeeva.digitalocean.impl.DigitalOceanClient;
 import com.myjeeva.digitalocean.pojo.*;
 import io.cyberstock.tcdop.model.DOSettings;
-import io.cyberstock.tcdop.model.WebConstants;
 import io.cyberstock.tcdop.model.error.DOError;
+import io.cyberstock.tcdop.server.integration.digitalocean.adapter.DOAdapter;
 import io.cyberstock.tcdop.server.integration.teamcity.DOCloudImage;
-import jetbrains.buildServer.serverSide.InvalidProperty;
+import io.cyberstock.tcdop.server.integration.teamcity.DOCloudInstance;
+import jetbrains.buildServer.clouds.InstanceStatus;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -22,15 +22,24 @@ import java.util.*;
 /**
  * Created by beolnix on 24/05/15.
  */
-public class DOUtils {
+public class DOAdapterImpl implements DOAdapter {
+
+    // dependencies
+    private DigitalOcean doClient;
+    private final Integer actionResultCheckInterval;
+    private final Long actionWaitThreshold;
 
     // constants
-    private static final Logger LOG = Logger.getInstance(DOUtils.class.getName());
-    private final static Integer ACTION_RESULT_CHECK_INTERVAL = 2 * 1000;
-    private final static Long ACTION_WAIT_THRESHOLD = 20 * 60 * 1000L;
+    private static final Logger LOG = Logger.getInstance(DOAdapterImpl.class.getName());
+
+    public DOAdapterImpl(DigitalOcean doClient, Integer actionResultCheckInterval, Long actionWaitThreshold) {
+        this.doClient = doClient;
+        this.actionResultCheckInterval = actionResultCheckInterval;
+        this.actionWaitThreshold = actionWaitThreshold;
+    }
 
     @NotNull
-    public static Droplet createInstance(DigitalOcean doClient, DOSettings doSettings, DOCloudImage cloudImage) throws DOError {
+    public Droplet createInstance(DOSettings doSettings, DOCloudImage cloudImage) throws DOError {
         Droplet droplet = new Droplet();
         droplet.setName(doSettings.getDropletNamePrefix() + "-" + UUID.randomUUID());
         droplet.setRegion(new Region(cloudImage.getImage().getRegions().iterator().next()));
@@ -47,7 +56,7 @@ public class DOUtils {
         }
     }
 
-    public static Account checkAccount(DigitalOcean doClient) throws DOError {
+    public Account checkAccount() throws DOError {
         try {
             return doClient.getAccountInfo();
         } catch (DigitalOceanException e) {
@@ -57,35 +66,28 @@ public class DOUtils {
         }
     }
 
-    public static String waitForDropletInitialization(DigitalOcean doClient, Integer dropletId) throws DOError {
-        return waitForDropletInitialization(doClient, dropletId, ACTION_WAIT_THRESHOLD, ACTION_RESULT_CHECK_INTERVAL);
-    }
-
-    private static String waitForDropletInitialization(DigitalOcean doClient,
-                                                      Integer dropletId,
-                                                      Long waitThreshold,
-                                                      Integer checkInterval) throws DOError {
+    public String waitForDropletInitialization(Integer dropletId) throws DOError {
         long start = System.currentTimeMillis();
 
         try {
-            while(true) {
+            while (true) {
                 Droplet droplet = doClient.getDropletInfo(dropletId);
                 String ipv4 = getIpv4(droplet);
                 if (isDropletActive(droplet) && StringUtils.isNotEmpty(ipv4)) {
                     return ipv4;
                 } else {
-                    Thread.sleep(checkInterval);
+                    Thread.sleep(actionResultCheckInterval);
                 }
 
-                checkDuration(start, waitThreshold);
+                checkDuration(start, actionWaitThreshold);
             }
         } catch (Exception e) {
-            LOG.error("Can't get dropletInfo of dropletId: " + dropletId , e);
-            throw new DOError("Can't get dropletInfo of dropletId: " + dropletId , e);
+            LOG.error("Can't get dropletInfo of dropletId: " + dropletId, e);
+            throw new DOError("Can't get dropletInfo of dropletId: " + dropletId, e);
         }
     }
 
-    private static String getIpv4(Droplet droplet) {
+    private String getIpv4(Droplet droplet) {
         if (droplet != null &&
                 droplet.getNetworks() != null &&
                 droplet.getNetworks().getVersion4Networks() != null &&
@@ -98,23 +100,14 @@ public class DOUtils {
         return null;
     }
 
-    private static boolean isDropletActive(Droplet droplet) {
+    private boolean isDropletActive(Droplet droplet) {
         if (droplet == null) {
             return false;
         }
         return DropletStatus.ACTIVE.equals(droplet.getStatus());
     }
 
-    private static Date waitForActionResult(DigitalOcean doClient,
-                                            Action actionInfo) throws DOError {
-        return waitForActionResult(doClient, actionInfo, ACTION_WAIT_THRESHOLD, ACTION_RESULT_CHECK_INTERVAL);
-
-    }
-
-    private static Date waitForActionResult(DigitalOcean doClient,
-                                            Action actionInfo,
-                                            Long waitThreshold,
-                                            Integer checkInterval) throws DOError {
+    private Date waitForActionResult(Action actionInfo) throws DOError {
         long start = System.currentTimeMillis();
         Integer actionId = actionInfo.getId();
 
@@ -124,12 +117,12 @@ public class DOUtils {
             while (!completed) {
                 actionInfo = doClient.getActionInfo(actionId);
                 if (ActionStatus.IN_PROGRESS.equals(actionInfo.getStatus())) {
-                    Thread.sleep(checkInterval);
+                    Thread.sleep(actionResultCheckInterval);
                 } else {
                     completed = true;
                 }
 
-                checkDuration(start, waitThreshold);
+                checkDuration(start, actionWaitThreshold);
             }
 
             if (ActionStatus.COMPLETED.equals(actionInfo.getStatus())) {
@@ -140,14 +133,14 @@ public class DOUtils {
             }
 
         } catch (InterruptedException e) {
-            LOG.error("Can't get actionInfo with id: " + actionId , e);
-            throw new DOError("Can't get actionInfo with id: " + actionId , e);
+            LOG.error("Can't get actionInfo with id: " + actionId, e);
+            throw new DOError("Can't get actionInfo with id: " + actionId, e);
         } catch (DigitalOceanException e) {
-            LOG.error("Can't get actionInfo with id: " + actionId , e);
-            throw new DOError("Can't get actionInfo with id: " + actionId , e);
+            LOG.error("Can't get actionInfo with id: " + actionId, e);
+            throw new DOError("Can't get actionInfo with id: " + actionId, e);
         } catch (RequestUnsuccessfulException e) {
-            LOG.error("Can't get actionInfo with id: " + actionId , e);
-            throw new DOError("Can't get actionInfo with id: " + actionId , e);
+            LOG.error("Can't get actionInfo with id: " + actionId, e);
+            throw new DOError("Can't get actionInfo with id: " + actionId, e);
         }
     }
 
@@ -158,28 +151,28 @@ public class DOUtils {
         }
     }
 
-    public static Boolean terminateInstance(DigitalOcean doClient, Integer instanceId) throws DOError {
+    public Boolean terminateInstance(Integer instanceId) throws DOError {
         try {
             Delete delete = doClient.deleteDroplet(instanceId);
             return delete.getIsRequestSuccess();
         } catch (Exception e) {
             LOG.error("Can't stop instance with id: " + instanceId + " because: " + e.getMessage(), e);
-            throw new DOError("Can't stop instance with id: " + instanceId , e);
+            throw new DOError("Can't stop instance with id: " + instanceId, e);
         }
     }
 
-    public static Date restartInstance(DigitalOcean doClient, Integer instanceId) throws DOError {
+    public Date restartInstance(Integer instanceId) throws DOError {
         try {
             Action action = doClient.rebootDroplet(instanceId);
-            Date completedAt = waitForActionResult(doClient, action);
+            Date completedAt = waitForActionResult(action);
             return completedAt;
         } catch (Exception e) {
-            LOG.error("Can't restart instance with id: " + instanceId , e);
-            throw new DOError("Can't restart instance with id: " + instanceId , e);
+            LOG.error("Can't restart instance with id: " + instanceId, e);
+            throw new DOError("Can't restart instance with id: " + instanceId, e);
         }
     }
 
-    public static Optional<Image> findImageByName(DigitalOcean doClient, String imageName) throws DOError{
+    public Optional<Image> findImageByName(String imageName) throws DOError {
         int pageNumber = 0;
         while (true) {
             Images images = null;
@@ -195,7 +188,7 @@ public class DOUtils {
             } else {
                 for (Image image : imageList) {
                     if (image.getName().equals(imageName)) {
-                        return getImageById(doClient, image.getId());
+                        return getImageById(image.getId());
                     }
                 }
             }
@@ -206,7 +199,7 @@ public class DOUtils {
         return Optional.absent();
     }
 
-    public static Optional<Image> getImageById(DigitalOcean doClient, Integer imageId) throws DOError {
+    public Optional<Image> getImageById(Integer imageId) throws DOError {
         try {
             Image image = doClient.getImageInfo(imageId);
             if (image != null) {
@@ -220,7 +213,44 @@ public class DOUtils {
         }
     }
 
-    public static List<Image> getImages(DigitalOcean doClient) throws DOError {
+    public List<DOCloudImage> getDOImages() throws DOError {
+        List<Image> images = getImages();
+        List<Droplet> droplets = getDroplets();
+        List<DOCloudImage> result = new ArrayList<DOCloudImage>(images.size());
+        for (Image image : images) {
+            DOCloudImage cloudImage = new DOCloudImage(image);
+
+            for (Droplet droplet : droplets) {
+                if (droplet.getImage() != null && droplet.getImage().getId().equals(image.getId())) {
+                    DOCloudInstance cloudInstance = new DOCloudInstance(cloudImage, droplet.getId().toString(), droplet.getName());
+                    cloudInstance.updateStatus(transformStatus(droplet.getStatus()));
+                    cloudInstance.updateNetworkIdentity(droplet.getNetworks().getVersion4Networks().get(0).getIpAddress());
+                    cloudImage.addInstance(cloudInstance);
+                }
+            }
+
+            result.add(cloudImage);
+
+        }
+        return result;
+    }
+
+    private InstanceStatus transformStatus(DropletStatus dropletStatus) {
+        switch (dropletStatus) {
+            case NEW:
+                return InstanceStatus.STARTING;
+            case ACTIVE:
+                return InstanceStatus.RUNNING;
+            case ARCHIVE:
+                return InstanceStatus.STOPPED;
+            case OFF:
+                return InstanceStatus.STOPPED;
+            default:
+                return InstanceStatus.UNKNOWN;
+        }
+    }
+
+    private List<Image> getImages() throws DOError {
         List<Image> resultList = new LinkedList<Image>();
         int pageNumber = 0;
         try {
@@ -243,7 +273,7 @@ public class DOUtils {
         return resultList;
     }
 
-    public static List<Droplet> getDroplets(DigitalOcean doClient) throws DOError {
+    private List<Droplet> getDroplets() throws DOError {
         List<Droplet> resultList = new LinkedList<Droplet>();
         int pageNumber = 0;
         try {

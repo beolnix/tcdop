@@ -3,31 +3,30 @@ package io.cyberstock.tcdop.server.integration.digitalocean
 import com.myjeeva.digitalocean.DigitalOcean
 import com.myjeeva.digitalocean.common.ActionStatus
 import com.myjeeva.digitalocean.common.DropletStatus
-import com.myjeeva.digitalocean.impl.DigitalOceanClient
 import com.myjeeva.digitalocean.pojo.Account
 import com.myjeeva.digitalocean.pojo.Action
 import com.myjeeva.digitalocean.pojo.Droplet
 import com.myjeeva.digitalocean.pojo.Image
 import com.myjeeva.digitalocean.pojo.Network
 import com.myjeeva.digitalocean.pojo.Networks
-import com.myjeeva.digitalocean.pojo.Region
 import io.cyberstock.tcdop.model.DOConfigConstants
 import io.cyberstock.tcdop.model.DOSettings
 import io.cyberstock.tcdop.model.WebConstants
 import io.cyberstock.tcdop.model.error.DOError
+import io.cyberstock.tcdop.server.integration.digitalocean.adapter.DOAdapter
+import io.cyberstock.tcdop.server.integration.digitalocean.adapter.impl.DOAdapterImpl
 import io.cyberstock.tcdop.server.integration.teamcity.DOCloudImage
 import io.cyberstock.tcdop.server.integration.teamcity.web.DOSettingsUtils
 import org.testng.annotations.Test
 
 import static org.testng.Assert.assertEquals
-import static org.testng.Assert.assertEqualsNoOrder
 import static org.testng.Assert.assertNotNull
 import static org.testng.Assert.assertTrue;
 
 /**
  * Created by beolnix on 08/08/15.
  */
-class DOUtilsTestCase {
+class DOAdapterImplTestCase {
 
     def client = [createDroplet: { droplet ->
         return droplet
@@ -51,8 +50,9 @@ class DOUtilsTestCase {
                         )
                 )
 
+        DOAdapter doAdapter = new DOAdapterImpl(client, -1, 1L)
 
-        Droplet droplet = DOUtils.createInstance(client, settings, cloudImage)
+        Droplet droplet = doAdapter.createInstance(settings, cloudImage)
 
         assertNotNull(droplet)
         assertTrue(droplet.name.startsWith(PREFIX))
@@ -69,7 +69,9 @@ class DOUtilsTestCase {
             return new Account()
         }] as DigitalOcean
 
-        Account account = DOUtils.checkAccount(client)
+        DOAdapter doAdapter = new DOAdapterImpl(client, -1, 1L)
+
+        Account account = doAdapter.checkAccount()
 
         assertTrue(getAccountInfoExecuted)
         assertNotNull(account)
@@ -88,7 +90,9 @@ class DOUtilsTestCase {
             return droplet
         }] as DigitalOcean
 
-        String ipv4 = DOUtils.waitForDropletInitialization(client, 123)
+        DOAdapter doAdapter = new DOAdapterImpl(client, -1, 1L)
+
+        String ipv4 = doAdapter.waitForDropletInitialization(123)
 
         assertNotNull(ipv4)
     }
@@ -106,7 +110,9 @@ class DOUtilsTestCase {
             return droplet
         }] as DigitalOcean
 
-        String ipv4 = DOUtils.waitForDropletInitialization(client, 123, -1L, 1)
+        DOAdapter doAdapter = new DOAdapterImpl(client, -1, 1L)
+
+        String ipv4 = doAdapter.waitForDropletInitialization(123)
 
         assertNotNull(ipv4)
     }
@@ -120,7 +126,9 @@ class DOUtilsTestCase {
             return action
         }] as DigitalOcean
 
-        Date endDate = DOUtils.waitForActionResult(client, new Action(id: 1), 500L, 1)
+        DOAdapter doAdapter = new DOAdapterImpl(client, 1, 500L)
+
+        Date endDate = doAdapter.waitForActionResult(new Action(id: 1))
         assertNotNull(endDate)
     }
 

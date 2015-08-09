@@ -1,24 +1,21 @@
 package io.cyberstock.tcdop.server.integration.digitalocean.impl;
 
-import com.google.common.base.*;
 import com.google.common.base.Optional;
 import com.intellij.openapi.diagnostic.Logger;
+import com.myjeeva.digitalocean.DigitalOcean;
 import com.myjeeva.digitalocean.common.DropletStatus;
-import com.myjeeva.digitalocean.impl.DigitalOceanClient;
 import com.myjeeva.digitalocean.pojo.Account;
 import com.myjeeva.digitalocean.pojo.Droplet;
 import com.myjeeva.digitalocean.pojo.Image;
 import io.cyberstock.tcdop.model.DOSettings;
-import io.cyberstock.tcdop.model.DropletSize;
-import io.cyberstock.tcdop.model.WebConstants;
 import io.cyberstock.tcdop.model.error.DOError;
 import io.cyberstock.tcdop.server.integration.digitalocean.DOClientService;
-import io.cyberstock.tcdop.server.integration.digitalocean.DOUtils;
+import io.cyberstock.tcdop.server.integration.digitalocean.adapter.DOAdapter;
+import io.cyberstock.tcdop.server.integration.digitalocean.adapter.impl.DOAdapterImpl;
 import io.cyberstock.tcdop.server.integration.teamcity.DOCloudImage;
 import io.cyberstock.tcdop.server.integration.teamcity.DOCloudInstance;
 import jetbrains.buildServer.clouds.CloudErrorInfo;
 import jetbrains.buildServer.clouds.InstanceStatus;
-import jetbrains.buildServer.serverSide.InvalidProperty;
 
 import java.util.*;
 
@@ -28,57 +25,25 @@ import java.util.*;
  */
 public class DOClientServiceImpl implements DOClientService {
 
-    //  dependencies
-    private final DigitalOceanClient doClient;
+    // dependencies
+    private final DOAdapter doAdapter;
 
     // constants
     private static final Logger LOG = Logger.getInstance(DOClientServiceImpl.class.getName());
 
+    // state
     private volatile Boolean denyNewInstancesCreation = false;
 
-    public DOClientServiceImpl(DigitalOceanClient doClient) {
-        this.doClient = doClient;
+    DOClientServiceImpl(DOAdapter doAdapter) {
+        this.doAdapter = doAdapter;
     }
 
     public List<DOCloudImage> getImages() {
         try {
-            List<Image> images = DOUtils.getImages(doClient);
-            List<Droplet> droplets = DOUtils.getDroplets(doClient);
-            List<DOCloudImage> result = new ArrayList<DOCloudImage>(images.size());
-            for (Image image : images) {
-                DOCloudImage cloudImage = new DOCloudImage(image);
-
-                for (Droplet droplet : droplets) {
-                    if (droplet.getImage() != null && droplet.getImage().getId().equals(image.getId())) {
-                        DOCloudInstance cloudInstance = new DOCloudInstance(cloudImage, droplet.getId().toString(), droplet.getName());
-                        cloudInstance.updateStatus(transformStatus(droplet.getStatus()));
-                        cloudInstance.updateNetworkIdentity(droplet.getNetworks().getVersion4Networks().get(0).getIpAddress());
-                        cloudImage.addInstance(cloudInstance);
-                    }
-                }
-
-                result.add(cloudImage);
-
-            }
-            return result;
+            return doAdapter.getDOImages();
         } catch (DOError e) {
             LOG.error("Can't download DO images: " + e.getMessage(), e);
-            return Collections.EMPTY_LIST;
-        }
-    }
-
-    private InstanceStatus transformStatus(DropletStatus dropletStatus) {
-        switch (dropletStatus) {
-            case NEW:
-                return InstanceStatus.STARTING;
-            case ACTIVE:
-                return InstanceStatus.RUNNING;
-            case ARCHIVE:
-                return InstanceStatus.STOPPED;
-            case OFF:
-                return InstanceStatus.STOPPED;
-            default:
-                return InstanceStatus.UNKNOWN;
+            return Collections.emptyList();
         }
     }
 
@@ -87,7 +52,7 @@ public class DOClientServiceImpl implements DOClientService {
         cloudInstance.updateStatus(InstanceStatus.STARTING);
         LOG.debug("Starting instance: " + dropletId);
         try {
-            String ipv4 = DOUtils.waitForDropletInitialization(doClient, dropletId);
+            String ipv4 = doAdapter.waitForDropletInitialization(dropletId);
             cloudInstance.updateNetworkIdentity(ipv4);
             cloudInstance.updateStatus(InstanceStatus.RUNNING);
             cloudInstance.setStartTime(new Date());
@@ -105,7 +70,7 @@ public class DOClientServiceImpl implements DOClientService {
         cloudInstance.updateStatus(InstanceStatus.RESTARTING);
         LOG.debug("Restarting instance " + instanceId);
         try {
-            Date restartTime = DOUtils.restartInstance(doClient, instanceId);
+            Date restartTime = doAdapter.restartInstance(instanceId);
             cloudInstance.setStartTime(restartTime);
             cloudInstance.updateStatus(InstanceStatus.RUNNING);
             LOG.info("Instance " + instanceId + " has been restarted successfully");
@@ -120,7 +85,7 @@ public class DOClientServiceImpl implements DOClientService {
         Integer instanceId = Integer.parseInt(cloudInstance.getInstanceId());
         cloudInstance.updateStatus(InstanceStatus.SCHEDULED_TO_STOP);
         try {
-            boolean successFlag = DOUtils.terminateInstance(doClient, instanceId);
+            boolean successFlag = doAdapter.terminateInstance(instanceId);
             if (successFlag) {
                 ((DOCloudImage)cloudInstance.getImage()).removeInstance(cloudInstance);
                 cloudInstance.updateStatus(InstanceStatus.STOPPED);
@@ -143,21 +108,21 @@ public class DOClientServiceImpl implements DOClientService {
             throw new DOError("New Instances creation is denied because of previous errors.");
         }
 
-        Droplet droplet = DOUtils.createInstance(doClient, doSettings, cloudImage);
+        Droplet droplet = doAdapter.createInstance(doSettings, cloudImage);
         DOCloudInstance cloudInstance = new DOCloudInstance(cloudImage, droplet.getId().toString(), droplet.getName());
         cloudImage.addInstance(cloudInstance);
         return cloudInstance;
     }
 
     public void accountCheck() throws DOError {
-        Account account = DOUtils.checkAccount(doClient);
+        Account account = doAdapter.checkAccount();
         if (account == null) {
             throw new DOError("Can't get account info from the server.");
         }
     }
 
     public DOCloudImage findImageByName(String imageName) throws DOError {
-        Optional<Image> imageOpt = DOUtils.findImageByName(doClient, imageName);
+        Optional<Image> imageOpt = doAdapter.findImageByName(imageName);
         if (!imageOpt.isPresent()) {
             throw new DOError("Image with name \"" + imageName + "\" not found in user images.");
         }
