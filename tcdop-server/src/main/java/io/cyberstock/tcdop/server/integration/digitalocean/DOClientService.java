@@ -12,7 +12,7 @@ import java.util.List;
  */
 public interface DOClientService {
 
-    List<DOCloudImage> getImages();
+    List<DOCloudImage> getImages() throws DOError;
 
     void waitInstanceInitialization(DOCloudInstance cloudInstance);
 

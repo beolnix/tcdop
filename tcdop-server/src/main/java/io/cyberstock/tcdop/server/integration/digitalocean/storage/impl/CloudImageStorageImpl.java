@@ -127,13 +127,17 @@ public class CloudImageStorageImpl implements CloudImageStorage {
     }
 
     private Map<String, DOCloudImage> getImagesMapFromServer() {
-        List<DOCloudImage> images = clientService.getImages();
-        LOG.debug(images.size() + " images got.");
-
         Map<String, DOCloudImage> newImageMap = new HashMap<String, DOCloudImage>();
+        try {
+            List<DOCloudImage> images = clientService.getImages();
+            LOG.debug(images.size() + " images got.");
 
-        for (DOCloudImage image : images) {
-            newImageMap.put(image.getId(), image);
+            for (DOCloudImage image : images) {
+                newImageMap.put(image.getId(), image);
+            }
+
+        } catch (DOError e) {
+            LOG.error("Can't update images list from server.", e);
         }
 
         return newImageMap;

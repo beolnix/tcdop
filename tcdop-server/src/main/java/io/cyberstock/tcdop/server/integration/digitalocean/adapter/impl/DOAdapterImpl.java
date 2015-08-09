@@ -112,7 +112,7 @@ public class DOAdapterImpl implements DOAdapter {
         return null;
     }
 
-    private boolean isDropletActive(Droplet droplet) {
+    private static boolean isDropletActive(Droplet droplet) {
         if (droplet == null) {
             return false;
         }
@@ -185,26 +185,13 @@ public class DOAdapterImpl implements DOAdapter {
     }
 
     public Optional<Image> findImageByName(String imageName) throws DOError {
-        int pageNumber = 0;
-        while (true) {
-            Images images = null;
-            try {
-                images = doClient.getUserImages(pageNumber);
-            } catch (Exception e) {
-                throw new DOError("Can't find image by name \"" + imageName + "\".", e);
-            }
-            List<Image> imageList = images.getImages();
-            if (imageList.isEmpty()) {
-                break;
-            } else {
-                for (Image image : imageList) {
-                    if (image.getName().equals(imageName)) {
-                        return getImageById(image.getId());
-                    }
+        List<Image> imageList = getImages();
+        if (!imageList.isEmpty()) {
+            for (Image image : imageList) {
+                if (image.getName().equals(imageName)) {
+                    return getImageById(image.getId());
                 }
             }
-
-            ++pageNumber;
         }
 
         return Optional.absent();
@@ -223,29 +210,7 @@ public class DOAdapterImpl implements DOAdapter {
         }
     }
 
-    public List<DOCloudImage> getDOImages() throws DOError {
-        List<Image> images = getImages();
-        List<Droplet> droplets = getDroplets();
-        List<DOCloudImage> result = new ArrayList<DOCloudImage>(images.size());
-        for (Image image : images) {
-            DOCloudImage cloudImage = new DOCloudImage(image);
-
-            for (Droplet droplet : droplets) {
-                if (droplet.getImage() != null && droplet.getImage().getId().equals(image.getId())) {
-                    DOCloudInstance cloudInstance = new DOCloudInstance(cloudImage, droplet.getId().toString(), droplet.getName());
-                    cloudInstance.updateStatus(transformStatus(droplet.getStatus()));
-                    cloudInstance.updateNetworkIdentity(droplet.getNetworks().getVersion4Networks().get(0).getIpAddress());
-                    cloudImage.addInstance(cloudInstance);
-                }
-            }
-
-            result.add(cloudImage);
-
-        }
-        return result;
-    }
-
-    private InstanceStatus transformStatus(DropletStatus dropletStatus) {
+    public InstanceStatus transformStatus(DropletStatus dropletStatus) {
         switch (dropletStatus) {
             case NEW:
                 return InstanceStatus.STARTING;
@@ -260,7 +225,7 @@ public class DOAdapterImpl implements DOAdapter {
         }
     }
 
-    private List<Image> getImages() throws DOError {
+    public List<Image> getImages() throws DOError {
         List<Image> resultList = new LinkedList<Image>();
         int pageNumber = 0;
         try {
@@ -282,17 +247,17 @@ public class DOAdapterImpl implements DOAdapter {
         return resultList;
     }
 
-    private List<Droplet> getDroplets() throws DOError {
+    public List<Droplet> getDroplets() throws DOError {
         List<Droplet> resultList = new LinkedList<Droplet>();
         int pageNumber = 0;
         try {
             while (true) {
                 Droplets droplets = doClient.getAvailableDroplets(pageNumber);
-                List<Droplet> imageList = droplets.getDroplets();
-                if (imageList.isEmpty()) {
+                List<Droplet> dropletsList = droplets.getDroplets();
+                if (dropletsList.isEmpty()) {
                     break;
                 } else {
-                    resultList.addAll(imageList);
+                    resultList.addAll(dropletsList);
                 }
 
                 ++pageNumber;

@@ -38,15 +38,6 @@ public class DOClientServiceImpl implements DOClientService {
         this.doAdapter = doAdapter;
     }
 
-    public List<DOCloudImage> getImages() {
-        try {
-            return doAdapter.getDOImages();
-        } catch (DOError e) {
-            LOG.error("Can't download DO images: " + e.getMessage(), e);
-            return Collections.emptyList();
-        }
-    }
-
     public void waitInstanceInitialization(DOCloudInstance cloudInstance) {
         Integer dropletId = Integer.parseInt(cloudInstance.getInstanceId());
         cloudInstance.updateStatus(InstanceStatus.STARTING);
@@ -128,6 +119,28 @@ public class DOClientServiceImpl implements DOClientService {
         }
 
         return new DOCloudImage(imageOpt.get());
+    }
+
+    public List<DOCloudImage> getImages() throws DOError {
+        List<Image> images = doAdapter.getImages();
+        List<Droplet> droplets = doAdapter.getDroplets();
+        List<DOCloudImage> result = new ArrayList<DOCloudImage>(images.size());
+        for (Image image : images) {
+            DOCloudImage cloudImage = new DOCloudImage(image);
+
+            for (Droplet droplet : droplets) {
+                if (droplet.getImage() != null && droplet.getImage().getId().equals(image.getId())) {
+                    DOCloudInstance cloudInstance = new DOCloudInstance(cloudImage, droplet.getId().toString(), droplet.getName());
+                    cloudInstance.updateStatus(doAdapter.transformStatus(droplet.getStatus()));
+                    cloudInstance.updateNetworkIdentity(droplet.getNetworks().getVersion4Networks().get(0).getIpAddress());
+                    cloudImage.addInstance(cloudInstance);
+                }
+            }
+
+            result.add(cloudImage);
+
+        }
+        return result;
     }
 
 }

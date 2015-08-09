@@ -2,12 +2,14 @@ package io.cyberstock.tcdop.server.integration.digitalocean.adapter;
 
 import com.google.common.base.Optional;
 import com.myjeeva.digitalocean.DigitalOcean;
+import com.myjeeva.digitalocean.common.DropletStatus;
 import com.myjeeva.digitalocean.pojo.Account;
 import com.myjeeva.digitalocean.pojo.Droplet;
 import com.myjeeva.digitalocean.pojo.Image;
 import io.cyberstock.tcdop.model.DOSettings;
 import io.cyberstock.tcdop.model.error.DOError;
 import io.cyberstock.tcdop.server.integration.teamcity.DOCloudImage;
+import jetbrains.buildServer.clouds.InstanceStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
@@ -26,6 +28,9 @@ public interface DOAdapter {
     Date restartInstance(Integer instanceId) throws DOError;
     Optional<Image> findImageByName(String imageName) throws DOError;
     Optional<Image> getImageById(Integer imageId) throws DOError;
-    List<DOCloudImage> getDOImages() throws DOError;
+
+    InstanceStatus transformStatus(DropletStatus dropletStatus);
+    List<Image> getImages() throws DOError;
+    List<Droplet> getDroplets() throws DOError;
 
 }
