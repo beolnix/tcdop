@@ -48,12 +48,18 @@ public class DOAdapterImpl implements DOAdapter {
 
         try {
             Droplet createdDroplet = doClient.createDroplet(droplet);
-            LOG.info("Droplet created successfully: " + droplet.getId());
+            LOG.info("Droplet creation request sent successfully: " + droplet.getId());
             return createdDroplet;
-        } catch (Exception e) {
-            LOG.error("Can't create droplet:" + e.getMessage(), e);
-            throw new DOError("Can't create droplet:" + e.getMessage(), e);
+        } catch (DigitalOceanException e) {
+            throw dropletCreationRequestError(e);
+        } catch (RequestUnsuccessfulException e) {
+            throw dropletCreationRequestError(e);
         }
+    }
+
+    private static DOError dropletCreationRequestError(Exception e) {
+        String errMsg = "Can't create droplet: " + e.getMessage();
+        return new DOError(errMsg, e);
     }
 
     public Account checkAccount() throws DOError {
@@ -70,7 +76,7 @@ public class DOAdapterImpl implements DOAdapter {
         long start = System.currentTimeMillis();
 
         try {
-            while (true) {
+            while (!isThresholdReached(start)) {
                 Droplet droplet = doClient.getDropletInfo(dropletId);
                 String ipv4 = getIpv4(droplet);
                 if (isDropletActive(droplet) && StringUtils.isNotEmpty(ipv4)) {
@@ -78,13 +84,19 @@ public class DOAdapterImpl implements DOAdapter {
                 } else {
                     Thread.sleep(actionResultCheckInterval);
                 }
-
-                checkDuration(start, actionWaitThreshold);
             }
+
+            throw waitThresholdReached("createDroplet");
+
         } catch (Exception e) {
-            LOG.error("Can't get dropletInfo of dropletId: " + dropletId, e);
             throw new DOError("Can't get dropletInfo of dropletId: " + dropletId, e);
         }
+    }
+
+    private boolean isThresholdReached(long start) {
+        long current = System.currentTimeMillis();
+        long duration = current - start;
+        return duration > actionWaitThreshold;
     }
 
     private String getIpv4(Droplet droplet) {
@@ -114,41 +126,43 @@ public class DOAdapterImpl implements DOAdapter {
         try {
             boolean completed = false;
 
-            while (!completed) {
+            while (!isThresholdReached(start) && !completed) {
                 actionInfo = doClient.getActionInfo(actionId);
                 if (ActionStatus.IN_PROGRESS.equals(actionInfo.getStatus())) {
                     Thread.sleep(actionResultCheckInterval);
                 } else {
                     completed = true;
                 }
+            }
 
-                checkDuration(start, actionWaitThreshold);
+            if (!completed) {
+                throw waitThresholdReached("waitForActionResult");
             }
 
             if (ActionStatus.COMPLETED.equals(actionInfo.getStatus())) {
                 return actionInfo.getCompletedAt();
             } else {
-                LOG.error("Action hasn't been completed successfully");
-                throw new DOError("Action hasn't been completed successfully");
+                String errMsg = "Action hasn't been completed successfully. Action id: " + actionId;
+                throw new DOError(errMsg);
             }
 
         } catch (InterruptedException e) {
-            LOG.error("Can't get actionInfo with id: " + actionId, e);
-            throw new DOError("Can't get actionInfo with id: " + actionId, e);
+            throw createActionError(actionId, e);
         } catch (DigitalOceanException e) {
-            LOG.error("Can't get actionInfo with id: " + actionId, e);
-            throw new DOError("Can't get actionInfo with id: " + actionId, e);
+            throw createActionError(actionId, e);
         } catch (RequestUnsuccessfulException e) {
-            LOG.error("Can't get actionInfo with id: " + actionId, e);
-            throw new DOError("Can't get actionInfo with id: " + actionId, e);
+            throw createActionError(actionId, e);
         }
     }
 
-    private static void checkDuration(long start, long threshold) throws DOError {
-        long duration = System.currentTimeMillis() - start;
-        if (duration > threshold) {
-            throw new DOError("Result wait threshold reached.");
-        }
+    private static DOError createActionError(Integer actionId, Exception e) {
+        String errMsg = "Can't get actionInfo with id: " + actionId;
+        return new DOError(errMsg, e);
+    }
+
+    private static DOError waitThresholdReached(String operationName) {
+        String errMsg = operationName + ": result wait threshold reached.";
+        return new DOError(errMsg);
     }
 
     public Boolean terminateInstance(Integer instanceId) throws DOError {
@@ -156,7 +170,6 @@ public class DOAdapterImpl implements DOAdapter {
             Delete delete = doClient.deleteDroplet(instanceId);
             return delete.getIsRequestSuccess();
         } catch (Exception e) {
-            LOG.error("Can't stop instance with id: " + instanceId + " because: " + e.getMessage(), e);
             throw new DOError("Can't stop instance with id: " + instanceId, e);
         }
     }
@@ -167,7 +180,6 @@ public class DOAdapterImpl implements DOAdapter {
             Date completedAt = waitForActionResult(action);
             return completedAt;
         } catch (Exception e) {
-            LOG.error("Can't restart instance with id: " + instanceId, e);
             throw new DOError("Can't restart instance with id: " + instanceId, e);
         }
     }
@@ -179,7 +191,6 @@ public class DOAdapterImpl implements DOAdapter {
             try {
                 images = doClient.getUserImages(pageNumber);
             } catch (Exception e) {
-                LOG.error("Can't find image by name \"" + imageName + "\".", e);
                 throw new DOError("Can't find image by name \"" + imageName + "\".", e);
             }
             List<Image> imageList = images.getImages();
@@ -208,7 +219,6 @@ public class DOAdapterImpl implements DOAdapter {
                 return Optional.absent();
             }
         } catch (Exception e) {
-            LOG.error("Can't get image info by id: " + imageId, e);
             throw new DOError("Can't get image info by id: " + imageId, e);
         }
     }
@@ -266,7 +276,6 @@ public class DOAdapterImpl implements DOAdapter {
                 ++pageNumber;
             }
         } catch (Exception e) {
-            LOG.error("Can't get user images:" + e.getMessage(), e);
             throw new DOError("Can't get user images:" + e.getMessage(), e);
         }
 
@@ -289,7 +298,6 @@ public class DOAdapterImpl implements DOAdapter {
                 ++pageNumber;
             }
         } catch (Exception e) {
-            LOG.error("Can't get available droplets:" + e.getMessage(), e);
             throw new DOError("Can't get available droplets:" + e.getMessage(), e);
         }
 
