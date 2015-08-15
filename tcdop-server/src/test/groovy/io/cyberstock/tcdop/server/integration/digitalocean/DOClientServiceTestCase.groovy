@@ -61,4 +61,29 @@ class DOClientServiceTestCase {
         assertEquals(instance.getNetworkIdentity(), ipv4)
     }
 
+    @Test
+    public void terminateInstanceTest() {
+        def instance = new DOCloudInstance(new DOCloudImage(new Image(id: 123)), "123", "test")
+        instance.image.instancesMap.put("123", instance)
+        def match = false
+
+        def adapter = [
+                terminateInstance: { instanceId ->
+                    if (instanceId == Integer.parseInt(instance.getInstanceId())){
+                        match = true
+                    }
+                    return true
+                }] as DOAdapter
+
+
+        DOClientServiceImpl service = new DOClientServiceImpl(adapter);
+
+        assertTrue(instance.image.instances.size() == 1)
+        service.terminateInstance(instance)
+
+        assertTrue(match)
+        assertTrue(instance.image.instances.size() == 0)
+
+    }
+
 }

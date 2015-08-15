@@ -19,7 +19,7 @@ public class DOCloudImage implements CloudImage {
     private final Image image;
     private final String id;
     private final String name;
-    private final Map<String, DOCloudInstance> instances = new HashMap<String, DOCloudInstance>();
+    private final Map<String, DOCloudInstance> instancesMap = new HashMap<String, DOCloudInstance>();
 
     // State
     private CloudErrorInfo cloudErrorInfo;
@@ -49,22 +49,22 @@ public class DOCloudImage implements CloudImage {
 
     @NotNull
     public Collection<? extends CloudInstance> getInstances() {
-        return instances.values();
+        return instancesMap.values();
     }
 
     public void addInstance(DOCloudInstance cloudInstance) {
-        instances.put(cloudInstance.getInstanceId(), cloudInstance);
+        instancesMap.put(cloudInstance.getInstanceId(), cloudInstance);
         LOG.debug("New instance " + cloudInstance.getInstanceId() + " has been added to the image: " + this.getId());
     }
 
     public void removeInstance(DOCloudInstance cloudInstance) {
-        instances.remove(cloudInstance.getInstanceId());
+        instancesMap.remove(cloudInstance.getInstanceId());
         LOG.info("Instance " + cloudInstance.getInstanceId() + " has been removed from the image: " + this.getId());
     }
 
     @Nullable
     public CloudInstance findInstanceById(String s) {
-        return instances.get(s);
+        return instancesMap.get(s);
     }
 
     @Nullable
