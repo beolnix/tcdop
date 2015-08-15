@@ -2,8 +2,6 @@ package io.cyberstock.tcdop.server.integration.digitalocean.impl;
 
 import com.google.common.base.Optional;
 import com.intellij.openapi.diagnostic.Logger;
-import com.myjeeva.digitalocean.DigitalOcean;
-import com.myjeeva.digitalocean.common.DropletStatus;
 import com.myjeeva.digitalocean.pojo.Account;
 import com.myjeeva.digitalocean.pojo.Droplet;
 import com.myjeeva.digitalocean.pojo.Image;
@@ -11,7 +9,6 @@ import io.cyberstock.tcdop.model.DOSettings;
 import io.cyberstock.tcdop.model.error.DOError;
 import io.cyberstock.tcdop.server.integration.digitalocean.DOClientService;
 import io.cyberstock.tcdop.server.integration.digitalocean.adapter.DOAdapter;
-import io.cyberstock.tcdop.server.integration.digitalocean.adapter.impl.DOAdapterImpl;
 import io.cyberstock.tcdop.server.integration.teamcity.DOCloudImage;
 import io.cyberstock.tcdop.server.integration.teamcity.DOCloudInstance;
 import jetbrains.buildServer.clouds.CloudErrorInfo;

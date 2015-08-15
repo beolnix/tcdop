@@ -1,5 +1,6 @@
 package io.cyberstock.tcdop.server.integration.digitalocean
 
+import com.google.common.base.Optional
 import com.myjeeva.digitalocean.pojo.Account
 import com.myjeeva.digitalocean.pojo.Droplet
 import com.myjeeva.digitalocean.pojo.Image
@@ -7,7 +8,6 @@ import io.cyberstock.tcdop.model.DOConfigConstants
 import io.cyberstock.tcdop.model.WebConstants
 import io.cyberstock.tcdop.model.error.DOError
 import io.cyberstock.tcdop.server.integration.digitalocean.adapter.DOAdapter
-import io.cyberstock.tcdop.server.integration.digitalocean.adapter.impl.DOAdapterImpl
 import io.cyberstock.tcdop.server.integration.digitalocean.impl.DOClientServiceImpl
 import io.cyberstock.tcdop.server.integration.teamcity.DOCloudImage
 import io.cyberstock.tcdop.server.integration.teamcity.DOCloudInstance
@@ -134,6 +134,40 @@ class DOClientServiceTestCase {
 
         DOClientServiceImpl service = new DOClientServiceImpl(adapter);
         service.accountCheck()
+    }
+
+    @Test
+    public void findImageByNameTestPositive() {
+        def originalName = "test"
+        def image = new Image(id: 123)
+        def match = false
+
+        def adapter = [
+                findImageByName: { name ->
+                    if (name == originalName) {
+                        match = true
+                    }
+
+                    return Optional.of(image)
+                }] as DOAdapter
+
+        DOClientServiceImpl service = new DOClientServiceImpl(adapter);
+        DOCloudImage cloudImage = service.findImageByName(originalName)
+
+        assertTrue(match)
+        assertNotNull(cloudImage)
+    }
+
+    @Test(expectedExceptions = [DOError.class])
+    public void findImageByNameTestNegative() {
+
+        def adapter = [
+                findImageByName: { name ->
+                    return Optional.absent()
+                }] as DOAdapter
+
+        DOClientServiceImpl service = new DOClientServiceImpl(adapter);
+        service.findImageByName("test")
     }
 
     def getParametersMap() {
