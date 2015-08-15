@@ -1,8 +1,5 @@
 package io.cyberstock.tcdop.server.integration.digitalocean
 
-import com.myjeeva.digitalocean.DigitalOcean
-import com.myjeeva.digitalocean.common.ActionStatus
-import com.myjeeva.digitalocean.pojo.Action
 import com.myjeeva.digitalocean.pojo.Image
 import io.cyberstock.tcdop.server.integration.digitalocean.adapter.DOAdapter
 import io.cyberstock.tcdop.server.integration.digitalocean.adapter.impl.DOAdapterImpl
@@ -12,6 +9,8 @@ import io.cyberstock.tcdop.server.integration.teamcity.DOCloudInstance
 import org.testng.annotations.Test
 
 import static org.testng.Assert.assertTrue
+import static org.testng.Assert.assertEquals
+import static org.testng.Assert.assertNotNull
 
 /**
  * Created by beolnix on 15/08/15.
@@ -23,25 +22,43 @@ class DOClientServiceTestCase {
         def instance = new DOCloudInstance(new DOCloudImage(new Image(id: 123)), "123", "test")
         def match = false
 
-        def client = [
-                rebootDroplet: { dropletId ->
-                    if (dropletId == Integer.parseInt(instance.getInstanceId())){
+        def adapter = [
+                restartInstance: { instanceId ->
+                    if (instanceId == Integer.parseInt(instance.getInstanceId())){
                         match = true
                     }
-                    return new Action(id: 1, status: ActionStatus.IN_PROGRESS, completedAt: new Date())
-                },
-                getActionInfo: { actionId ->
-                    return new Action(status: ActionStatus.COMPLETED, completedAt: new Date())
-                }
-        ] as DigitalOcean
+                    return new Date()
+                }] as DOAdapter
 
-        DOAdapter adapter = new DOAdapterImpl(client, 1, 500L)
         DOClientServiceImpl service = new DOClientServiceImpl(adapter);
         service.restartInstance(instance)
 
         assertTrue(match)
+        assertNotNull(instance.getStartedTime())
     }
 
+    @Test
+    public void waitForInitializationTest() {
+        def instance = new DOCloudInstance(new DOCloudImage(new Image(id: 123)), "123", "test")
+        def match = false
+        def ipv4 = "127.0.0.1"
 
+        def adapter = [
+                waitForDropletInitialization: { instanceId ->
+
+                    if (instanceId == Integer.parseInt(instance.getInstanceId())){
+                        match = true
+                    }
+
+                    return "127.0.0.1"
+                }] as DOAdapter
+
+
+        DOClientServiceImpl service = new DOClientServiceImpl(adapter);
+        service.waitInstanceInitialization(instance)
+
+        assertTrue(match)
+        assertEquals(instance.getNetworkIdentity(), ipv4)
+    }
 
 }
