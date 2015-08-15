@@ -1,9 +1,11 @@
 package io.cyberstock.tcdop.server.integration.digitalocean
 
+import com.myjeeva.digitalocean.pojo.Account
 import com.myjeeva.digitalocean.pojo.Droplet
 import com.myjeeva.digitalocean.pojo.Image
 import io.cyberstock.tcdop.model.DOConfigConstants
 import io.cyberstock.tcdop.model.WebConstants
+import io.cyberstock.tcdop.model.error.DOError
 import io.cyberstock.tcdop.server.integration.digitalocean.adapter.DOAdapter
 import io.cyberstock.tcdop.server.integration.digitalocean.adapter.impl.DOAdapterImpl
 import io.cyberstock.tcdop.server.integration.digitalocean.impl.DOClientServiceImpl
@@ -106,6 +108,32 @@ class DOClientServiceTestCase {
 
         assertEquals(instance.name, droplet.name)
         assertTrue(instance.image.instances.size() == 1)
+    }
+
+    @Test
+    public void accountCheckTestPositive() {
+        def match = false
+
+        def adapter = [
+                checkAccount: {
+                    match = true
+                    return new Account()
+                }] as DOAdapter
+
+        DOClientServiceImpl service = new DOClientServiceImpl(adapter);
+        service.accountCheck()
+        assertTrue(match)
+    }
+
+    @Test(expectedExceptions = [DOError.class])
+    public void accountCheckTestNegative() {
+        def adapter = [
+                checkAccount: {
+                    return null
+                }] as DOAdapter
+
+        DOClientServiceImpl service = new DOClientServiceImpl(adapter);
+        service.accountCheck()
     }
 
     def getParametersMap() {
