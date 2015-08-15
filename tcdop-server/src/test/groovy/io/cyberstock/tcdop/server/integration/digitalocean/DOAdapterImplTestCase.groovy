@@ -237,7 +237,7 @@ class DOAdapterImplTestCase {
     public void getDropletsTest() {
         def client = [
                 getAvailableDroplets: { pageNumber ->
-                    if (pageNumber <= 1) {
+                    if (pageNumber < 2) {
                         return new Droplets(droplets: [new Droplet()])
                     } else {
                         return new Droplets(droplets: [])
@@ -245,7 +245,7 @@ class DOAdapterImplTestCase {
                 }] as DigitalOcean
 
         DOAdapter doAdapter = new DOAdapterImpl(client, 1, 500L)
-        assertTrue(doAdapter.getDroplets().size() > 0)
+        assertEquals(doAdapter.getDroplets().size(), 2)
     }
 
 

@@ -4,6 +4,8 @@ import com.google.common.base.Optional
 import com.myjeeva.digitalocean.pojo.Account
 import com.myjeeva.digitalocean.pojo.Droplet
 import com.myjeeva.digitalocean.pojo.Image
+import com.myjeeva.digitalocean.pojo.Network
+import com.myjeeva.digitalocean.pojo.Networks
 import io.cyberstock.tcdop.model.DOConfigConstants
 import io.cyberstock.tcdop.model.WebConstants
 import io.cyberstock.tcdop.model.error.DOError
@@ -12,8 +14,10 @@ import io.cyberstock.tcdop.server.integration.digitalocean.impl.DOClientServiceI
 import io.cyberstock.tcdop.server.integration.teamcity.DOCloudImage
 import io.cyberstock.tcdop.server.integration.teamcity.DOCloudInstance
 import io.cyberstock.tcdop.server.integration.teamcity.web.DOSettingsUtils
+import jetbrains.buildServer.clouds.InstanceStatus
 import org.testng.annotations.Test
 
+import static org.testng.Assert.assertEqualsNoOrder
 import static org.testng.Assert.assertTrue
 import static org.testng.Assert.assertEquals
 import static org.testng.Assert.assertNotNull
@@ -88,7 +92,7 @@ class DOClientServiceTestCase {
         service.terminateInstance(instance)
 
         assertTrue(match)
-        assertTrue(instance.image.instances.size() == 0)
+        assertEquals(instance.image.instances.size(), 0)
     }
 
     @Test
@@ -107,7 +111,7 @@ class DOClientServiceTestCase {
         DOCloudInstance instance = service.createInstance(originalImage, settings)
 
         assertEquals(instance.name, droplet.name)
-        assertTrue(instance.image.instances.size() == 1)
+        assertEquals(instance.image.instances.size(), 1)
     }
 
     @Test
@@ -168,6 +172,37 @@ class DOClientServiceTestCase {
 
         DOClientServiceImpl service = new DOClientServiceImpl(adapter);
         service.findImageByName("test")
+    }
+
+    @Test
+    public void getImagesTest() {
+        def image = new Image(id: 123, name: "test")
+        def ipv4 = "127.0.0.1"
+
+        def droplet = new Droplet(id: 123, name: "test", image: image)
+        def networks = new Networks()
+        networks.version4Networks = [new Network(ipAddress: ipv4)]
+        droplet.networks = networks
+
+        def adapter = [
+                getImages: {
+                    return [image]
+                },
+                getDroplets: {
+                    return [droplet]
+                },
+                transformStatus: {
+                    return InstanceStatus.RUNNING
+                }] as DOAdapter
+
+        DOClientServiceImpl service = new DOClientServiceImpl(adapter);
+        def images = service.getImages()
+
+        assertNotNull(images)
+        assertEquals(images.size(), 1)
+        assertEquals(images[0].instances.size(), 1)
+
+        assertEquals(images[0].instances[0].networkIdentity, ipv4)
     }
 
     def getParametersMap() {
