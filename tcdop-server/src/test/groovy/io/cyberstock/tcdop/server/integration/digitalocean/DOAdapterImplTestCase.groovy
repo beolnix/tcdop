@@ -7,6 +7,7 @@ import com.myjeeva.digitalocean.pojo.Account
 import com.myjeeva.digitalocean.pojo.Action
 import com.myjeeva.digitalocean.pojo.Delete
 import com.myjeeva.digitalocean.pojo.Droplet
+import com.myjeeva.digitalocean.pojo.Droplets
 import com.myjeeva.digitalocean.pojo.Image
 import com.myjeeva.digitalocean.pojo.Images
 import com.myjeeva.digitalocean.pojo.Network
@@ -230,6 +231,21 @@ class DOAdapterImplTestCase {
         DOAdapter doAdapter = new DOAdapterImpl(client, 1, 500L)
 
         assertFalse(doAdapter.findImageByName("test").isPresent())
+    }
+
+    @Test
+    public void getDropletsTest() {
+        def client = [
+                getAvailableDroplets: { pageNumber ->
+                    if (pageNumber <= 1) {
+                        return new Droplets(droplets: [new Droplet()])
+                    } else {
+                        return new Droplets(droplets: [])
+                    }
+                }] as DigitalOcean
+
+        DOAdapter doAdapter = new DOAdapterImpl(client, 1, 500L)
+        assertTrue(doAdapter.getDroplets().size() > 0)
     }
 
 
