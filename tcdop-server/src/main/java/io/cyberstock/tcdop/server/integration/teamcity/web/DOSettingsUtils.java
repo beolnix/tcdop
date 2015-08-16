@@ -39,6 +39,21 @@ public class DOSettingsUtils {
             builder.withInstancesLimit(Integer.parseInt(instancesNumberLimit));
         }
 
+        String region = cloudClientParameters.getParameter(WebConstants.REGION);
+        builder.withRegion(region);
+
+        String rsaPublicKey = cloudClientParameters.getParameter(WebConstants.RSA_PUBLIC_KEY);
+        builder.withPublicRsaKeyPart(rsaPublicKey);
+
+        String rsaPrivateKey = cloudClientParameters.getParameter(WebConstants.RSA_PRIVATE_KEY);
+        builder.withPrivateRsaKeyPart(rsaPrivateKey);
+
+        String osImageName = cloudClientParameters.getParameter(WebConstants.OS_IMAGE_NAME);
+        builder.withOsImageName(osImageName);
+
+        String rsaKeyName = cloudClientParameters.getParameter(WebConstants.RSA_KEY_NAME);
+        builder.withRsaKeyName(rsaKeyName);
+
         return builder.build();
     }
 
@@ -64,6 +79,11 @@ public class DOSettingsUtils {
         }
 
         builder.withDropletNamePrefix(stringStringMap.get(WebConstants.DROPLET_NAME_PREFIX));
+        builder.withRegion(stringStringMap.get(WebConstants.REGION));
+        builder.withPublicRsaKeyPart(stringStringMap.get(WebConstants.RSA_PUBLIC_KEY));
+        builder.withPrivateRsaKeyPart(stringStringMap.get(WebConstants.RSA_PRIVATE_KEY));
+        builder.withOsImageName(stringStringMap.get(WebConstants.OS_IMAGE_NAME));
+        builder.withRsaKeyName(stringStringMap.get(WebConstants.RSA_KEY_NAME));
 
         return builder.build();
     }

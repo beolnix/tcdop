@@ -6,6 +6,7 @@ import com.myjeeva.digitalocean.common.DropletStatus;
 import com.myjeeva.digitalocean.pojo.Account;
 import com.myjeeva.digitalocean.pojo.Droplet;
 import com.myjeeva.digitalocean.pojo.Image;
+import com.myjeeva.digitalocean.pojo.Key;
 import io.cyberstock.tcdop.model.DOSettings;
 import io.cyberstock.tcdop.model.error.DOError;
 import io.cyberstock.tcdop.server.integration.teamcity.DOCloudImage;
@@ -22,6 +23,7 @@ public interface DOAdapter {
 
     @NotNull
     Droplet createInstance(DOSettings doSettings, DOCloudImage cloudImage) throws DOError;
+    Droplet createInstance(DOSettings doSettings) throws DOError;
     Account checkAccount() throws DOError;
     String waitForDropletInitialization(Integer dropletId) throws DOError;
     Boolean terminateInstance(Integer instanceId) throws DOError;
@@ -32,5 +34,6 @@ public interface DOAdapter {
     InstanceStatus transformStatus(DropletStatus dropletStatus);
     List<Image> getImages() throws DOError;
     List<Droplet> getDroplets() throws DOError;
+    Key createSSHKey(String name, String publicKey) throws DOError;
 
 }

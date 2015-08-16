@@ -11,6 +11,11 @@ public class DOSettingsBuilder {
     private Integer instancesLimit;
     private DropletSize size;
     private String dropletNamePrefix;
+    private String region;
+    private String publicRsaKeyPart;
+    private String privateRsaKeyPart;
+    private String osImageName;
+    private String rsaKeyName;
 
     public DOSettingsBuilder() {}
 
@@ -44,7 +49,42 @@ public class DOSettingsBuilder {
         return this;
     }
 
+    public DOSettingsBuilder withRegion(String region) {
+        this.region = region;
+        return this;
+    }
+
+    public DOSettingsBuilder withPublicRsaKeyPart(String publicRsaKeyPart) {
+        this.publicRsaKeyPart = publicRsaKeyPart;
+        return this;
+    }
+
+    public DOSettingsBuilder withPrivateRsaKeyPart(String privateRsaKeyPart) {
+        this.privateRsaKeyPart = privateRsaKeyPart;
+        return this;
+    }
+
+    public DOSettingsBuilder withOsImageName(String osImageName) {
+        this.osImageName = osImageName;
+        return this;
+    }
+
+    public DOSettingsBuilder withRsaKeyName(String rsaKeyName) {
+        this.rsaKeyName = rsaKeyName;
+        return this;
+    }
+
     public DOSettings build() {
-        return new DOSettings(mode, token, imageName, instancesLimit, size, dropletNamePrefix);
+        return new DOSettings(mode,
+                token,
+                imageName,
+                instancesLimit,
+                size,
+                dropletNamePrefix,
+                region,
+                rsaKeyName,
+                publicRsaKeyPart,
+                privateRsaKeyPart,
+                osImageName);
     }
 }

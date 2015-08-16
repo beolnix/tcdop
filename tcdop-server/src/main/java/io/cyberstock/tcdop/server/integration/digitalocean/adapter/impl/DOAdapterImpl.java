@@ -12,11 +12,13 @@ import io.cyberstock.tcdop.model.DOSettings;
 import io.cyberstock.tcdop.model.error.DOError;
 import io.cyberstock.tcdop.server.integration.digitalocean.adapter.DOAdapter;
 import io.cyberstock.tcdop.server.integration.teamcity.DOCloudImage;
-import io.cyberstock.tcdop.server.integration.teamcity.DOCloudInstance;
 import jetbrains.buildServer.clouds.InstanceStatus;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
+import static io.cyberstock.tcdop.server.integration.digitalocean.adapter.impl.DOAdapterUtils.*;
+
+import javax.annotation.Nullable;
 import java.util.*;
 
 /**
@@ -39,12 +41,13 @@ public class DOAdapterImpl implements DOAdapter {
     }
 
     @NotNull
-    public Droplet createInstance(DOSettings doSettings, DOCloudImage cloudImage) throws DOError {
+    public Droplet createInstance(@NotNull DOSettings doSettings,
+                                  @Nullable DOCloudImage cloudImage) throws DOError {
         Droplet droplet = new Droplet();
-        droplet.setName(doSettings.getDropletNamePrefix() + "-" + UUID.randomUUID());
-        droplet.setRegion(new Region(cloudImage.getImage().getRegions().iterator().next()));
-        droplet.setSize(doSettings.getSize().getSlug());
-        droplet.setImage(cloudImage.getImage());
+
+        configureDropletCommon(droplet, doSettings);
+        configureDropletImage(droplet, cloudImage);
+        configureRsaKey(droplet, doSettings);
 
         try {
             Droplet createdDroplet = doClient.createDroplet(droplet);
@@ -57,10 +60,50 @@ public class DOAdapterImpl implements DOAdapter {
         }
     }
 
-    private static DOError dropletCreationRequestError(Exception e) {
-        String errMsg = "Can't create droplet: " + e.getMessage();
-        return new DOError(errMsg, e);
+    private void configureRsaKey(Droplet droplet, DOSettings doSettings) throws DOError {
+        Key key = createSSHKeyOrGet(doSettings.getRsaKeyName(), doSettings.getPublicRsaKey());
+        droplet.setKeys(Collections.singletonList(key));
     }
+
+    private void configureDropletImage(Droplet droplet, DOCloudImage cloudImage) {
+        if (cloudImage != null) {
+            droplet.setRegion(new Region(cloudImage.getImage().getRegions().iterator().next()));
+            droplet.setImage(cloudImage.getImage());
+        }
+    }
+
+    private void configureDropletCommon(Droplet droplet, DOSettings doSettings) {
+        droplet.setName(doSettings.getDropletNamePrefix() + "-" + UUID.randomUUID());
+        droplet.setSize(doSettings.getSize().getSlug());
+
+        if (StringUtils.isNotBlank(doSettings.getOsImageName())) {
+            droplet.setImage(new Image(doSettings.getOsImageName()));
+        }
+
+        if (StringUtils.isNotBlank(doSettings.getRegion())) {
+            droplet.setRegion(new Region(doSettings.getRegion()));
+        }
+    }
+
+    public Droplet createInstance(DOSettings doSettings) throws DOError {
+        return createInstance(doSettings, null);
+    }
+
+    public Key createSSHKeyOrGet(String name, String pubKey) throws DOError {
+        Optional<Key> keyOpt = getSSHKeyByName(name);
+        if (keyOpt.isPresent() &&
+                keyOpt.get().getPublicKey().equals(pubKey)) {
+            return keyOpt.get();
+        }
+
+        if (keyOpt.isPresent()) {
+            name = modifySSHKeyName(name);
+        }
+
+        Key key = createSSHKey(name, pubKey);
+        return key;
+    }
+
 
     public Account checkAccount() throws DOError {
         try {
@@ -76,7 +119,7 @@ public class DOAdapterImpl implements DOAdapter {
         long start = System.currentTimeMillis();
 
         try {
-            while (!isThresholdReached(start)) {
+            while (!isThresholdReached(start, actionWaitThreshold)) {
                 Droplet droplet = doClient.getDropletInfo(dropletId);
                 String ipv4 = getIpv4(droplet);
                 if (isDropletActive(droplet) && StringUtils.isNotEmpty(ipv4)) {
@@ -93,11 +136,7 @@ public class DOAdapterImpl implements DOAdapter {
         }
     }
 
-    private boolean isThresholdReached(long start) {
-        long current = System.currentTimeMillis();
-        long duration = current - start;
-        return duration > actionWaitThreshold;
-    }
+
 
     private String getIpv4(Droplet droplet) {
         if (droplet != null &&
@@ -112,13 +151,6 @@ public class DOAdapterImpl implements DOAdapter {
         return null;
     }
 
-    private static boolean isDropletActive(Droplet droplet) {
-        if (droplet == null) {
-            return false;
-        }
-        return DropletStatus.ACTIVE.equals(droplet.getStatus());
-    }
-
     private Date waitForActionResult(Action actionInfo) throws DOError {
         long start = System.currentTimeMillis();
         Integer actionId = actionInfo.getId();
@@ -126,7 +158,7 @@ public class DOAdapterImpl implements DOAdapter {
         try {
             boolean completed = false;
 
-            while (!isThresholdReached(start) && !completed) {
+            while (!isThresholdReached(start, actionWaitThreshold) && !completed) {
                 actionInfo = doClient.getActionInfo(actionId);
                 if (ActionStatus.IN_PROGRESS.equals(actionInfo.getStatus())) {
                     Thread.sleep(actionResultCheckInterval);
@@ -155,15 +187,7 @@ public class DOAdapterImpl implements DOAdapter {
         }
     }
 
-    private static DOError createActionError(Integer actionId, Exception e) {
-        String errMsg = "Can't get actionInfo with id: " + actionId;
-        return new DOError(errMsg, e);
-    }
 
-    private static DOError waitThresholdReached(String operationName) {
-        String errMsg = operationName + ": result wait threshold reached.";
-        return new DOError(errMsg);
-    }
 
     public Boolean terminateInstance(Integer instanceId) throws DOError {
         try {
@@ -210,21 +234,6 @@ public class DOAdapterImpl implements DOAdapter {
         }
     }
 
-    public InstanceStatus transformStatus(DropletStatus dropletStatus) {
-        switch (dropletStatus) {
-            case NEW:
-                return InstanceStatus.STARTING;
-            case ACTIVE:
-                return InstanceStatus.RUNNING;
-            case ARCHIVE:
-                return InstanceStatus.STOPPED;
-            case OFF:
-                return InstanceStatus.STOPPED;
-            default:
-                return InstanceStatus.UNKNOWN;
-        }
-    }
-
     public List<Image> getImages() throws DOError {
         List<Image> resultList = new LinkedList<Image>();
         int pageNumber = 0;
@@ -267,5 +276,52 @@ public class DOAdapterImpl implements DOAdapter {
         }
 
         return resultList;
+    }
+
+    public Key createSSHKey(String name, String publicKey) throws DOError {
+        Key key = new Key(name, publicKey);
+        try {
+            Key createdKey = doClient.createKey(key);
+            return createdKey;
+        } catch (Exception e) {
+            throw new DOError("Can't create key: " + key.toString(), e);
+        }
+    }
+
+    public Optional<Key> getSSHKeyByName(String name) throws DOError {
+        List<Key> keys = getKeys();
+        for (Key key : keys) {
+            if (name.equals(key.getName())) {
+                return Optional.of(key);
+            }
+        }
+
+        return Optional.absent();
+    }
+
+    public List<Key> getKeys() throws DOError {
+        List<Key> resultList = new LinkedList<Key>();
+        int pageNumber = 0;
+        try {
+            while (true) {
+                Keys keys = doClient.getAvailableKeys(pageNumber);
+                List<Key> keyList = keys.getKeys();
+                if (keyList.isEmpty()) {
+                    break;
+                } else {
+                    resultList.addAll(keyList);
+                }
+
+                ++pageNumber;
+            }
+        } catch (Exception e) {
+            throw new DOError("Can't get available keys:" + e.getMessage(), e);
+        }
+
+        return resultList;
+    }
+
+    public InstanceStatus transformStatus(DropletStatus dropletStatus) {
+        return transformStatusOfDroplet(dropletStatus);
     }
 }

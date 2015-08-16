@@ -12,4 +12,9 @@ public class WebConstants {
     public static final String INSTANCES_COUNT_LIMIT = "instances_count_limit";
     public static final String STYLES_PATH = "stylesPath";
     public static final String REFRESHABLE_PATH = "refreshablePath";
+    public static final String REGION = "region";
+    public static final String RSA_PUBLIC_KEY = "rsaPubKey";
+    public static final String RSA_PRIVATE_KEY = "rsaPrivateKey";
+    public static final String OS_IMAGE_NAME = "osImageName";
+    public static final String RSA_KEY_NAME = "rsaKeyName";
 }

@@ -95,7 +95,8 @@ public class CloudImageStorageImpl implements CloudImageStorage {
                 initializationDelay += INITIALIZATION_CHECK_INTERVAL;
                 Thread.sleep(INITIALIZATION_CHECK_INTERVAL);
             } catch (InterruptedException e) {
-                return;
+                String msg = "interrupted exception during initialization.";
+                throw new DOError(msg);
             }
         }
     }

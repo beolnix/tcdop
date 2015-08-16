@@ -12,6 +12,7 @@
         <module>tcdop-server</module>
         <module>tc-digitalocean-plugin</module>
         <module>tcdop-agent</module>
+        <module>int-tests</module>
     </modules>
 
     <name>tc-digitalocean-plugin</name>
