@@ -60,6 +60,7 @@ class SSHConnectionTestCase {
         println "ipv4: " + ipv4
 
         try {
+            Thread.sleep(10 * 1000) // wait system initialization
             def result = executeRemote(ipv4, "uname -a")
 
             assertNotNull(result)
