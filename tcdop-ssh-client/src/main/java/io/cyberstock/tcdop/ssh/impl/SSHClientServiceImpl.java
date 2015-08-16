@@ -21,7 +21,7 @@ public class SSHClientServiceImpl implements SSHClientService {
     // state
     private Session session;
 
-    public SSHClientServiceImpl(JSch jsch, Long connectionThreshold, Long attemptDelay, String ipv4, String user) {
+    SSHClientServiceImpl(JSch jsch, Long connectionThreshold, Long attemptDelay, String ipv4, String user) {
         this.jsch = jsch;
         this.connectionThreshold = connectionThreshold;
         this.attemptDelay = attemptDelay;
