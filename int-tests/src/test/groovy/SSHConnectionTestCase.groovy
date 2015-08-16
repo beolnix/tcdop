@@ -8,6 +8,11 @@ import io.cyberstock.tcdop.model.WebConstants
 import io.cyberstock.tcdop.server.integration.digitalocean.adapter.DOAdapter
 import io.cyberstock.tcdop.server.integration.digitalocean.adapter.impl.DOAdapterImpl
 import io.cyberstock.tcdop.server.integration.teamcity.web.DOSettingsUtils
+import io.cyberstock.tcdop.ssh.SSHClientFactory
+import io.cyberstock.tcdop.ssh.SSHClientService
+import io.cyberstock.tcdop.ssh.SSHClientServiceFactory
+import io.cyberstock.tcdop.ssh.impl.SSHClientFactoryImpl
+import io.cyberstock.tcdop.ssh.impl.SSHClientServiceFactoryImpl
 import org.testng.annotations.BeforeSuite
 import org.testng.annotations.Test
 
@@ -60,11 +65,9 @@ class SSHConnectionTestCase {
         println "ipv4: " + ipv4
 
         try {
-            Thread.sleep(10 * 1000) // wait system initialization
             def result = executeRemote(ipv4, "uname -a")
 
             assertNotNull(result)
-
             println "output: " + result
 
             //validate output
@@ -77,60 +80,15 @@ class SSHConnectionTestCase {
     }
 
     def executeRemote(String ipv4, String command) {
-        JSch jsch = new JSch();
+        String privKey = new File(PRIV_KEY_PATH).getText()
 
-        String user = "root";
-        String host = ipv4;
-
-        jsch.addIdentity(PRIV_KEY_PATH)
-        Session session = jsch.getSession(user, host)
-
-        java.util.Properties config = new java.util.Properties();
-        config.put("StrictHostKeyChecking", "no");
-        session.setConfig(config);
-
-        session.connect()
-        def result = runSshCommand(command, session)
-        session.disconnect()
-
-        return result
+        SSHClientFactory sshClientFactory = new SSHClientFactoryImpl()
+        SSHClientServiceFactory clientServiceFactory = new SSHClientServiceFactoryImpl(sshClientFactory)
+        SSHClientService clientService = clientServiceFactory.createSSHClientService("test", privKey, ipv4, "root")
+        return clientService.executeRemote(command)
     }
 
-    def runSshCommand(String command, Session session) {
-        try {
-            Channel channel = session.openChannel("exec");
-            ((ChannelExec) channel).setCommand(command);
 
-            channel.connect();
-
-            InputStream inc = channel.getInputStream();
-
-            byte[] tmp = new byte[1024];
-            StringBuilder resultBuilder = new StringBuilder()
-            while (true) {
-                while (inc.available() > 0) {
-                    int i = inc.read(tmp, 0, 1024);
-                    if (i < 0) {
-                        break;
-                    }
-                    resultBuilder.append(new String(tmp, 0, i))
-                }
-                if (channel.isClosed()) {
-                    break;
-                }
-                try {
-                    Thread.sleep(100);
-                } catch (Exception ee) {
-
-                }
-            }
-            channel.disconnect();
-            return resultBuilder.toString()
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     def getSettings() {
         def params = [:]

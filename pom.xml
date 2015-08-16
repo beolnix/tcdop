@@ -13,6 +13,8 @@
         <module>tc-digitalocean-plugin</module>
         <module>tcdop-agent</module>
         <module>int-tests</module>
+        <module>tcdop-docker-driver</module>
+        <module>tcdop-ssh-client</module>
     </modules>
 
     <name>tc-digitalocean-plugin</name>
@@ -37,6 +39,11 @@
         <spring-test.version>4.0.5.RELEASE</spring-test.version>
         <do.restclient.version>2.2-SNAPSHOT</do.restclient.version>
         <guava.version>18.0</guava.version>
+        <jsch.version>0.1.53</jsch.version>
+        <testng.version>6.8</testng.version>
+        <sl4j.version>1.7.12</sl4j.version>
+        <log4j.version>2.3</log4j.version>
+        <groovy.version>2.4.4</groovy.version>
 
         <!-- build settings -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -107,6 +114,12 @@
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.jcraft</groupId>
+                <artifactId>jsch</artifactId>
+                <version>${jsch.version}</version>
             </dependency>
 
             <dependency>
@@ -198,12 +211,42 @@
                 <scope>provided</scope>
             </dependency>
 
+            <!-- logging -->
+
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${sl4j.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>log4j-over-slf4j</artifactId>
+                <version>${sl4j.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-core</artifactId>
+                <version>${log4j.version}</version>
+            </dependency>
+
+            <!-- tests -->
+
+            <dependency>
+                <groupId>org.testng</groupId>
+                <artifactId>testng</artifactId>
+                <version>${testng.version}</version>
+                <scope>test</scope>
+            </dependency>
+
             <dependency>
                 <groupId>org.codehaus.groovy</groupId>
                 <artifactId>groovy-all</artifactId>
-                <version>2.4.4</version>
+                <version>${groovy.version}</version>
                 <scope>test</scope>
             </dependency>
+
         </dependencies>
     </dependencyManagement>
 
