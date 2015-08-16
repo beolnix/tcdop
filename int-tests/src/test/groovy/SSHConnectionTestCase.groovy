@@ -32,9 +32,9 @@ class SSHConnectionTestCase {
 
     @BeforeSuite
     public void before() {
-        assertNotNull(System.getProperty(RSA_PRIV_KEY_PATH_PROP))
-        assertNotNull(System.getProperty(RSA_PUB_KEY_PROP))
-        assertNotNull(System.getProperty(TOKEN_PROP))
+        assertNotNull(System.getenv(RSA_PRIV_KEY_PATH_PROP))
+        assertNotNull(System.getenv(RSA_PUB_KEY_PROP))
+        assertNotNull(System.getenv(TOKEN_PROP))
 
         TOKEN = System.getProperty(TOKEN_PROP)
         PUB_KEY = System.getProperty(RSA_PUB_KEY_PROP)
