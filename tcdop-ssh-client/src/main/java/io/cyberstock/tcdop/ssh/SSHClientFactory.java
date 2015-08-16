@@ -8,5 +8,5 @@ import io.cyberstock.tcdop.ssh.error.FatalSshError;
  */
 public interface SSHClientFactory {
 
-    JSch chreateSSHClient(String keyName, String privateKey) throws FatalSshError;
+    SSHClientWrapper chreateSSHClient(String keyName, String privateKey) throws FatalSshError;
 }

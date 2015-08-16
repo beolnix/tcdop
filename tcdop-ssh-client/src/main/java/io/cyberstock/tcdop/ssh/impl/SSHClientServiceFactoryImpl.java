@@ -4,6 +4,7 @@ import com.jcraft.jsch.JSch;
 import io.cyberstock.tcdop.ssh.SSHClientFactory;
 import io.cyberstock.tcdop.ssh.SSHClientService;
 import io.cyberstock.tcdop.ssh.SSHClientServiceFactory;
+import io.cyberstock.tcdop.ssh.SSHClientWrapper;
 import io.cyberstock.tcdop.ssh.error.FatalSshError;
 
 /**
@@ -23,8 +24,8 @@ public class SSHClientServiceFactoryImpl implements SSHClientServiceFactory {
     }
 
     public SSHClientService createSSHClientService(String keyName, String privateKey, String ipv4, String user) throws FatalSshError {
-        JSch jSch = sshClientFactory.chreateSSHClient(keyName, privateKey);
-        SSHClientService service = new SSHClientServiceImpl(jSch, connectionThreshold, attemptDelay, ipv4, user);
+        SSHClientWrapper client = sshClientFactory.chreateSSHClient(keyName, privateKey);
+        SSHClientService service = new SSHClientServiceImpl(client, connectionThreshold, attemptDelay, ipv4, user);
         return service;
     }
 

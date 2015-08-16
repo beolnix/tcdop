@@ -1,7 +1,10 @@
 package io.cyberstock.tcdop.ssh.impl;
 
 import com.jcraft.jsch.*;
+import io.cyberstock.tcdop.ssh.SSHChannelWrapper;
 import io.cyberstock.tcdop.ssh.SSHClientService;
+import io.cyberstock.tcdop.ssh.SSHClientWrapper;
+import io.cyberstock.tcdop.ssh.SSHSessionWrapper;
 import io.cyberstock.tcdop.ssh.error.FatalSshError;
 
 import java.io.InputStream;
@@ -12,16 +15,16 @@ import java.io.InputStream;
 public class SSHClientServiceImpl implements SSHClientService {
 
     // dependencies
-    private final JSch jsch;
+    private final SSHClientWrapper jsch;
     private final Long connectionThreshold;
     private final Long attemptDelay;
     private final String ipv4;
     private final String user;
 
     // state
-    private Session session;
+    private SSHSessionWrapper session;
 
-    SSHClientServiceImpl(JSch jsch, Long connectionThreshold, Long attemptDelay, String ipv4, String user) {
+    SSHClientServiceImpl(SSHClientWrapper jsch, Long connectionThreshold, Long attemptDelay, String ipv4, String user) {
         this.jsch = jsch;
         this.connectionThreshold = connectionThreshold;
         this.attemptDelay = attemptDelay;
@@ -85,10 +88,10 @@ public class SSHClientServiceImpl implements SSHClientService {
         return result;
     }
 
-    private String runCommand(String command, Session session) {
+    private String runCommand(String command, SSHSessionWrapper session) {
         try {
-            Channel channel = session.openChannel("exec");
-            ((ChannelExec) channel).setCommand(command);
+            SSHChannelWrapper channel = session.openChannel("exec");
+            channel.setCommand(command);
 
             channel.connect();
 
