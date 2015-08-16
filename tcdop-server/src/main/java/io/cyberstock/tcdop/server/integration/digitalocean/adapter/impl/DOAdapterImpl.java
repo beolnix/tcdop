@@ -61,8 +61,11 @@ public class DOAdapterImpl implements DOAdapter {
     }
 
     private void configureRsaKey(Droplet droplet, DOSettings doSettings) throws DOError {
-        Key key = createSSHKeyOrGet(doSettings.getRsaKeyName(), doSettings.getPublicRsaKey());
-        droplet.setKeys(Collections.singletonList(key));
+        if (StringUtils.isNotBlank(doSettings.getRsaKeyName()) &&
+                StringUtils.isNotBlank(doSettings.getPublicRsaKey())) {
+            Key key = createSSHKeyOrGet(doSettings.getRsaKeyName(), doSettings.getPublicRsaKey());
+            droplet.setKeys(Collections.singletonList(key));
+        }
     }
 
     private void configureDropletImage(Droplet droplet, DOCloudImage cloudImage) {

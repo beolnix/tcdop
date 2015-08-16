@@ -18,6 +18,7 @@ import io.cyberstock.tcdop.model.WebConstants
 import io.cyberstock.tcdop.model.error.DOError
 import io.cyberstock.tcdop.server.integration.digitalocean.adapter.DOAdapter
 import io.cyberstock.tcdop.server.integration.digitalocean.adapter.impl.DOAdapterImpl
+import io.cyberstock.tcdop.server.integration.digitalocean.adapter.impl.DOAdapterUtils
 import io.cyberstock.tcdop.server.integration.teamcity.DOCloudImage
 import io.cyberstock.tcdop.server.integration.teamcity.web.DOSettingsUtils
 import org.testng.annotations.Test
@@ -32,9 +33,7 @@ import static org.testng.Assert.assertTrue;
  */
 class DOAdapterImplTestCase {
 
-    def client = [createDroplet: { droplet ->
-        return droplet
-    }] as DigitalOcean
+
 
     def PREFIX = "prefix"
 
@@ -44,6 +43,10 @@ class DOAdapterImplTestCase {
         DOSettings settings = DOSettingsUtils.convertToDOSettings(getParametersMap())
         def IMAGE_ID = 123
         def REGION_SLUG = "test"
+
+        def client = [createDroplet: { droplet ->
+            return droplet
+        }] as DigitalOcean
 
         DOCloudImage cloudImage = new DOCloudImage(
                 new Image(id: IMAGE_ID,
@@ -139,13 +142,13 @@ class DOAdapterImplTestCase {
     @Test
     public void isDropletActiveTest() {
 
-        assertFalse(DOAdapterImpl.isDropletActive(null))
+        assertFalse(DOAdapterUtils.isDropletActive(null))
 
         Droplet droplet = new Droplet(status: DropletStatus.ACTIVE)
-        assertTrue(DOAdapterImpl.isDropletActive(droplet))
+        assertTrue(DOAdapterUtils.isDropletActive(droplet))
 
         Droplet droplet2 = new Droplet(status: DropletStatus.ARCHIVE)
-        assertFalse(DOAdapterImpl.isDropletActive(droplet2))
+        assertFalse(DOAdapterUtils.isDropletActive(droplet2))
 
     }
 
