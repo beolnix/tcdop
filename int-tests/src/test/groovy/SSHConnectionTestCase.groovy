@@ -36,9 +36,9 @@ class SSHConnectionTestCase {
         assertNotNull(System.getenv(RSA_PUB_KEY_PROP))
         assertNotNull(System.getenv(TOKEN_PROP))
 
-        TOKEN = System.getProperty(TOKEN_PROP)
-        PUB_KEY = System.getProperty(RSA_PUB_KEY_PROP)
-        PRIV_KEY_PATH = System.getProperty(RSA_PRIV_KEY_PATH_PROP)
+        TOKEN = System.getenv(TOKEN_PROP)
+        PUB_KEY = System.getenv(RSA_PUB_KEY_PROP)
+        PRIV_KEY_PATH = System.getenv(RSA_PRIV_KEY_PATH_PROP)
     }
 
     /**
