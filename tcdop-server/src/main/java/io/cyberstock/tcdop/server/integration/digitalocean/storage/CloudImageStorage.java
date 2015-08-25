@@ -29,21 +29,51 @@ import io.cyberstock.tcdop.server.integration.teamcity.DOCloudImage;
 import java.util.Collection;
 
 /**
+ * Storage is used to cache images available in Digital Ocean.
+ * Cache is automatically updated in a background.
+ *
  * Created by beolnix on 01/08/15.
  */
 public interface CloudImageStorage {
 
+    /**
+     * Returns is storage initialized yet or not.
+     * @return initialization flag
+     */
     boolean isInitialized();
 
+    /**
+     * Blocks the thread till the storage is initialized
+     * @throws DOError throws an error in case of any issue
+     */
     void waitInitialization() throws DOError;
 
+    /**
+     * Method returns cached images list
+     * @return cached images list
+     */
     Collection<DOCloudImage> getImagesList();
 
+    /**
+     * Method returns currently available droplets client on a Digital Ocean
+     * @return user droplets counter
+     */
     Integer getInstancesCount();
 
+    /**
+     * Method returns cached image details by imageId
+     * @param imageId image id to get the image
+     * @return image details in TeamCity format
+     */
     DOCloudImage getImageById(String imageId);
 
+    /**
+     * Shuts down the storage and all background cache refresh processes of it.
+     */
     void shutdownStorage();
 
+    /**
+     * Method forces recalculation of newly created instances.
+     */
     void countNewInstance();
 }

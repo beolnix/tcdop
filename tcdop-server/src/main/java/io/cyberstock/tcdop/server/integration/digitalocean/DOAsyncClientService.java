@@ -29,10 +29,30 @@ import io.cyberstock.tcdop.server.integration.teamcity.DOCloudImage;
 import io.cyberstock.tcdop.server.integration.teamcity.DOCloudInstance;
 
 /**
+ * Async Wrapper for DOClientService
+ *
  * Created by beolnix on 09/08/15.
  */
 public interface DOAsyncClientService {
+
+    /**
+     * Restarts Instance in Digital Ocean
+     * @param cloudInstance cloud instance to be restarted
+     */
     void restartInstance(final DOCloudInstance cloudInstance);
+
+    /**
+     * Creates new instance in Digital Ocean, doesn't wait for it's initialization
+     * @param cloudImage image used for the instance creatation
+     * @param doSettings integration parameters
+     * @return newly created instance
+     * @throws DOError throws an error in case of any issue
+     */
     DOCloudInstance initializeInstance(DOCloudImage cloudImage, DOSettings doSettings) throws DOError;
+
+    /**
+     * Terminates Instance in Digital Ocean
+     * @param cloudInstance cloud instance to be terminated
+     */
     void terminateInstance(final DOCloudInstance cloudInstance);
 }
