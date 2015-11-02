@@ -8,7 +8,7 @@ It is a plugin for TeamCity CI to provide Digital Ocean cloud integration suppor
 state  | version       | binaries link | sources link
 --- | --- | --- | ---
 `released`| 0.1           | [tc-digitalocean-plugin-0.1.zip](http://nexus.beolnix.com/content/repositories/releases/io/cyberstock/tc-digitalocean-plugin/0.1/tc-digitalocean-plugin-0.1.zip) | [0.1-release](https://github.com/beolnix/tcdop/releases/tag/0.1-release)
-`in dev`  | 0.2           |        | [master](https://github.com/beolnix/tcdop/master)
+`in dev`  | 0.2           |        | [master](https://github.com/beolnix/tcdop)
 
 
 
