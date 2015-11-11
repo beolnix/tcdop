@@ -13,7 +13,6 @@
         <module>tc-digitalocean-plugin</module>
         <module>tcdop-agent</module>
         <module>int-tests</module>
-        <module>tcdop-docker-driver</module>
         <module>tcdop-ssh-client</module>
     </modules>
 
