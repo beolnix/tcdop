@@ -57,6 +57,11 @@
 
         <!-- Jacoco -->
         <jacoco.reportPath>target/jacoco.exec</jacoco.reportPath>
+
+        <!-- Sonar -->
+        <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+        <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
+        <sonar.language>java</sonar.language>
     </properties>
 
     <repositories>
@@ -100,12 +105,13 @@
             <dependency>
                 <groupId>com.myjeeva.digitalocean</groupId>
                 <artifactId>digitalocean-api-client</artifactId>
-                <version>${do.restclient.version}</version><exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-api</artifactId>
-                </exclusion>
-            </exclusions>
+                <version>${do.restclient.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                </exclusions>
 
             </dependency>
 
@@ -252,6 +258,13 @@
     <build>
         <pluginManagement>
             <plugins>
+
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>sonar-maven-plugin</artifactId>
+                    <version>5.1</version>
+                </plugin>
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
