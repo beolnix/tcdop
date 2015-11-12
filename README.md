@@ -5,10 +5,10 @@
 It is a plugin for TeamCity CI to provide Digital Ocean cloud integration support. 
 
 ## Build details
-state  | version       | binaries link | sources link
---- | --- | --- | ---
-`released`| 0.2           | [tc-digitalocean-plugin-0.2.zip](http://nexus.beolnix.com/content/repositories/releases/io/cyberstock/tc-digitalocean-plugin/0.2/tc-digitalocean-plugin-0.2.zip) | [0.2-release](https://github.com/beolnix/tcdop/releases/tag/0.2-release)
-`in dev`  | 0.3-SNAPSHOT  |        | [master](https://github.com/beolnix/tcdop)
+State  | Version       | Sources | Binary distr |
+--- | --- | --- | --- |
+`released`| 0.2           | [0.2-release](https://github.com/beolnix/tcdop/releases/tag/0.2-release) | [tc-digitalocean-plugin-0.2.zip](http://nexus.beolnix.com/content/repositories/releases/io/cyberstock/tc-digitalocean-plugin/0.2/tc-digitalocean-plugin-0.2.zip) |
+`in dev`  | 0.3-SNAPSHOT  | [master](https://github.com/beolnix/tcdop) | | 
 
 ## Usage
 ### Plugin installation
