@@ -12,7 +12,7 @@ state  | version       | binaries link | sources link
 
 ## Usage
 ### Plugin installation
-Copy [tc-digitalocean-plugin-0.2.zip](http://nexus.beolnix.com/content/repositories/releases/io/cyberstock/tc-digitalocean-plugin/0.2/tc-digitalocean-plugin-0.1.zip) to the ~/.BuildServer/plugins and restart the teamcity.
+Copy [tc-digitalocean-plugin-0.2.zip](http://nexus.beolnix.com/content/repositories/releases/io/cyberstock/tc-digitalocean-plugin/0.2/tc-digitalocean-plugin-0.1.zip) into the **~/.BuildServer/plugins** directory and restart teamcity.
 
 ### Integration configuration
 You need to prepare droplet image to be used by the plugin for on demand droplets creation.
