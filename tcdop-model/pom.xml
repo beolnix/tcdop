@@ -11,6 +11,9 @@
     <artifactId>tcdop-model</artifactId>
     <packaging>jar</packaging>
 
+    <name>TCDOP Model</name>
+    <description>Plugin's domain model. It is used on both server's and build agent's side</description>
+
     <dependencies>
         <!-- Digital Ocean rest client -->
         <dependency>

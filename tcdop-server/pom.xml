@@ -11,6 +11,9 @@
     <artifactId>tcdop-server</artifactId>
     <packaging>jar</packaging>
 
+    <name>TCDOP Server</name>
+    <description>Main part of the plugin, used on the Teamcity server's side</description>
+
     <dependencies>
         <!-- tcdop modules dependencies -->
         <dependency>

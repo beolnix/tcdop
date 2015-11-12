@@ -18,14 +18,12 @@
 
     <name>tc-digitalocean-plugin</name>
     <description>TeamCity Digital Ocean cloud integration plugin.</description>
-    <url>http://cyberstock.io/projects/tc-digitalocean-plugin</url>
+    <url>https://github.com/beolnix/tcdop</url>
 
     <developers>
         <developer>
             <email>atmakin.dv@gmail.com</email>
             <name>Danila Atmakin</name>
-            <organization>cyberstock.io</organization>
-            <organizationUrl>http://cyberstock.io</organizationUrl>
         </developer>
     </developers>
 

@@ -11,6 +11,9 @@
     <artifactId>tcdop-agent</artifactId>
     <packaging>jar</packaging>
 
+    <name>TCDOP Agent</name>
+    <description>Agent's part of the plugin, used on the Teamcity build agent's side</description>
+
     <dependencies>
         <!-- tcdop modules dependencies -->
         <dependency>

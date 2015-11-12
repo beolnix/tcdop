@@ -11,8 +11,8 @@
     <artifactId>tc-digitalocean-plugin</artifactId>
     <packaging>pom</packaging>
 
-    <name>tcdop</name>
-    <description>TeamCity Digital Ocean integration plugin.</description>
+    <name>TCDOP plugin assembly</name>
+    <description>TeamCity Digital Ocean integration plugin assembly.</description>
 
 
     <dependencies>
