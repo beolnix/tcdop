@@ -17,6 +17,7 @@ Copy [tc-digitalocean-plugin-0.2.zip](http://nexus.beolnix.com/content/repositor
 ### Integration configuration
 You need to prepare droplet image to be used by the plugin for on demand droplets creation.
 There are three requirements for the image:
+
 1. Teamcity agent must be installed and configured to be autostarted once operation system is loaded.
 2. Teamcity server must be specified in the agent configuration - **serverUrl** in **buildAgent/conf/buildAgent.properties**
 3. Authorization token of the agent must be empty - **authorizationToken** in **buildAgent/conf/buildAgent.properties**
