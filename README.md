@@ -46,6 +46,7 @@ If everything is fine, the plugin will be packed to **tcdop/tc-digitalocean-plug
 * **tcdop-server** - main project module. Server's part of the module
 * **tcdop-model**  - project's domain model. Used by server's and agent's parts of the plugin
 * **tcdop-agent**  - agent's part of the plugin. It isn't used currently
+* **tc-digitalocean-plugin**  - assembly module. Produces .zip file according to the Teamcity plugin spec.
 
 #### Other modules
 * **int-tests**    - integration test for digital ocean client
