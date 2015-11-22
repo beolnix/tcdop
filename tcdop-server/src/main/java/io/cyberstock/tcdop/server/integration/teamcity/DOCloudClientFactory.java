@@ -65,7 +65,7 @@ public class DOCloudClientFactory implements CloudClientFactory {
     // constants
     private static final Logger LOG = Logger.getInstance(DOCloudClientFactory.class.getName());
 
-    private final static String DISPLAY_NAME = "Digital ocean type";
+    private final static String DISPLAY_NAME = "Digital Ocean";
 
     public DOCloudClientFactory(@NotNull final CloudRegistrar cloudRegistrar,
                                 @NotNull final PluginDescriptor pluginDescriptor,

@@ -28,10 +28,6 @@
 <br/>
 <hr/>
 <br/>
-<br/>
-
-<h2 class="noBorder section-header">Digital Ocean integration settings</h2>
-<br/>
 <table class="runnerFormTable">
     <tr>
         <th class="tcdop-property-label-container">Token</th>
