@@ -13,10 +13,10 @@
             <source>${basedir}/target/server-config/teamcity-plugin.xml</source>
             <outputDirectory>/</outputDirectory>
         </file>
-        <!--<file>-->
-            <!--<source>target/tcdop-agent.zip</source>-->
-            <!--<outputDirectory>agent</outputDirectory>-->
-        <!--</file>-->
+        <file>
+            <source>${basedir}/../tcdop-agent/target/tcdop-agent.zip</source>
+            <outputDirectory>agent</outputDirectory>
+        </file>
     </files>
 
     <moduleSets>

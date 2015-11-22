@@ -10,8 +10,8 @@
     <modules>
         <module>tcdop-model</module>
         <module>tcdop-server</module>
-        <module>tc-digitalocean-plugin</module>
         <module>tcdop-agent</module>
+        <module>tc-digitalocean-plugin</module>
         <module>int-tests</module>
         <module>tcdop-ssh-client</module>
     </modules>

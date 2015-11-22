@@ -11,14 +11,19 @@
     <artifactId>tc-digitalocean-plugin</artifactId>
     <packaging>pom</packaging>
 
-    <name>TCDOP plugin assembly</name>
-    <description>TeamCity Digital Ocean integration plugin assembly.</description>
+    <name>TCDOP plugin packaging</name>
+    <description>TeamCity Digital Ocean integration plugin packaging into .zip according to the https://confluence.jetbrains.com/display/TCD9/Plugins+Packaging.</description>
 
 
     <dependencies>
         <dependency>
             <groupId>io.cyberstock</groupId>
             <artifactId>tcdop-server</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.cyberstock</groupId>
+            <artifactId>tcdop-agent</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -107,20 +112,6 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>2.4</version>
                 <executions>
-                    <!--<execution>-->
-                        <!--<id>make-agent-assembly</id>-->
-                        <!--<phase>package</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>single</goal>-->
-                        <!--</goals>-->
-                        <!--<configuration>-->
-                            <!--<finalName>tcdop-agent</finalName>-->
-                            <!--<appendAssemblyId>false</appendAssemblyId>-->
-                            <!--<descriptors>-->
-                                <!--<descriptor>src/main/assembly/plugin-agent-assembly.xml</descriptor>-->
-                            <!--</descriptors>-->
-                        <!--</configuration>-->
-                    <!--</execution>-->
                     <execution>
                         <id>dist-assembly</id>
                         <phase>package</phase>
