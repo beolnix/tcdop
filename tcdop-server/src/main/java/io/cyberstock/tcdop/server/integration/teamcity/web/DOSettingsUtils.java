@@ -38,8 +38,8 @@ public class DOSettingsUtils {
     public static DOSettings convertToDOSettings(CloudClientParameters cloudClientParameters) {
         DOSettingsBuilder builder = new DOSettingsBuilder();
 
-        String strMode = cloudClientParameters.getParameter(WebConstants.DO_INTEGRATION_MODE);
-        builder.withMode(DOIntegrationMode.getByCode(strMode));
+//        String strMode = cloudClientParameters.getParameter(WebConstants.DO_INTEGRATION_MODE);
+        builder.withMode(DOIntegrationMode.PREPARED_IMAGE);
 
         String token = cloudClientParameters.getParameter(WebConstants.TOKEN);
         builder.withToken(token);
@@ -83,8 +83,8 @@ public class DOSettingsUtils {
     public static DOSettings convertToDOSettings(Map<String, String> stringStringMap) {
         DOSettingsBuilder builder = new DOSettingsBuilder();
 
-        String strMode = stringStringMap.get(WebConstants.DO_INTEGRATION_MODE);
-        builder.withMode(DOIntegrationMode.getByCode(strMode));
+//        String strMode = stringStringMap.get(WebConstants.DO_INTEGRATION_MODE);
+        builder.withMode(DOIntegrationMode.PREPARED_IMAGE);
 
         builder.withToken(stringStringMap.get(WebConstants.TOKEN));
         builder.withImageName(stringStringMap.get(WebConstants.IMAGE_NAME));

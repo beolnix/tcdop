@@ -111,26 +111,26 @@ public class DOCloudClient implements CloudClientEx {
 
     @Nullable
     public CloudImage findImageById(@NotNull String s) throws CloudException {
-        LOG.debug("DO find image by id is triggered: " + s);
+//        LOG.debug("DO find image by id is triggered: " + s);
         if (DOIntegrationMode.PREPARED_IMAGE.equals(settings.getMode())) {
             DOCloudImage cloudImage = imageStorage.getImageById(s);
 
             if (cloudImage == null) {
-                LOG.debug("DO cloud image not found for id: " + s);
+//                LOG.debug("DO cloud image not found for id: " + s);
                 return null;
             } else {
-                LOG.debug("DO cloud image found: " + cloudImage.toString());
+//                LOG.debug("DO cloud image found: " + cloudImage.toString());
             }
 
             if (settings.getImageName().equals(cloudImage.getName())) {
-                LOG.debug("DO cloud image is correct. Find Image by id returns successful result: " + cloudImage.toString());
+//                LOG.debug("DO cloud image is correct. Find Image by id returns successful result: " + cloudImage.toString());
                 return cloudImage;
             } else {
                 LOG.error("DO cloud image name isn't equal to pre-configured: " + cloudImage.getName());
                 return null;
             }
         } else {
-            LOG.error("DO Mode: " + settings.getMode() + " isn't supported yet.");
+//            LOG.error("DO Mode: " + settings.getMode() + " isn't supported yet.");
             throw new NotImplementedException();
         }
     }
@@ -164,16 +164,16 @@ public class DOCloudClient implements CloudClientEx {
 
     @NotNull
     public Collection<? extends CloudImage> getImages() throws CloudException {
-        LOG.debug("DO get images triggered");
+//        LOG.debug("DO get images triggered");
         if (DOIntegrationMode.PREPARED_IMAGE.equals(settings.getMode())) {
             Collection<DOCloudImage> images = imageStorage.getImagesList();
-            LOG.debug(images.size() + " images found, trying to identify image with name: " + settings.getImageName());
+//            LOG.debug(images.size() + " images found, trying to identify image with name: " + settings.getImageName());
             for (DOCloudImage cloudImage : images) {
                 if (cloudImage != null && settings.getImageName().equals(cloudImage.getName())) {
-                    LOG.debug("Image found: " + cloudImage.toString());
+//                    LOG.debug("Image found: " + cloudImage.toString());
                     return Collections.singleton(cloudImage);
                 } else {
-                    LOG.debug("Image " + cloudImage.getName() + " skipped.");
+//                    LOG.debug("Image " + cloudImage.getName() + " skipped.");
                 }
 
             }
@@ -182,7 +182,7 @@ public class DOCloudClient implements CloudClientEx {
             throw new NotImplementedException();
         }
 
-        LOG.debug("Image with name " + settings.getImageName() + " hasn't been found.");
+//        LOG.debug("Image with name " + settings.getImageName() + " hasn't been found.");
         return Collections.EMPTY_LIST;
     }
 

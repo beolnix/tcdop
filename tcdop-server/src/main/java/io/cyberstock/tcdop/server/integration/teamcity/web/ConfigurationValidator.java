@@ -123,12 +123,14 @@ public class ConfigurationValidator {
             return validationErrors;
         }
 
-        if (DOIntegrationMode.PREPARED_IMAGE.equals(settings.getMode())) {
-            return validateImage(settings.getImageName(), settings.getSize(), settings.getToken());
-        } else {
-            return singleErrorList(WebConstants.DO_INTEGRATION_MODE,
-                    "Selected mode isn't supported yet");
-        }
+        return validateImage(settings.getImageName(), settings.getSize(), settings.getToken());
+
+//        if (DOIntegrationMode.PREPARED_IMAGE.equals(settings.getMode())) {
+//            return validateImage(settings.getImageName(), settings.getSize(), settings.getToken());
+//        } else {
+//            return singleErrorList(WebConstants.DO_INTEGRATION_MODE,
+//                    "Selected mode isn't supported yet");
+//        }
     }
 
 
